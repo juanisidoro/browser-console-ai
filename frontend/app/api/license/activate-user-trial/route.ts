@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminDb, getAdminAuth } from '@/infra/firebase/admin';
-import { generateToken } from '@/infra/licensing/jwt-service';
+import { signTrialToken } from '@/infra/licensing/jwt-service';
 import { FieldValue } from 'firebase-admin/firestore';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -112,14 +112,12 @@ export async function POST(request: NextRequest) {
     const expiresAt = Date.now() + (WEB_TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000);
 
     // Generate license token
-    const token = await generateToken({
-      sub: userId,
-      plan: 'trial',
-      email: email,
-      exp: Math.floor(expiresAt / 1000),
-      iat: Math.floor(Date.now() / 1000),
+    const token = await signTrialToken(
+      userId,  // installationId (userId for web users)
       tokenId,
-    });
+      expiresAt,  // in milliseconds
+      { email, userId }
+    );
 
     // Store trial record
     await db.collection('user_trials').add({

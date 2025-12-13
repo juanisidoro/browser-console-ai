@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth';
 import { isAdminEmail } from '@/lib/admin';
 import { Header } from '@/components/header';
+import { I18nProvider } from '@/lib/i18n-context';
 import { Loader2, ShieldAlert, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -91,6 +92,7 @@ export default function AdminLayout({
 
   // Admin authenticated
   return (
+    <I18nProvider locale="en" country="US">
     <div className="min-h-screen bg-background">
       {/* Site Header */}
       <Header locale="en" />
@@ -123,5 +125,6 @@ export default function AdminLayout({
       {/* Content */}
       <main className="pt-6">{children}</main>
     </div>
+    </I18nProvider>
   );
 }
