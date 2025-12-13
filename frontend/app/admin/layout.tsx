@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth';
-import { isAdminEmail } from '../../../../shared/core';
+import { isAdminEmail } from '../../../shared/core';
 import { Loader2, ShieldAlert } from 'lucide-react';
 
 export default function AdminLayout({

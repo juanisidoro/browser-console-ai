@@ -125,7 +125,7 @@ export interface AdminUser {
 
 // Default admin emails (can be extended via Firestore)
 export const DEFAULT_ADMIN_EMAILS = [
-  'juanisidoro.ai@gmail.com'  // Add your email
+  'juan.isidoro.gc@gmail.com'  // Add your email
 ];
 
 // Check if email is admin

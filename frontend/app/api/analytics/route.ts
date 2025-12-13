@@ -16,8 +16,8 @@ import {
   createEmptyDailyMetrics,
   createEmptyTotalMetrics,
   isAdminEmail,
-} from '../../../../../shared/core';
-import type { DailyMetrics, TotalMetrics } from '../../../../../shared/core';
+} from '../../../../shared/core';
+import type { DailyMetrics, TotalMetrics } from '../../../../shared/core';
 
 // Rate limiting: max events per IP per minute
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();

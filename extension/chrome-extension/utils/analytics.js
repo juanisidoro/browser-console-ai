@@ -1,18 +1,21 @@
 // Analytics Module
 // Tracks events for Browser Console AI metrics
+// Note: Uses LicenseManager.getInstallationId() from license.js (loaded first)
 
 const ANALYTICS_ENDPOINT = 'https://browserconsole.ai/api/analytics';
-const INSTALLATION_ID_KEY = 'bcai_installation_id';
 
-// Generate or retrieve installation ID
-async function getInstallationId() {
+// Get installation ID from LicenseManager (avoids duplicate declarations)
+async function getAnalyticsInstallationId() {
+  // LicenseManager is loaded before analytics.js in service worker
+  if (typeof LicenseManager !== 'undefined' && LicenseManager.getInstallationId) {
+    return LicenseManager.getInstallationId();
+  }
+  // Fallback for contexts where LicenseManager isn't available
+  const INSTALLATION_ID_KEY = 'bcai_installation_id';
   const result = await chrome.storage.local.get(INSTALLATION_ID_KEY);
-
   if (result[INSTALLATION_ID_KEY]) {
     return result[INSTALLATION_ID_KEY];
   }
-
-  // Generate new UUID v4
   const id = crypto.randomUUID();
   await chrome.storage.local.set({ [INSTALLATION_ID_KEY]: id });
   return id;
@@ -84,7 +87,7 @@ function getMetadata() {
 // Track an event (fire and forget)
 async function trackEvent(event, data = {}) {
   try {
-    const installationId = await getInstallationId();
+    const installationId = await getAnalyticsInstallationId();
     const metadata = getMetadata();
 
     // Get userId if logged in
@@ -152,7 +155,7 @@ if (typeof window !== 'undefined') {
     trackEvent,
     trackInstall,
     trackUpdate,
-    getInstallationId,
+    getInstallationId: getAnalyticsInstallationId,
   };
 }
 
@@ -162,6 +165,6 @@ if (typeof self !== 'undefined' && typeof window === 'undefined') {
     trackEvent,
     trackInstall,
     trackUpdate,
-    getInstallationId,
+    getInstallationId: getAnalyticsInstallationId,
   };
 }

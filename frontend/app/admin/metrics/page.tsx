@@ -19,9 +19,10 @@ import {
   Zap,
   BarChart3,
   RefreshCw,
+  Info,
 } from 'lucide-react';
-import type { DailyMetrics, TotalMetrics } from '../../../../../shared/core';
-import { createEmptyTotalMetrics } from '../../../../../shared/core';
+import type { DailyMetrics, TotalMetrics } from '../../../../shared/core';
+import { createEmptyTotalMetrics } from '../../../../shared/core';
 
 type TimeRange = '1d' | '7d' | '30d';
 
@@ -30,6 +31,76 @@ interface MetricsData {
   daily: DailyMetrics[];
   range: string;
 }
+
+// Metric descriptions in Spanish
+const METRIC_INFO = {
+  totalInstalls: {
+    title: 'Total Instalaciones',
+    description: 'Número total de veces que la extensión ha sido instalada.',
+    usage: 'Indica el alcance y adopción del producto.',
+    valuable: 'Crecimiento constante indica buena tracción. Comparar con trials para ver conversión.',
+  },
+  activeTrials: {
+    title: 'Trials Activos',
+    description: 'Usuarios actualmente en periodo de prueba de 3 días.',
+    usage: 'Mide el interés en features PRO sin compromiso de pago.',
+    valuable: 'Alto número = buen interés. Bajo = revisar propuesta de valor o visibilidad del trial.',
+  },
+  paidUsers: {
+    title: 'Usuarios de Pago',
+    description: 'Usuarios con suscripción PRO activa.',
+    usage: 'El indicador más importante de éxito del negocio.',
+    valuable: 'Crecimiento sostenido valida el modelo. Si baja, investigar churn.',
+  },
+  mrr: {
+    title: 'MRR (Monthly Recurring Revenue)',
+    description: 'Ingresos mensuales recurrentes de suscripciones activas.',
+    usage: 'Métrica financiera clave para SaaS.',
+    valuable: 'Base para proyecciones. MRR × 12 = ARR aproximado.',
+  },
+  conversionFunnel: {
+    title: 'Embudo de Conversión',
+    description: 'Visualiza el flujo de usuarios desde instalación hasta pago.',
+    usage: 'Identifica dónde se pierden usuarios en el proceso.',
+    valuable: 'Tasas bajas en un paso = oportunidad de optimización.',
+  },
+  periodActivity: {
+    title: 'Actividad del Periodo',
+    description: 'Métricas de uso activo en el rango de tiempo seleccionado.',
+    usage: 'Mide engagement y adopción de features.',
+    valuable: 'Alta actividad correlaciona con retención y conversión.',
+  },
+  recordings: {
+    title: 'Grabaciones',
+    description: 'Total de sesiones de grabación de logs completadas.',
+    usage: 'Indica uso activo de la funcionalidad principal.',
+    valuable: 'Más grabaciones = más valor percibido. Meta: varias por usuario.',
+  },
+  registrations: {
+    title: 'Registros',
+    description: 'Usuarios que crearon cuenta en el sitio web.',
+    usage: 'Paso previo a conversión, indica intención seria.',
+    valuable: 'Diferencia entre installs y registros muestra fricción.',
+  },
+  installToTrial: {
+    title: 'Instalación → Trial',
+    description: 'Porcentaje de instalaciones que activan trial.',
+    usage: 'Mide efectividad del onboarding y propuesta de valor.',
+    valuable: 'Meta: >20%. Bajo = mejorar descubrimiento de trial o valor percibido.',
+  },
+  trialToPaid: {
+    title: 'Trial → Pago',
+    description: 'Porcentaje de trials que convierten a pago.',
+    usage: 'La métrica más crítica del modelo freemium.',
+    valuable: 'Meta: >5-10%. Bajo = revisar precio, features o experiencia trial.',
+  },
+  dailyBreakdown: {
+    title: 'Desglose Diario',
+    description: 'Métricas día a día para el periodo seleccionado.',
+    usage: 'Detecta tendencias, picos y anomalías.',
+    valuable: 'Útil para correlacionar con lanzamientos o campañas.',
+  },
+};
 
 export default function MetricsPage() {
   const { firebaseUser } = useAuth();
@@ -156,6 +227,7 @@ export default function MetricsPage() {
           icon={Download}
           trend={periodTotals.installs}
           trendLabel={`+${periodTotals.installs} this period`}
+          info={METRIC_INFO.totalInstalls}
         />
         <StatCard
           title="Active Trials"
@@ -163,6 +235,7 @@ export default function MetricsPage() {
           icon={Zap}
           trend={periodTotals.trials}
           trendLabel={`+${periodTotals.trials} started`}
+          info={METRIC_INFO.activeTrials}
         />
         <StatCard
           title="Paid Users"
@@ -171,6 +244,7 @@ export default function MetricsPage() {
           trend={periodTotals.conversions}
           trendLabel={`+${periodTotals.conversions} converted`}
           highlight
+          info={METRIC_INFO.paidUsers}
         />
         <StatCard
           title="MRR"
@@ -179,6 +253,7 @@ export default function MetricsPage() {
           trend={periodTotals.revenue}
           trendLabel={`+$${periodTotals.revenue.toFixed(2)} this period`}
           highlight
+          info={METRIC_INFO.mrr}
         />
       </div>
 
@@ -188,23 +263,27 @@ export default function MetricsPage() {
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <BarChart3 className="h-5 w-5 mr-2 text-primary" />
             Conversion Funnel
+            <InfoTooltip info={METRIC_INFO.conversionFunnel} />
           </h2>
           <div className="space-y-4">
             <FunnelStep
               label="Installs"
               value={totals.totalInstalls}
               percentage={100}
+              info={METRIC_INFO.totalInstalls}
             />
             <FunnelStep
               label="Trials Started"
               value={totals.totalTrials}
               percentage={totals.installToTrialRate * 100}
+              info={METRIC_INFO.activeTrials}
             />
             <FunnelStep
               label="Converted to Paid"
               value={totals.totalPaidUsers}
               percentage={totals.trialToConversionRate * 100}
               highlight
+              info={METRIC_INFO.paidUsers}
             />
           </div>
         </div>
@@ -213,17 +292,28 @@ export default function MetricsPage() {
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <Activity className="h-5 w-5 mr-2 text-primary" />
             Period Activity
+            <InfoTooltip info={METRIC_INFO.periodActivity} />
           </h2>
           <div className="grid grid-cols-2 gap-4">
-            <MiniStat label="Recordings" value={periodTotals.recordings} />
-            <MiniStat label="Registrations" value={periodTotals.registrations} />
+            <MiniStat
+              label="Recordings"
+              value={periodTotals.recordings}
+              info={METRIC_INFO.recordings}
+            />
+            <MiniStat
+              label="Registrations"
+              value={periodTotals.registrations}
+              info={METRIC_INFO.registrations}
+            />
             <MiniStat
               label="Install→Trial"
               value={`${(totals.installToTrialRate * 100).toFixed(1)}%`}
+              info={METRIC_INFO.installToTrial}
             />
             <MiniStat
               label="Trial→Paid"
               value={`${(totals.trialToConversionRate * 100).toFixed(1)}%`}
+              info={METRIC_INFO.trialToPaid}
             />
           </div>
         </div>
@@ -234,6 +324,7 @@ export default function MetricsPage() {
         <h2 className="text-lg font-semibold mb-4 flex items-center">
           <Users className="h-5 w-5 mr-2 text-primary" />
           Daily Breakdown
+          <InfoTooltip info={METRIC_INFO.dailyBreakdown} />
         </h2>
         {daily.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">
@@ -279,8 +370,38 @@ export default function MetricsPage() {
   );
 }
 
-// Components
+// Types
+interface MetricInfoType {
+  title: string;
+  description: string;
+  usage: string;
+  valuable: string;
+}
 
+// Info Tooltip Component
+function InfoTooltip({ info }: { info: MetricInfoType }) {
+  return (
+    <div className="relative group ml-2">
+      <Info className="h-4 w-4 text-muted-foreground cursor-help hover:text-primary transition-colors" />
+      <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block z-50 w-72">
+        <div className="bg-popover border border-border rounded-lg shadow-lg p-4 text-sm">
+          <h4 className="font-semibold text-foreground mb-2">{info.title}</h4>
+          <div className="space-y-2 text-muted-foreground">
+            <p><span className="font-medium text-foreground">Descripcion:</span> {info.description}</p>
+            <p><span className="font-medium text-foreground">Uso:</span> {info.usage}</p>
+            <p><span className="font-medium text-foreground">Valioso cuando:</span> {info.valuable}</p>
+          </div>
+          <div className="absolute left-4 bottom-0 translate-y-full">
+            <div className="border-8 border-transparent border-t-border" />
+            <div className="absolute top-0 left-0 border-8 border-transparent border-t-popover -translate-y-px" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Components
 function StatCard({
   title,
   value,
@@ -288,6 +409,7 @@ function StatCard({
   trend,
   trendLabel,
   highlight,
+  info,
 }: {
   title: string;
   value: string | number;
@@ -295,6 +417,7 @@ function StatCard({
   trend?: number;
   trendLabel?: string;
   highlight?: boolean;
+  info?: MetricInfoType;
 }) {
   return (
     <div
@@ -305,7 +428,10 @@ function StatCard({
       }`}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-muted-foreground">{title}</span>
+        <div className="flex items-center">
+          <span className="text-sm text-muted-foreground">{title}</span>
+          {info && <InfoTooltip info={info} />}
+        </div>
         <Icon className={`h-5 w-5 ${highlight ? 'text-primary' : 'text-muted-foreground'}`} />
       </div>
       <div className="text-3xl font-bold">{value}</div>
@@ -326,18 +452,23 @@ function FunnelStep({
   value,
   percentage,
   highlight,
+  info,
 }: {
   label: string;
   value: number;
   percentage: number;
   highlight?: boolean;
+  info?: MetricInfoType;
 }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <span className={`text-sm ${highlight ? 'text-primary font-medium' : ''}`}>
-          {label}
-        </span>
+        <div className="flex items-center">
+          <span className={`text-sm ${highlight ? 'text-primary font-medium' : ''}`}>
+            {label}
+          </span>
+          {info && <InfoTooltip info={info} />}
+        </div>
         <span className="text-sm font-medium">{value}</span>
       </div>
       <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -353,10 +484,21 @@ function FunnelStep({
   );
 }
 
-function MiniStat({ label, value }: { label: string; value: string | number }) {
+function MiniStat({
+  label,
+  value,
+  info,
+}: {
+  label: string;
+  value: string | number;
+  info?: MetricInfoType;
+}) {
   return (
     <div className="bg-muted/50 rounded-lg p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="flex items-center">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        {info && <InfoTooltip info={info} />}
+      </div>
       <p className="text-xl font-semibold">{value}</p>
     </div>
   );
