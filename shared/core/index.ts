@@ -32,6 +32,13 @@ export {
   getTrialDaysRemaining,
 } from './licensing/use-cases/activate-trial';
 export type { ActivateTrialInput, ActivateTrialResult } from './licensing/use-cases/activate-trial';
+export {
+  calculateExtendedExpiry,
+  canExtendTrial,
+  getDaysRemainingAfterExtension,
+} from './licensing/use-cases/extend-trial';
+export type { ExtendTrialInput, ExtendTrialResult } from './licensing/use-cases/extend-trial';
+export { TRIAL_DURATION_DAYS, TRIAL_EXTENSION_DAYS, TOTAL_TRIAL_DAYS } from './licensing/entities';
 
 // Billing domain (subscriptions, limits)
 export type {

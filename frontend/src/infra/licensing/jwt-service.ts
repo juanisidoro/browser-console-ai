@@ -65,21 +65,36 @@ export async function signLicenseToken(
 }
 
 /**
- * Generate a signed JWT trial token (no email required)
+ * Generate a signed JWT trial token
+ * @param installationId - The installation ID (used as subject for anonymous trials)
+ * @param tokenId - Unique token identifier
+ * @param expiresAt - Expiration timestamp in ms
+ * @param options - Optional email and userId for extended trials
  */
 export async function signTrialToken(
   installationId: string,
   tokenId: string,
-  expiresAt: number
+  expiresAt: number,
+  options?: { email?: string; userId?: string }
 ): Promise<string> {
   const secret = getJwtSecret();
   const now = Date.now();
 
-  const token = await new SignJWT({
+  const payload: Record<string, unknown> = {
     sub: installationId, // Use installationId as subject
     plan: 'trial' as Plan,
     tokenId,
-  })
+  };
+
+  // Add email and userId if provided (extended trial)
+  if (options?.email) {
+    payload.email = options.email;
+  }
+  if (options?.userId) {
+    payload.userId = options.userId;
+  }
+
+  const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt(Math.floor(now / 1000))
     .setExpirationTime(Math.floor(expiresAt / 1000))

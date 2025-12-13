@@ -97,6 +97,8 @@ const trialActiveSection = document.getElementById('trialActiveSection');
 const trialDaysRemaining = document.getElementById('trialDaysRemaining');
 const btnStartTrial = document.getElementById('btnStartTrial');
 const trialError = document.getElementById('trialError');
+const extendTrialSection = document.getElementById('extendTrialSection');
+const btnExtendTrial = document.getElementById('btnExtendTrial');
 
 // State
 let currentState = 'idle';
@@ -188,6 +190,17 @@ function updateLicenseUI(license, quota) {
       trialDaysRemaining.textContent = Math.max(0, daysLeft);
     }
 
+    // Show "Extend Trial" section if not already extended (check if email exists)
+    // Extended trials have email attached, anonymous ones don't
+    const isExtended = license.email && license.email.length > 0;
+    if (!isExtended) {
+      extendTrialSection.classList.remove('hidden');
+      // Set the extend trial link with installationId
+      setupExtendTrialLink();
+    } else {
+      extendTrialSection.classList.add('hidden');
+    }
+
     // Hide token input, hide remove button (can't revoke trial), show upgrade
     tokenInputSection.classList.add('hidden');
     licenseActions.classList.add('hidden');  // No remove option during trial
@@ -196,12 +209,14 @@ function updateLicenseUI(license, quota) {
     // PRO plan - hide trial sections
     trialSection.classList.add('hidden');
     trialActiveSection.classList.add('hidden');
+    extendTrialSection.classList.add('hidden');
     tokenInputSection.classList.add('hidden');
     licenseActions.classList.remove('hidden');
     upgradeLink.classList.add('hidden');
   } else {
     // FREE plan - check if can show trial option
     trialActiveSection.classList.add('hidden');
+    extendTrialSection.classList.add('hidden');
     tokenInputSection.classList.remove('hidden');
     licenseActions.classList.add('hidden');
     upgradeLink.classList.remove('hidden');
@@ -226,6 +241,29 @@ async function checkTrialAvailability() {
       }
     }
   });
+}
+
+// Setup the extend trial link with installationId
+async function setupExtendTrialLink() {
+  try {
+    const installationId = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: 'GET_INSTALLATION_ID' }, (response) => {
+        resolve(response?.installationId || '');
+      });
+    });
+
+    if (installationId && btnExtendTrial) {
+      const extendUrl = `https://browserconsoleai.com/en/extend-trial?installationId=${encodeURIComponent(installationId)}`;
+      btnExtendTrial.href = extendUrl;
+
+      // Track click
+      btnExtendTrial.addEventListener('click', () => {
+        trackEvent('extend_trial_clicked', { source: 'sidepanel' });
+      }, { once: true });
+    }
+  } catch (error) {
+    console.error('[Sidepanel] Failed to setup extend trial link:', error);
+  }
 }
 
 // Show limit warning

@@ -1483,3 +1483,54 @@ h1 {
   color: #22c55e;
   font-weight: 600;
 }
+
+/* Extend Trial Section */
+.extend-trial-section {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+  border: 1px solid #8b5cf6;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.extend-trial-promo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.extend-badge {
+  font-size: 18px;
+}
+
+.extend-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c4b5fd;
+}
+
+.btn-extend-trial {
+  display: block;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.btn-extend-trial:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.extend-info {
+  font-size: 11px;
+  color: #9ca3af;
+}

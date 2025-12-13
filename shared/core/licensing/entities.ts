@@ -41,7 +41,19 @@ export interface TrialLicense {
   expiresAt: number;
   ip?: string;
   country?: string;
+  // Extended trial fields
+  extended?: boolean;           // True if trial was extended via registration
+  extendedAt?: number;          // When it was extended
+  userId?: string;              // Firebase UID if registered
+  email?: string;               // User email if registered
 }
+
+/**
+ * Trial extension constants
+ */
+export const TRIAL_DURATION_DAYS = 3;           // Initial anonymous trial
+export const TRIAL_EXTENSION_DAYS = 3;          // Extra days when registered
+export const TOTAL_TRIAL_DAYS = TRIAL_DURATION_DAYS + TRIAL_EXTENSION_DAYS;  // 6 days total
 
 /**
  * Device registration for paid plans

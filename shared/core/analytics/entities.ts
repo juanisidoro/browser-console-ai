@@ -13,6 +13,7 @@ export type AnalyticsEventType =
   // Activation
   | 'first_recording'
   | 'trial_activated'
+  | 'trial_extended'
   | 'user_registered'
   // Engagement
   | 'recording_started'
@@ -23,6 +24,7 @@ export type AnalyticsEventType =
   | 'export_recording'
   // Revenue
   | 'upgrade_clicked'
+  | 'extend_trial_clicked'
   | 'checkout_started'
   | 'subscription_created'
   | 'subscription_cancelled'

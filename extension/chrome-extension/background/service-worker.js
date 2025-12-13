@@ -452,6 +452,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
 
+  // Get installation ID (for extend trial link)
+  if (message.action === 'GET_INSTALLATION_ID') {
+    self.LicenseManager.getInstallationId().then(installationId => {
+      sendResponse({ installationId });
+    });
+    return true;
+  }
+
   // Activate trial license
   if (message.action === 'ACTIVATE_TRIAL') {
     self.LicenseManager.activateTrial().then(result => {
