@@ -7,12 +7,12 @@
  * When the extension opens this page, it extracts the token from URL params.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useAuth } from '@/features/auth';
 import { useSearchParams } from 'next/navigation';
 import { useI18n } from '@/lib/i18n-context';
 
-export default function AuthCallbackPage() {
+function CallbackContent() {
   const { section } = useI18n();
   const auth = section('auth') as Record<string, unknown>;
   const callback = auth.callback as Record<string, string>;
@@ -72,7 +72,7 @@ export default function AuthCallbackPage() {
       <div className="container flex min-h-[calc(100vh-200px)] items-center justify-center">
         <div className="text-center space-y-4">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-          <p className="text-muted-foreground">{callback.loading}</p>
+          <p className="text-muted-foreground">{callback?.loading || 'Loading...'}</p>
         </div>
       </div>
     );
@@ -84,8 +84,8 @@ export default function AuthCallbackPage() {
       <div className="container flex min-h-[calc(100vh-200px)] items-center justify-center">
         <div className="text-center space-y-4">
           <div className="text-destructive text-4xl">!</div>
-          <h1 className="text-xl font-semibold">{callback.error}</h1>
-          <p className="text-muted-foreground">{callback.errorDescription}</p>
+          <h1 className="text-xl font-semibold">{callback?.error || 'Error'}</h1>
+          <p className="text-muted-foreground">{callback?.errorDescription || 'An error occurred'}</p>
         </div>
       </div>
     );
@@ -96,25 +96,40 @@ export default function AuthCallbackPage() {
     <div className="container flex min-h-[calc(100vh-200px)] items-center justify-center">
       <div className="text-center space-y-4 max-w-md">
         <div className="text-green-500 text-4xl">✓</div>
-        <h1 className="text-xl font-semibold">{callback.success}</h1>
-        <p className="text-muted-foreground">{callback.successDescription}</p>
+        <h1 className="text-xl font-semibold">{callback?.success || 'Success'}</h1>
+        <p className="text-muted-foreground">{callback?.successDescription || 'Authentication complete'}</p>
 
         {isExtensionCallback && token && (
           <div
             className="mt-6 p-4 bg-muted rounded-lg text-xs font-mono break-all text-left"
             data-auth-token={token}
           >
-            <p className="text-muted-foreground mb-2">{callback.tokenCopied}</p>
+            <p className="text-muted-foreground mb-2">{callback?.tokenCopied || 'Token ready'}</p>
             <p className="truncate">{token.slice(0, 50)}...</p>
           </div>
         )}
 
         {!isExtensionCallback && (
           <p className="text-sm text-muted-foreground">
-            {callback.closeTab}
+            {callback?.closeTab || 'You can close this tab'}
           </p>
         )}
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="container flex min-h-[calc(100vh-200px)] items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   );
 }

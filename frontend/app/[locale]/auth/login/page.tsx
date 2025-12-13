@@ -7,13 +7,13 @@
  * Redirects to dashboard after successful login.
  */
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LoginForm, useAuth } from '@/features/auth';
 import { useI18n } from '@/lib/i18n-context';
 import { Loader2 } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginContent() {
   const { locale, section } = useI18n();
   const auth = section('auth') as Record<string, string>;
   const router = useRouter();
@@ -47,5 +47,17 @@ export default function LoginPage() {
         <LoginForm />
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="container flex min-h-[calc(100vh-200px)] items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

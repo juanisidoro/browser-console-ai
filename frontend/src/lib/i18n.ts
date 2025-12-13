@@ -204,7 +204,4 @@ export function getSection(msgs: Messages, section: string): Messages {
 
 // Legacy support - keep old translations object for backwards compatibility
 // This will be gradually phased out
-export const translations = {
-  en: messages.en,
-  es: messages.es,
-}
+export const translations = messages
