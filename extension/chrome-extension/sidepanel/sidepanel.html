@@ -7,18 +7,34 @@
 <body>
   <div class="container">
     <header>
-      <h1>Console AI</h1>
-      <div class="header-right">
-        <span class="plan-badge free" id="planBadge" title="Click to manage license">FREE</span>
-        <label class="capture-toggle" title="Enable/disable console capture">
-          <input type="checkbox" id="captureEnabled" checked>
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" id="captureLabel">ON</span>
-        </label>
-        <div class="status">
-          <span class="status-dot" id="statusDot"></span>
-          <span id="statusText">Offline</span>
+      <div class="header-top">
+        <div class="header-brand">
+          <svg class="header-logo" viewBox="0 0 128 128" width="24" height="24">
+            <rect x="4" y="4" width="120" height="120" rx="20" ry="20" fill="#1e293b"/>
+            <clipPath id="headerLogoClip">
+              <rect x="4" y="4" width="120" height="30" rx="20" ry="20"/>
+            </clipPath>
+            <rect x="4" y="4" width="120" height="34" fill="#64748b" clip-path="url(#headerLogoClip)"/>
+            <rect x="4" y="24" width="120" height="10" fill="#64748b"/>
+            <path d="M 40 52 L 82 78 L 40 104" fill="none" stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="brand-name">Browser Console <span class="ai-text">AI</span></span>
         </div>
+        <div class="header-controls">
+          <span class="plan-badge free" id="planBadge" title="Click to manage license">FREE</span>
+          <div class="mcp-status" id="mcpStatus" title="MCP Server status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Offline</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-capture">
+        <span class="capture-label">Console Capture</span>
+        <label class="capture-switch" title="Enable/disable console capture">
+          <input type="checkbox" id="captureEnabled" checked>
+          <span class="switch-track"></span>
+          <span class="switch-status" id="captureLabel">ON</span>
+        </label>
       </div>
     </header>
 
@@ -197,35 +213,49 @@
 
         <!-- Tab: MCP Output -->
         <div class="settings-page" id="tabMcpOutput">
-          <label class="toggle">
-            <input type="checkbox" id="compactMode">
-            <span>Compact payload (minify JSON)</span>
-          </label>
+          <!-- Recording Display Section -->
+          <div class="settings-group">
+            <div class="settings-group-header">
+              <span class="settings-group-icon">📋</span>
+              <span class="settings-group-title">Recording Display</span>
+            </div>
+            <div class="settings-group-content">
+              <label class="toggle">
+                <input type="checkbox" id="compressObjects" checked>
+                <span>Compress large objects</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="plainTextFormat" checked>
+                <span>Plain text format</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="showSourceInPlain" checked>
+                <span>Show file source</span>
+              </label>
+            </div>
+          </div>
 
-          <label class="toggle">
-            <input type="checkbox" id="compressObjects" checked>
-            <span>Compress objects > 50 chars</span>
-          </label>
-
-          <label class="toggle">
-            <input type="checkbox" id="plainTextFormat" checked>
-            <span>Plain text format</span>
-          </label>
-
-          <label class="toggle">
-            <input type="checkbox" id="showSourceInPlain" checked>
-            <span>Show file source</span>
-          </label>
-
-          <!-- Props selector -->
-          <div class="filter-group">
-            <label>Include properties:</label>
-            <div class="props-selector">
-              <label class="prop-toggle"><input type="checkbox" id="propId"><span>id</span></label>
-              <label class="prop-toggle"><input type="checkbox" id="propSessionId"><span>sessionId</span></label>
-              <label class="prop-toggle"><input type="checkbox" id="propRecordingId"><span>recordingId</span></label>
-              <label class="prop-toggle"><input type="checkbox" id="propTimestamp"><span>timestamp</span></label>
-              <label class="prop-toggle"><input type="checkbox" id="propUrl"><span>url</span></label>
+          <!-- MCP Server Section -->
+          <div class="settings-group mcp-group">
+            <div class="settings-group-header">
+              <span class="settings-group-icon">🔌</span>
+              <span class="settings-group-title">MCP Server Output</span>
+              <span class="pro-badge">PRO</span>
+            </div>
+            <div class="settings-group-content">
+              <label class="toggle">
+                <input type="checkbox" id="compactMode">
+                <span>Minify JSON payload</span>
+              </label>
+              <div class="filter-group">
+                <label>Include metadata:</label>
+                <div class="props-selector">
+                  <label class="prop-toggle"><input type="checkbox" id="propTimestamp" checked><span>timestamp</span></label>
+                  <label class="prop-toggle"><input type="checkbox" id="propUrl"><span>url</span></label>
+                  <label class="prop-toggle"><input type="checkbox" id="propSessionId"><span>sessionId</span></label>
+                  <label class="prop-toggle"><input type="checkbox" id="propRecordingId"><span>recordingId</span></label>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -233,7 +263,7 @@
           <div class="output-preview">
             <label>Preview:</label>
             <div class="preview-box" id="outputPreview">
-              [Store] Cache saved {"key":"pro...end"},{file.ts:42}|[API] Fetch complete|...
+              [log] Cache saved {"key":"..."} {file.ts:42}
             </div>
           </div>
         </div>

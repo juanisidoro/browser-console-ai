@@ -6,11 +6,43 @@
  *
  * This is called automatically after successful login from the auth provider.
  * The user document stores subscription status and other account data.
+ *
+ * For NEW users, a welcome email is sent automatically.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminDb } from '@/infra/firebase/admin';
+import { getEmailServiceInstance } from '@/infra/email';
 import { FieldValue } from 'firebase-admin/firestore';
+
+/**
+ * Send welcome email asynchronously (fire and forget)
+ * This runs in the background and doesn't block the response
+ */
+async function sendWelcomeEmailAsync(email: string, name: string | undefined, userId: string): Promise<void> {
+  try {
+    const emailService = getEmailServiceInstance();
+    const result = await emailService.sendWelcomeEmail({
+      email,
+      name: name || 'Developer',
+    });
+
+    if (result.success) {
+      // Mark welcome email as sent
+      const db = getAdminDb();
+      await db.collection('users').doc(userId).update({
+        welcomeEmailSent: true,
+        welcomeEmailSentAt: FieldValue.serverTimestamp(),
+      });
+      console.log(`[WelcomeEmail] Sent to ${email}`);
+    } else {
+      console.error(`[WelcomeEmail] Failed to send to ${email}:`, result.error);
+    }
+  } catch (error) {
+    console.error('[WelcomeEmail] Error:', error);
+    // Don't throw - this is fire and forget
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,6 +83,7 @@ export async function POST(request: NextRequest) {
         photoURL: decodedToken.picture || null,
         createdAt: FieldValue.serverTimestamp(),
         lastLoginAt: FieldValue.serverTimestamp(),
+        welcomeEmailSent: false,
         subscription: {
           status: 'free',
           stripeCustomerId: null,
@@ -58,6 +91,9 @@ export async function POST(request: NextRequest) {
           currentPeriodEnd: null,
         },
       });
+
+      // Send welcome email (fire and forget - don't block the response)
+      sendWelcomeEmailAsync(email, decodedToken.name || undefined, uid);
 
       return NextResponse.json({
         success: true,

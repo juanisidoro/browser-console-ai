@@ -9,12 +9,61 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminDb } from '@/infra/firebase/admin';
-import { Resend } from 'resend';
+import { getEmailServiceInstance } from '@/infra/email';
 import { v4 as uuidv4 } from 'uuid';
 import type { TrialLicense } from '../../../../../shared/core';
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+/**
+ * Check if this email is new (never received welcome email)
+ * and send welcome email if so
+ */
+async function sendWelcomeIfNewEmail(email: string): Promise<void> {
+  try {
+    const db = getAdminDb();
+    const normalizedEmail = email.toLowerCase();
+
+    // Check if we've already sent welcome email to this address
+    const welcomeRef = db.collection('email_welcome_sent').doc(normalizedEmail);
+    const welcomeDoc = await welcomeRef.get();
+
+    if (welcomeDoc.exists) {
+      // Already sent welcome email
+      return;
+    }
+
+    // Also check if user exists with this email (registered via web)
+    const usersQuery = await db.collection('users')
+      .where('email', '==', normalizedEmail)
+      .where('welcomeEmailSent', '==', true)
+      .limit(1)
+      .get();
+
+    if (!usersQuery.empty) {
+      // User exists and already received welcome email
+      return;
+    }
+
+    // Send welcome email
+    const emailService = getEmailServiceInstance();
+    const result = await emailService.sendWelcomeEmail({
+      email: normalizedEmail,
+      name: 'Developer',
+    });
+
+    if (result.success) {
+      // Mark as sent (for extension users without web account)
+      await welcomeRef.set({
+        email: normalizedEmail,
+        sentAt: Date.now(),
+        source: 'extension_trial_extend',
+      });
+      console.log(`[WelcomeEmail] Sent to new extension user: ${email}`);
+    }
+  } catch (error) {
+    console.error('[WelcomeEmail] Error in sendWelcomeIfNewEmail:', error);
+    // Don't throw - this is fire and forget
+  }
+}
 
 // Magic link token expiry (1 hour)
 const MAGIC_LINK_EXPIRY_MS = 60 * 60 * 1000;
@@ -138,55 +187,15 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://browserconsoleai.com';
     const magicLink = `${baseUrl}/en/extend-trial/confirm?token=${magicToken}`;
 
-    // Send email
-    const { error: emailError } = await resend.emails.send({
-      from: 'Browser Console AI <noreply@browserconsoleai.com>',
-      to: email,
-      subject: 'Extend your Browser Console AI trial (+3 days)',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0a0a0f; color: #e5e5e5; padding: 40px 20px;">
-          <div style="max-width: 480px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #2d2d44;">
-            <div style="text-align: center; margin-bottom: 32px;">
-              <h1 style="font-size: 24px; font-weight: 700; margin: 0; color: #ffffff;">🎁 Extend Your Trial</h1>
-            </div>
+    // Send welcome email if this is a new email (fire and forget)
+    sendWelcomeIfNewEmail(email);
 
-            <p style="font-size: 16px; line-height: 1.6; color: #a0aec0; margin-bottom: 24px;">
-              Click the button below to add <strong style="color: #8b5cf6;">3 more days</strong> to your Browser Console AI trial.
-            </p>
+    // Send extend trial email
+    const emailService = getEmailServiceInstance();
+    const result = await emailService.sendExtendTrialEmail(email, magicLink);
 
-            <div style="text-align: center; margin: 32px 0;">
-              <a href="${magicLink}" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                Extend My Trial
-              </a>
-            </div>
-
-            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">
-              This link expires in 1 hour and can only be used once.
-            </p>
-
-            <p style="font-size: 13px; color: #6b7280;">
-              If you didn't request this, you can safely ignore this email.
-            </p>
-
-            <hr style="border: none; border-top: 1px solid #2d2d44; margin: 32px 0;">
-
-            <p style="font-size: 12px; color: #4b5563; text-align: center;">
-              Browser Console AI - Capture browser logs for AI agents
-            </p>
-          </div>
-        </body>
-        </html>
-      `,
-    });
-
-    if (emailError) {
-      console.error('Failed to send email:', emailError);
+    if (!result.success) {
+      console.error('Failed to send email:', result.error);
       return NextResponse.json({
         success: false,
         message: 'Failed to send email. Please try again.',

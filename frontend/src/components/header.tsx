@@ -60,14 +60,24 @@ export function Header({ locale }: { locale: Locale }) {
         <Link href={`/${locale}`} className="flex items-center gap-2 group">
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="relative w-9 h-9 rounded-lg overflow-hidden"
+            className="w-9 h-9"
           >
-            <div className="absolute inset-0 flex flex-col">
-              <div className="h-1/3 bg-slate" />
-              <div className="h-2/3 bg-navy flex items-center justify-center">
-                <span className="text-white font-bold text-lg">&gt;</span>
-              </div>
-            </div>
+            <svg viewBox="0 0 128 128" className="w-full h-full">
+              <rect x="4" y="4" width="120" height="120" rx="20" ry="20" fill="#1e293b"/>
+              <clipPath id="logoTopClip">
+                <rect x="4" y="4" width="120" height="30" rx="20" ry="20"/>
+              </clipPath>
+              <rect x="4" y="4" width="120" height="34" fill="#64748b" clipPath="url(#logoTopClip)"/>
+              <rect x="4" y="24" width="120" height="10" fill="#64748b"/>
+              <path
+                d="M 40 52 L 82 78 L 40 104"
+                fill="none"
+                stroke="white"
+                strokeWidth="13"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </motion.div>
           <span className="font-bold text-lg hidden sm:inline">
             Browser Console <span className="text-primary">AI</span>

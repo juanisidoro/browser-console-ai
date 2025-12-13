@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Rounded square background -->
+  <rect x="4" y="4" width="120" height="120" rx="20" ry="20" fill="#1e293b"/>
+
+  <!-- Top section - slate gray (smaller ~1/4) -->
+  <clipPath id="topClip">
+    <rect x="4" y="4" width="120" height="30" rx="20" ry="20"/>
+  </clipPath>
+  <rect x="4" y="4" width="120" height="34" fill="#64748b" clip-path="url(#topClip)"/>
+  <rect x="4" y="24" width="120" height="10" fill="#64748b"/>
+
+  <!-- Console prompt ">" centered in larger navy area -->
+  <path
+    d="M 40 52 L 82 78 L 40 104"
+    fill="none"
+    stroke="white"
+    stroke-width="13"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
