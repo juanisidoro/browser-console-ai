@@ -2,7 +2,7 @@
 // Tracks events for Browser Console AI metrics
 // Note: Uses LicenseManager.getInstallationId() from license.js (loaded first)
 
-const ANALYTICS_ENDPOINT = 'https://browserconsole.ai/api/analytics';
+const ANALYTICS_ENDPOINT = 'https://browserconsoleai.com/api/analytics';
 
 // Get installation ID from LicenseManager (avoids duplicate declarations)
 async function getAnalyticsInstallationId() {
@@ -60,13 +60,15 @@ function getMetadata() {
     os = 'iOS';
   }
 
-  // Screen class
-  const width = screen.width;
-  let screenClass = 'medium';
-  if (width < 768) screenClass = 'small';
-  else if (width >= 768 && width < 1024) screenClass = 'medium';
-  else if (width >= 1024 && width < 1440) screenClass = 'large';
-  else screenClass = 'xlarge';
+  // Screen class (screen not available in service worker)
+  let screenClass = 'unknown';
+  if (typeof screen !== 'undefined') {
+    const width = screen.width;
+    if (width < 768) screenClass = 'small';
+    else if (width >= 768 && width < 1024) screenClass = 'medium';
+    else if (width >= 1024 && width < 1440) screenClass = 'large';
+    else screenClass = 'xlarge';
+  }
 
   // Device type
   const deviceType = /Mobile|Android|iPhone|iPad/i.test(ua) ? 'mobile' : 'desktop';

@@ -6,7 +6,7 @@ const INSTALLATION_ID_KEY = 'bcai_installation_id';
 const VERIFICATION_CACHE_KEY = 'bcai_verification_cache';
 const VERIFICATION_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const OFFLINE_GRACE_PERIOD = 24 * 60 * 60 * 1000; // 24 hours
-const API_BASE_URL = 'https://browserconsole.ai';
+const API_BASE_URL = 'https://browserconsoleai.com';
 
 const PLAN_LIMITS = {
   free: {
@@ -238,13 +238,15 @@ async function getDeviceFingerprint() {
     os = 'iOS';
   }
 
-  // Screen class
-  const width = screen.width;
-  let screenClass = 'medium';
-  if (width < 768) screenClass = 'small';
-  else if (width >= 768 && width < 1024) screenClass = 'medium';
-  else if (width >= 1024 && width < 1440) screenClass = 'large';
-  else screenClass = 'xlarge';
+  // Screen class (screen not available in service worker)
+  let screenClass = 'unknown';
+  if (typeof screen !== 'undefined') {
+    const width = screen.width;
+    if (width < 768) screenClass = 'small';
+    else if (width >= 768 && width < 1024) screenClass = 'medium';
+    else if (width >= 1024 && width < 1440) screenClass = 'large';
+    else screenClass = 'xlarge';
+  }
 
   return {
     installationId,
