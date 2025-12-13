@@ -107,6 +107,9 @@ const extendSent = document.getElementById('extendSent');
 const btnResendLink = document.getElementById('btnResendLink');
 const btnRefreshTrial = document.getElementById('btnRefreshTrial');
 
+// Privacy elements
+const analyticsConsent = document.getElementById('analyticsConsent');
+
 // State
 let currentState = 'idle';
 let currentLicense = null;
@@ -979,6 +982,7 @@ settingsTabs.forEach(tab => {
       if (targetTab === 'mcp-output') pageId = 'tabMcpOutput';
       else if (targetTab === 'license') pageId = 'tabLicense';
       else if (targetTab === 'capture') pageId = 'tabCapture';
+      else if (targetTab === 'privacy') pageId = 'tabPrivacy';
       page.classList.toggle('active', page.id === pageId);
     });
 
@@ -986,7 +990,28 @@ settingsTabs.forEach(tab => {
     if (targetTab === 'license') {
       refreshLicense();
     }
+
+    // Load privacy settings when switching to privacy tab
+    if (targetTab === 'privacy') {
+      loadPrivacySettings();
+    }
   });
+});
+
+// Privacy settings
+async function loadPrivacySettings() {
+  const result = await chrome.storage.local.get('bcai_analytics_consent');
+  // Default to true if not set
+  analyticsConsent.checked = result.bcai_analytics_consent !== false;
+}
+
+// Handle analytics consent toggle
+analyticsConsent.addEventListener('change', async () => {
+  const consent = analyticsConsent.checked;
+  await chrome.storage.local.set({ bcai_analytics_consent: consent });
+
+  // Track the consent change (this is considered essential)
+  trackEvent('analytics_consent_changed', { consent });
 });
 
 // Plan badge click - open license tab

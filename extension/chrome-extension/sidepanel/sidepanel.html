@@ -170,6 +170,7 @@
           <button class="settings-tab active" data-tab="capture">Capture</button>
           <button class="settings-tab" data-tab="mcp-output">MCP Output</button>
           <button class="settings-tab" data-tab="license">License</button>
+          <button class="settings-tab" data-tab="privacy">Privacy</button>
         </div>
 
         <!-- Tab: Capture -->
@@ -369,6 +370,58 @@
 
           <a href="https://browserconsoleai.com/pricing" target="_blank" class="license-upgrade-link" id="upgradeLink">
             Get PRO for unlimited logs & recordings
+          </a>
+        </div>
+
+        <!-- Tab: Privacy -->
+        <div class="settings-page" id="tabPrivacy">
+          <div class="privacy-header">
+            <h3 class="privacy-title">Privacy & Data</h3>
+            <p class="privacy-subtitle">Control how your data is collected and used</p>
+          </div>
+
+          <div class="privacy-section">
+            <div class="privacy-toggle-row">
+              <div class="privacy-toggle-info">
+                <span class="privacy-toggle-label">Anonymous Usage Analytics</span>
+                <span class="privacy-toggle-desc">Help us improve Browser Console AI</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="analyticsConsent" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="privacy-info-box">
+            <div class="privacy-info-title">What we collect:</div>
+            <ul class="privacy-info-list">
+              <li>Extension usage (recordings count, feature usage)</li>
+              <li>Device info (OS, browser version)</li>
+              <li>Error reports to fix bugs</li>
+            </ul>
+          </div>
+
+          <div class="privacy-info-box privacy-info-positive">
+            <div class="privacy-info-title">What we DON'T collect:</div>
+            <ul class="privacy-info-list">
+              <li>Content of your console logs</li>
+              <li>Website URLs you visit</li>
+              <li>Personal data or browsing history</li>
+            </ul>
+          </div>
+
+          <div class="privacy-note">
+            <p>Essential data (license verification, critical errors) is always collected to ensure the extension works properly.</p>
+          </div>
+
+          <a href="https://browserconsoleai.com/en/privacy" target="_blank" class="privacy-policy-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            Read our Privacy Policy
           </a>
         </div>
       </div>

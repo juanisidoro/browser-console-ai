@@ -1,8 +1,43 @@
 // Analytics Module
 // Tracks events for Browser Console AI metrics
 // Note: Uses LicenseManager.getInstallationId() from license.js (loaded first)
+//
+// Privacy: Respects user consent preferences
+// - Essential events: Always sent (license verification, critical errors)
+// - Non-essential events: Only sent if user has consented
 
 const ANALYTICS_ENDPOINT = 'https://browserconsoleai.com/api/analytics';
+
+// Events that are essential for the product to work (always tracked)
+const ESSENTIAL_EVENTS = [
+  'extension_installed',       // Need to know for support
+  'extension_updated',         // Need to know for support
+  'trial_activated',           // License management
+  'trial_extended',            // License management
+  'license_verified',          // License management
+  'error_occurred',            // Critical for fixing bugs
+  'subscription_created',      // Business essential
+  'subscription_cancelled',    // Business essential
+  'analytics_consent_changed', // Privacy compliance
+];
+
+// Get analytics consent status
+async function getAnalyticsConsent() {
+  const result = await chrome.storage.local.get('bcai_analytics_consent');
+  // Default to true for existing users, but new users should explicitly consent
+  // We'll show the privacy notice on first run
+  return result.bcai_analytics_consent !== false;
+}
+
+// Set analytics consent
+async function setAnalyticsConsent(consent) {
+  await chrome.storage.local.set({ bcai_analytics_consent: consent });
+}
+
+// Check if an event is essential (doesn't require consent)
+function isEssentialEvent(event) {
+  return ESSENTIAL_EVENTS.includes(event);
+}
 
 // Get installation ID from LicenseManager (avoids duplicate declarations)
 async function getAnalyticsInstallationId() {
@@ -87,8 +122,18 @@ function getMetadata() {
 }
 
 // Track an event (fire and forget)
+// Respects user consent for non-essential events
 async function trackEvent(event, data = {}) {
   try {
+    // Check if this is a non-essential event and user hasn't consented
+    if (!isEssentialEvent(event)) {
+      const hasConsent = await getAnalyticsConsent();
+      if (!hasConsent) {
+        console.debug('[Analytics] Skipped (no consent):', event);
+        return;
+      }
+    }
+
     const installationId = await getAnalyticsInstallationId();
     const metadata = getMetadata();
 
@@ -127,7 +172,7 @@ async function trackEvent(event, data = {}) {
       // Silent fail - analytics should never block functionality
     });
 
-    console.log('[Analytics] Tracked:', event, data);
+    console.debug('[Analytics] Tracked:', event);
   } catch (error) {
     // Silent fail
     console.warn('[Analytics] Failed to track:', event, error);
@@ -158,6 +203,9 @@ if (typeof window !== 'undefined') {
     trackInstall,
     trackUpdate,
     getInstallationId: getAnalyticsInstallationId,
+    getConsent: getAnalyticsConsent,
+    setConsent: setAnalyticsConsent,
+    ESSENTIAL_EVENTS,
   };
 }
 
@@ -168,5 +216,8 @@ if (typeof self !== 'undefined' && typeof window === 'undefined') {
     trackInstall,
     trackUpdate,
     getInstallationId: getAnalyticsInstallationId,
+    getConsent: getAnalyticsConsent,
+    setConsent: setAnalyticsConsent,
+    ESSENTIAL_EVENTS,
   };
 }
