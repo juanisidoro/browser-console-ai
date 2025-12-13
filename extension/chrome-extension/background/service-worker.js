@@ -460,6 +460,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  // Save license token (for extended trial via magic link)
+  if (message.action === 'SAVE_LICENSE_TOKEN') {
+    self.LicenseManager.saveLicenseToken(message.token)
+      .then(result => {
+        currentLicense = null; // Clear cache to force refresh
+        sendResponse({ success: true, ...result });
+      })
+      .catch(error => {
+        console.error('[Service Worker] Failed to save token:', error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
   // Activate trial license
   if (message.action === 'ACTIVATE_TRIAL') {
     self.LicenseManager.activateTrial().then(result => {

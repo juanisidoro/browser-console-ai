@@ -294,10 +294,33 @@
               <span class="extend-badge">🎁</span>
               <span class="extend-text">Get 3 MORE days FREE!</span>
             </div>
-            <a href="#" target="_blank" class="btn-extend-trial" id="btnExtendTrial">
-              Register to extend trial
-            </a>
-            <div class="extend-info">Sign up takes 30 seconds</div>
+
+            <!-- Email input state -->
+            <div class="extend-email-form" id="extendEmailForm">
+              <div class="extend-input-row">
+                <input type="email" id="extendEmail" placeholder="your@email.com" class="extend-email-input">
+                <button class="btn-send-link" id="btnSendMagicLink">Send Link</button>
+              </div>
+              <div class="extend-info">We'll email you a magic link</div>
+              <div class="extend-error hidden" id="extendError">Error message</div>
+            </div>
+
+            <!-- Sending state -->
+            <div class="extend-sending hidden" id="extendSending">
+              <div class="extend-spinner"></div>
+              <div class="extend-info">Sending magic link...</div>
+            </div>
+
+            <!-- Sent state -->
+            <div class="extend-sent hidden" id="extendSent">
+              <div class="extend-sent-icon">✉️</div>
+              <div class="extend-sent-title">Check your email!</div>
+              <div class="extend-sent-text">Click the magic link to extend your trial.</div>
+              <div class="extend-sent-actions">
+                <button class="btn-refresh-trial" id="btnRefreshTrial">I've clicked it - Refresh</button>
+                <button class="btn-resend-link" id="btnResendLink">Resend link</button>
+              </div>
+            </div>
           </div>
 
           <div class="license-token-section" id="tokenInputSection">

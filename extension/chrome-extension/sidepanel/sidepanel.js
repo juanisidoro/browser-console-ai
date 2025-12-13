@@ -98,7 +98,14 @@ const trialDaysRemaining = document.getElementById('trialDaysRemaining');
 const btnStartTrial = document.getElementById('btnStartTrial');
 const trialError = document.getElementById('trialError');
 const extendTrialSection = document.getElementById('extendTrialSection');
-const btnExtendTrial = document.getElementById('btnExtendTrial');
+const extendEmailForm = document.getElementById('extendEmailForm');
+const extendEmail = document.getElementById('extendEmail');
+const btnSendMagicLink = document.getElementById('btnSendMagicLink');
+const extendError = document.getElementById('extendError');
+const extendSending = document.getElementById('extendSending');
+const extendSent = document.getElementById('extendSent');
+const btnResendLink = document.getElementById('btnResendLink');
+const btnRefreshTrial = document.getElementById('btnRefreshTrial');
 
 // State
 let currentState = 'idle';
@@ -243,27 +250,164 @@ async function checkTrialAvailability() {
   });
 }
 
-// Setup the extend trial link with installationId
+// Setup magic link handlers for extending trial
+let currentInstallationId = null;
+let lastSentEmail = null;
+
 async function setupExtendTrialLink() {
   try {
-    const installationId = await new Promise((resolve) => {
+    // Get installation ID
+    currentInstallationId = await new Promise((resolve) => {
       chrome.runtime.sendMessage({ action: 'GET_INSTALLATION_ID' }, (response) => {
         resolve(response?.installationId || '');
       });
     });
 
-    if (installationId && btnExtendTrial) {
-      const extendUrl = `https://browserconsoleai.com/en/extend-trial?installationId=${encodeURIComponent(installationId)}`;
-      btnExtendTrial.href = extendUrl;
+    // Setup send button click handler
+    if (btnSendMagicLink) {
+      btnSendMagicLink.addEventListener('click', handleSendMagicLink);
+    }
 
-      // Track click
-      btnExtendTrial.addEventListener('click', () => {
-        trackEvent('extend_trial_clicked', { source: 'sidepanel' });
-      }, { once: true });
+    // Setup resend button
+    if (btnResendLink) {
+      btnResendLink.addEventListener('click', handleSendMagicLink);
+    }
+
+    // Setup enter key on email input
+    if (extendEmail) {
+      extendEmail.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleSendMagicLink();
+        }
+      });
+    }
+
+    // Setup refresh button
+    if (btnRefreshTrial) {
+      btnRefreshTrial.addEventListener('click', handleRefreshTrial);
     }
   } catch (error) {
-    console.error('[Sidepanel] Failed to setup extend trial link:', error);
+    console.error('[Sidepanel] Failed to setup extend trial:', error);
   }
+}
+
+// Handle refresh after clicking magic link
+async function handleRefreshTrial() {
+  if (!currentInstallationId) {
+    showExtendError('Unable to refresh. Please reload the extension.');
+    return;
+  }
+
+  btnRefreshTrial.disabled = true;
+  btnRefreshTrial.textContent = 'Checking...';
+
+  try {
+    const response = await fetch(`https://browserconsoleai.com/api/license/get-extended-token?installationId=${encodeURIComponent(currentInstallationId)}`);
+    const data = await response.json();
+
+    if (data.success && data.extended && data.token) {
+      // Save the new token
+      chrome.runtime.sendMessage({
+        action: 'SAVE_LICENSE_TOKEN',
+        token: data.token
+      }, (result) => {
+        if (result?.success) {
+          // Refresh the license display
+          refreshLicense();
+          // Hide extend section (trial is now extended)
+          extendTrialSection.classList.add('hidden');
+          trackEvent('trial_extended', { method: 'magic_link' });
+        } else {
+          showExtendState('sent');
+          showExtendError('Failed to save token. Please try again.');
+        }
+      });
+    } else {
+      btnRefreshTrial.disabled = false;
+      btnRefreshTrial.textContent = "I've clicked it - Refresh";
+
+      if (data.extended === false) {
+        showExtendError("Haven't clicked the link yet? Check your email.");
+      } else {
+        showExtendError(data.message || 'Unable to get token.');
+      }
+    }
+  } catch (error) {
+    console.error('[Sidepanel] Failed to refresh trial:', error);
+    btnRefreshTrial.disabled = false;
+    btnRefreshTrial.textContent = "I've clicked it - Refresh";
+    showExtendError('Network error. Please try again.');
+  }
+}
+
+// Handle sending magic link
+async function handleSendMagicLink() {
+  const email = extendEmail?.value?.trim() || lastSentEmail;
+
+  if (!email) {
+    showExtendError('Please enter your email');
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    showExtendError('Please enter a valid email');
+    return;
+  }
+
+  if (!currentInstallationId) {
+    showExtendError('Unable to identify installation. Please reload.');
+    return;
+  }
+
+  // Show sending state
+  showExtendState('sending');
+  lastSentEmail = email;
+
+  try {
+    const response = await fetch('https://browserconsoleai.com/api/license/extend-trial-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        installationId: currentInstallationId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showExtendState('sent');
+      trackEvent('extend_trial_email_sent', { email: email.split('@')[1] }); // Only domain for privacy
+    } else {
+      showExtendState('form');
+      showExtendError(data.message || 'Failed to send magic link');
+    }
+  } catch (error) {
+    console.error('[Sidepanel] Failed to send magic link:', error);
+    showExtendState('form');
+    showExtendError('Network error. Please try again.');
+  }
+}
+
+// Show extend trial state
+function showExtendState(state) {
+  extendEmailForm?.classList.toggle('hidden', state !== 'form');
+  extendSending?.classList.toggle('hidden', state !== 'sending');
+  extendSent?.classList.toggle('hidden', state !== 'sent');
+  extendError?.classList.add('hidden');
+}
+
+// Show error in extend section
+function showExtendError(message) {
+  if (extendError) {
+    extendError.textContent = message;
+    extendError.classList.remove('hidden');
+  }
+}
+
+// Validate email format
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 // Show limit warning
