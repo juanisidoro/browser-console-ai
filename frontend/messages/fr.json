@@ -1,0 +1,277 @@
+{
+  "nav": {
+    "features": "Fonctionnalités",
+    "docs": "Documentation",
+    "blog": "Blog",
+    "pricing": "Tarifs",
+    "getStarted": "Commencer",
+    "installNow": "Installer"
+  },
+
+  "hero": {
+    "tagline_global": "Débogage Propulsé par l'IA",
+    "tagline_variants": {
+      "FR": "Débogage IA pour les Développeurs Français",
+      "BE": "Débogage IA pour les Équipes Belges",
+      "CH": "Débogage IA pour les Développeurs Suisses"
+    },
+    "title_global": "Déboguez avec l'IA en Temps Réel",
+    "title_variants": {
+      "FR": "Débogage Intelligent pour Équipes Tech en France",
+      "BE": "Débogage Efficace pour Développeurs Belges",
+      "CH": "Débogage Professionnel pour la Suisse"
+    },
+    "subtitle_global": "Connectez votre console navigateur directement à Claude et autres modèles IA. Capturez les logs automatiquement et analysez les erreurs plus rapidement.",
+    "subtitle_variants": {
+      "FR": "Utilisé par les équipes de développement en France. Connectez votre console à l'IA.",
+      "BE": "Parfait pour les startups belges. Débogage IA respectueux de la vie privée.",
+      "CH": "Idéal pour les équipes suisses. Local-first et puissant."
+    },
+    "cta": "Installer l'Extension Gratuite",
+    "secondary": "Voir la Démo",
+    "videoTitle": "Voir la Vidéo Démo"
+  },
+
+  "trust": {
+    "badge_global": "100% Gratuit et Open Source",
+    "badge_variants": {
+      "FR": "Gratuit et Utilisé par les Équipes Françaises",
+      "BE": "Conforme RGPD et Gratuit",
+      "CH": "Privacité d'Abord et Gratuit"
+    },
+    "items": {
+      "free": "100% Gratuit",
+      "privacy": "Vie Privée d'Abord",
+      "opensource": "Open Source"
+    }
+  },
+
+  "problem": {
+    "title": "Arrêtez la Folie du Copier-Coller",
+    "subtitle": "Il existe une meilleure façon de déboguer avec l'IA",
+    "before": {
+      "title": "Sans Browser Console AI",
+      "items": [
+        "Copier les erreurs manuellement",
+        "Coller dans le chat IA",
+        "Perdre le contexte en changeant d'onglet",
+        "Manquer des avertissements importants",
+        "Répéter pour chaque erreur"
+      ]
+    },
+    "after": {
+      "title": "Avec Browser Console AI",
+      "aiText": "L'IA voit votre console automatiquement",
+      "items": [
+        "Capture automatique des logs",
+        "L'IA voit tout en temps réel",
+        "Contexte complet préservé",
+        "Filtrage et recherche intelligents",
+        "Insights de débogage instantanés"
+      ]
+    }
+  },
+
+  "features": {
+    "title": "Pourquoi les Développeurs Adorent Browser Console AI",
+    "subtitle": "Tout ce dont vous avez besoin pour déboguer plus vite",
+    "autoCapture": {
+      "name": "Capture Automatique",
+      "desc": "Tous les logs sont capturés automatiquement et envoyés à votre assistant IA"
+    },
+    "realTime": {
+      "name": "Analyse en Temps Réel",
+      "desc": "Votre IA voit les erreurs au moment où elles se produisent"
+    },
+    "private": {
+      "name": "100% Privé",
+      "desc": "Tout fonctionne localement. Votre code ne quitte jamais votre navigateur."
+    },
+    "easy": {
+      "name": "Zéro Configuration",
+      "desc": "Installez et utilisez immédiatement. Pas de configuration complexe."
+    },
+    "filters": {
+      "name": "Filtres Intelligents",
+      "desc": "Filtrez par type, URL, timestamp. Trouvez ce que vous cherchez instantanément."
+    },
+    "mcp": {
+      "name": "Protocole MCP",
+      "desc": "Fonctionne avec Claude Code et tout assistant IA compatible MCP."
+    }
+  },
+
+  "install": {
+    "title": "Démarrez en 3 Étapes",
+    "subtitle": "Installez Browser Console AI et déboguez plus intelligemment.",
+    "step1": {
+      "title": "Ajouter à Chrome",
+      "desc": "Visitez le Chrome Web Store et cliquez sur 'Ajouter à Chrome'."
+    },
+    "step2": {
+      "title": "Connecter à l'IA",
+      "desc": "Ouvrez votre assistant IA et configurez Browser Console AI."
+    },
+    "step3": {
+      "title": "Commencer à Déboguer",
+      "desc": "Ouvrez DevTools et regardez vos logs affluer vers votre assistant IA."
+    },
+    "videoTitle": "Voir Comment Ça Marche",
+    "videoDesc": "Voyez Browser Console AI en action."
+  },
+
+  "testimonial": {
+    "quote_global": "Browser Console AI a transformé ma façon de déboguer.",
+    "quote_variants": {
+      "FR": "En tant que développeur à Paris, cet outil a révolutionné notre workflow.",
+      "BE": "Parfait pour les équipes belges. Simple et respectueux de la vie privée.",
+      "CH": "Outil professionnel pour les développeurs suisses exigeants."
+    },
+    "author_global": "Développeur Senior",
+    "author_variants": {
+      "FR": "Tech Lead, Paris",
+      "BE": "Senior Engineer, Bruxelles",
+      "CH": "Lead Developer, Genève"
+    }
+  },
+
+  "cta": {
+    "title_global": "Prêt à Déboguer Plus Intelligemment?",
+    "title_variants": {
+      "FR": "Rejoignez les Développeurs Français",
+      "BE": "Rejoignez les Développeurs Belges",
+      "CH": "Rejoignez les Développeurs Suisses"
+    },
+    "subtitle_global": "Installez Browser Console AI et découvrez le futur du débogage.",
+    "subtitle_variants": {
+      "FR": "Des milliers de développeurs en France utilisent Browser Console AI.",
+      "BE": "Débogage conforme RGPD pour les équipes belges.",
+      "CH": "Débogage privé pour les entreprises suisses."
+    },
+    "button": "Ajouter à Chrome",
+    "github": "Voir sur GitHub"
+  },
+
+  "email": {
+    "title": "Restez Informé",
+    "subtitle": "Recevez des notifications sur les nouvelles fonctionnalités. Pas de spam.",
+    "placeholder": "Entrez votre email",
+    "button": "S'abonner",
+    "success": "Vous êtes abonné! Vérifiez votre boîte de réception.",
+    "privacy": "Nous respectons votre vie privée."
+  },
+
+  "comparison": {
+    "title": "Pourquoi Browser Console AI Se Démarque",
+    "subtitle": "Comparé au copier-coller manuel et autres solutions",
+    "feature": "Fonctionnalité",
+    "bcai": "Browser Console AI",
+    "manual": "Copier-Coller Manuel",
+    "other": "Autres Outils",
+    "features": [
+      { "name": "Capture en temps réel", "bcai": true, "manual": false, "other": false },
+      { "name": "Analyse propulsée par IA", "bcai": true, "manual": false, "other": false },
+      { "name": "100% local et privé", "bcai": true, "manual": true, "other": false },
+      { "name": "Zéro configuration", "bcai": true, "manual": false, "other": false },
+      { "name": "Compatible Claude Code", "bcai": true, "manual": false, "other": false },
+      { "name": "Recherche et filtrage", "bcai": true, "manual": false, "other": true },
+      { "name": "Gratuit pour toujours", "bcai": true, "manual": true, "other": false }
+    ]
+  },
+
+  "pricing": {
+    "title": "Tarifs Simples et Transparents",
+    "subtitle": "Browser Console AI est gratuit. Pas d'essai, pas de carte requise.",
+    "free": {
+      "name": "Gratuit",
+      "price": "0€",
+      "period": "Pour Toujours",
+      "features": [
+        "Capture de logs illimitée",
+        "Analyse IA en temps réel",
+        "Filtrage avancé",
+        "Historique complet",
+        "Open source"
+      ]
+    },
+    "pro": {
+      "name": "Pro (Bientôt)",
+      "price": "9€",
+      "period": "/mois",
+      "features": [
+        "Tout dans Gratuit",
+        "Synchronisation cloud",
+        "Collaboration d'équipe",
+        "Analytics avancés",
+        "Support prioritaire"
+      ]
+    }
+  },
+
+  "useCases": {
+    "title": "Cas d'Utilisation",
+    "subtitle": "Voyez comment les développeurs utilisent Browser Console AI",
+    "debugging": {
+      "title": "Débogage Assisté",
+      "desc": "Laissez votre IA analyser les erreurs en temps réel pendant que vous codez."
+    },
+    "testing": {
+      "title": "Tests QA",
+      "desc": "Capturez toutes les erreurs pendant les sessions de test."
+    },
+    "monitoring": {
+      "title": "Surveillance de Session",
+      "desc": "Surveillez les sessions utilisateur et détectez les bugs."
+    },
+    "integration": {
+      "title": "Intégration CI/CD",
+      "desc": "Intégrez les logs navigateur dans votre pipeline de tests."
+    }
+  },
+
+  "blog": {
+    "title": "Blog et Ressources",
+    "subtitle": "Apprenez conseils et meilleures pratiques pour déboguer avec l'IA",
+    "readMore": "Lire plus",
+    "postedOn": "Publié le"
+  },
+
+  "footer": {
+    "tagline": "Déboguez intelligemment avec l'intégration console propulsée par IA",
+    "product": "Produit",
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "chromeStore": "Chrome Web Store",
+    "resources": "Ressources",
+    "docs": "Documentation",
+    "blog": "Blog",
+    "github": "GitHub",
+    "legal": "Légal",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "contact": "Contact",
+    "rights": "Tous droits réservés.",
+    "madeWith": "Fait avec",
+    "forDevelopers": "pour les développeurs"
+  },
+
+  "docs": {
+    "title": "Documentation",
+    "subtitle": "Apprenez à utiliser Browser Console AI efficacement"
+  },
+
+  "privacy": {
+    "title": "Politique de Confidentialité",
+    "content": "Browser Console AI s'engage à protéger votre vie privée. Cette extension fonctionne entièrement localement."
+  },
+
+  "terms": {
+    "title": "Conditions d'Utilisation",
+    "content": "Browser Console AI est fourni tel quel, gratuitement."
+  },
+
+  "notFound": {
+    "title": "Page non trouvée",
+    "back": "Retour à l'accueil"
+  }
+}

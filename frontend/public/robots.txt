@@ -1,0 +1,17 @@
+# Browser Console AI robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# Specific rules for Google
+User-agent: Googlebot
+Allow: /
+
+# Sitemap
+Sitemap: https://browserconsoleai.com/sitemap.xml
+
+# Cache control
+User-agent: *
+Crawl-delay: 1
+Request-rate: 30/60

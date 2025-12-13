@@ -1,0 +1,32 @@
+{
+  "name": "@browser-console-ai/shared",
+  "version": "1.0.0",
+  "description": "Shared business logic for Browser Console AI",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p core/tsconfig.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p core/tsconfig.json --noEmit"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "browser-console-ai",
+    "shared",
+    "core"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

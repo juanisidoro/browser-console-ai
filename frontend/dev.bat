@@ -1,0 +1,6 @@
+@echo off
+echo Cambiando a Node 22.12.0...
+call nvm use 22.12.0
+echo.
+echo Iniciando servidor de desarrollo...
+npm run dev

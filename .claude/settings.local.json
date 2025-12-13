@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(timeout 5 node:*)",
+      "Bash(taskkill:*)",
+      "Bash(timeout 3 node:*)",
+      "Bash(netstat:*)",
+      "Bash(cmd //c \"taskkill /F /PID 3424\")",
+      "Bash(cmd //c \"taskkill /F /PID 11580\")",
+      "Bash(node:*)",
+      "mcp__browser-console__get_console_logs",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "Bash(npx:*)",
+      "Bash(set \"NEXT_SKIP_PARTIAL_VERSION_CHECK=1\")",
+      "Bash(npm run dev:*)",
+      "Bash(dir \"C:\\Users\\juani\\AppData\\Roaming\\nvm\" /B)",
+      "Bash(nvm use:*)",
+      "Bash(tree:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "browser-console"
+  ]
+}

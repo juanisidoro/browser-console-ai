@@ -1,0 +1,308 @@
+{
+  "nav": {
+    "features": "Features",
+    "docs": "Docs",
+    "blog": "Blog",
+    "pricing": "Pricing",
+    "getStarted": "Get Started",
+    "installNow": "Install Now"
+  },
+
+  "hero": {
+    "tagline_global": "AI-Powered Browser Debugging",
+    "tagline_variants": {
+      "UK": "Smart Browser Debugging for UK Developers",
+      "DE": "AI-Powered Debugging for German Tech Teams",
+      "NL": "AI-Powered Debugging for Dutch Developers"
+    },
+    "title_global": "Debug with AI in Real Time",
+    "title_variants": {
+      "UK": "Supercharge Your Debugging Workflow",
+      "DE": "Debugging Made Simple with AI",
+      "NL": "Smart Debugging for Dutch Tech Teams"
+    },
+    "subtitle_global": "Connect your browser console directly to Claude and other AI models. Capture logs automatically, analyze errors faster, and never copy-paste console logs again.",
+    "subtitle_variants": {
+      "UK": "Trusted by development teams across the UK. Connect your browser console to AI and debug smarter.",
+      "DE": "Perfect for German development teams. AI-powered debugging that respects your privacy.",
+      "NL": "Built for Dutch developers. Local-first, private, and incredibly powerful."
+    },
+    "cta": "Install Free Extension",
+    "secondary": "Watch Demo",
+    "videoTitle": "Watch Demo Video"
+  },
+
+  "trust": {
+    "badge_global": "100% Free & Open Source",
+    "badge_variants": {
+      "UK": "Free & Trusted by UK Teams",
+      "DE": "GDPR Compliant & Free",
+      "NL": "Privacy-First & Free"
+    },
+    "items": {
+      "free": "100% Free",
+      "privacy": "Privacy First",
+      "opensource": "Open Source"
+    }
+  },
+
+  "problem": {
+    "title": "Stop the Copy-Paste Madness",
+    "subtitle": "There's a better way to debug with AI",
+    "before": {
+      "title": "Without Browser Console AI",
+      "items": [
+        "Manually copy console errors",
+        "Paste into AI chat",
+        "Lose context switching tabs",
+        "Miss important warnings",
+        "Repeat for every error"
+      ]
+    },
+    "after": {
+      "title": "With Browser Console AI",
+      "aiText": "AI sees your console automatically",
+      "items": [
+        "Automatic log capture",
+        "AI sees everything in real-time",
+        "Full context preserved",
+        "Smart filtering & search",
+        "Instant debugging insights"
+      ]
+    }
+  },
+
+  "features": {
+    "title": "Why Developers Love Browser Console AI",
+    "subtitle": "Everything you need to debug faster and smarter",
+    "autoCapture": {
+      "name": "Automatic Capture",
+      "desc": "All console logs are captured automatically and sent to your AI assistant"
+    },
+    "realTime": {
+      "name": "Real-Time Analysis",
+      "desc": "Your AI sees errors as they happen, providing instant debugging insights"
+    },
+    "private": {
+      "name": "100% Private",
+      "desc": "Everything runs locally on your machine. Your code never leaves your browser."
+    },
+    "easy": {
+      "name": "Zero Config",
+      "desc": "Install and use immediately. No complex setup or API keys needed."
+    },
+    "filters": {
+      "name": "Smart Filters",
+      "desc": "Filter by type, URL, timestamp, and search terms. Find what you need instantly."
+    },
+    "mcp": {
+      "name": "MCP Protocol",
+      "desc": "Works with Claude Code and any MCP-compatible AI assistant."
+    }
+  },
+
+  "install": {
+    "title": "Get Started in 3 Steps",
+    "subtitle": "Install Browser Console AI and start debugging smarter immediately.",
+    "step1": {
+      "title": "Add to Chrome",
+      "desc": "Visit Chrome Web Store and click 'Add to Chrome' to install the extension."
+    },
+    "step2": {
+      "title": "Connect to AI",
+      "desc": "Open your AI assistant (Claude, etc.) and configure Browser Console AI as your tool."
+    },
+    "step3": {
+      "title": "Start Debugging",
+      "desc": "Open DevTools console and watch your logs flow to your AI assistant in real-time."
+    },
+    "videoTitle": "Watch How It Works",
+    "videoDesc": "See Browser Console AI in action - from installation to debugging your first error."
+  },
+
+  "testimonial": {
+    "quote_global": "Browser Console AI has transformed how I debug. I can't imagine going back to copy-pasting errors.",
+    "quote_variants": {
+      "UK": "As a London-based developer, this tool has been a game-changer for our team's debugging workflow.",
+      "DE": "Finally, a debugging tool that respects data privacy. Perfect for our German enterprise clients.",
+      "NL": "Simple, effective, and privacy-focused. Exactly what Dutch developers need."
+    },
+    "author_global": "Senior Developer",
+    "author_variants": {
+      "UK": "Tech Lead, London",
+      "DE": "Senior Engineer, Berlin",
+      "NL": "Lead Developer, Amsterdam"
+    }
+  },
+
+  "cta": {
+    "title_global": "Ready to Debug Smarter?",
+    "title_variants": {
+      "UK": "Join UK Developers Debugging Smarter",
+      "DE": "Join German Teams Debugging Smarter",
+      "NL": "Join Dutch Developers Today"
+    },
+    "subtitle_global": "Install Browser Console AI today and experience the future of debugging.",
+    "subtitle_variants": {
+      "UK": "Thousands of UK developers already use Browser Console AI. Join them today.",
+      "DE": "GDPR-compliant, local-first debugging for German development teams.",
+      "NL": "Privacy-focused debugging trusted by Dutch tech companies."
+    },
+    "button": "Add to Chrome",
+    "github": "View on GitHub"
+  },
+
+  "email": {
+    "title": "Stay in the Loop",
+    "subtitle": "Get notified about new features, tips, and debugging insights. No spam, ever.",
+    "placeholder": "Enter your email",
+    "button": "Subscribe",
+    "success": "You're subscribed! Check your inbox.",
+    "privacy": "We respect your privacy. Unsubscribe anytime."
+  },
+
+  "comparison": {
+    "title": "Why Browser Console AI Stands Out",
+    "subtitle": "Compared to manual copy-paste and other solutions",
+    "feature": "Feature",
+    "bcai": "Browser Console AI",
+    "manual": "Manual Copy-Paste",
+    "other": "Other Tools",
+    "features": [
+      { "name": "Real-time capture", "bcai": true, "manual": false, "other": false },
+      { "name": "AI-powered analysis", "bcai": true, "manual": false, "other": false },
+      { "name": "100% local & private", "bcai": true, "manual": true, "other": false },
+      { "name": "Zero configuration", "bcai": true, "manual": false, "other": false },
+      { "name": "Works with Claude Code", "bcai": true, "manual": false, "other": false },
+      { "name": "Search & filter logs", "bcai": true, "manual": false, "other": true },
+      { "name": "Free forever", "bcai": true, "manual": true, "other": false }
+    ]
+  },
+
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Start free, upgrade when you need more power.",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "Forever",
+      "features": [
+        "Up to 100 logs per recording",
+        "5 recordings history",
+        "Plain text format",
+        "Basic filtering",
+        "Copy/paste to AI"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$9",
+      "period": "/month",
+      "features": [
+        "Unlimited logs",
+        "Unlimited recordings",
+        "MCP direct integration",
+        "JSON & TOON formats",
+        "Export to file",
+        "Priority support"
+      ]
+    }
+  },
+
+  "useCases": {
+    "title": "Use Cases",
+    "subtitle": "See how developers are using Browser Console AI",
+    "debugging": {
+      "title": "Assisted Debugging",
+      "desc": "Let your AI analyze errors in real-time while you code. Get instant suggestions and fixes."
+    },
+    "testing": {
+      "title": "QA Testing",
+      "desc": "Capture all errors and warnings during testing sessions. Share context with AI for analysis."
+    },
+    "monitoring": {
+      "title": "Session Monitoring",
+      "desc": "Monitor user sessions and catch bugs developers might miss. Full log history available."
+    },
+    "integration": {
+      "title": "CI/CD Integration",
+      "desc": "Integrate browser logs into your testing pipeline for better error reporting."
+    }
+  },
+
+  "blog": {
+    "title": "Blog & Resources",
+    "subtitle": "Learn tips, tricks, and best practices for debugging with AI",
+    "readMore": "Read more",
+    "postedOn": "Posted on"
+  },
+
+  "footer": {
+    "tagline": "Debug smarter with AI-powered browser console integration",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "chromeStore": "Chrome Web Store",
+    "resources": "Resources",
+    "docs": "Documentation",
+    "blog": "Blog",
+    "github": "GitHub",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact",
+    "rights": "All rights reserved.",
+    "madeWith": "Made with",
+    "forDevelopers": "for developers"
+  },
+
+  "docs": {
+    "title": "Documentation",
+    "subtitle": "Learn how to use Browser Console AI effectively"
+  },
+
+  "privacy": {
+    "title": "Privacy Policy",
+    "content": "Browser Console AI is committed to protecting your privacy. This extension runs entirely locally on your machine and does not collect, store, or transmit any personal data to external servers."
+  },
+
+  "terms": {
+    "title": "Terms of Service",
+    "content": "Browser Console AI is provided as-is, free of charge. By using this extension, you agree to these terms."
+  },
+
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to home"
+  },
+
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "loading": "Loading...",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginTitle": "Welcome back",
+    "loginDescription": "Sign in to access your dashboard and PRO features",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "errors": {
+      "emptyFields": "Please fill in all fields",
+      "passwordTooShort": "Password must be at least 6 characters"
+    },
+    "callback": {
+      "loading": "Authenticating...",
+      "success": "Authentication successful!",
+      "successDescription": "You can now close this tab and return to the extension.",
+      "error": "Authentication failed",
+      "errorDescription": "Please try again or contact support.",
+      "tokenCopied": "Token for extension:",
+      "closeTab": "You can close this tab."
+    }
+  }
+}

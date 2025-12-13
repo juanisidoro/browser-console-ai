@@ -1,0 +1,29 @@
+{
+  "name": "Browser Console AI",
+  "shortDescription": "Debug faster with AI. Connect your browser console directly to Claude and other AI assistants.",
+  "description": "Browser Console AI revolutionizes web development debugging by connecting your browser's developer console directly to AI assistants like Claude Code. No more copy-pasting error logs - your AI sees exactly what's in your console in real-time.\n\nKEY FEATURES:\n\n✓ Automatic Log Capture - Every console.log, error, and warning is automatically captured and sent to your AI assistant\n\n✓ Real-Time Analysis - Your AI analyzes errors as they happen, providing instant debugging suggestions\n\n✓ 100% Private & Local - Everything runs on your machine. Your code never leaves your browser\n\n✓ Zero Configuration - Install and use immediately. No complex setup or API keys needed\n\n✓ Smart Filters - Search and filter logs by type, URL, timestamp, and more\n\n✓ MCP Protocol - Works with Claude Code and any MCP-compatible AI assistant\n\nPERFECT FOR:\n- React, Vue, Angular, and any web framework\n- Debugging with AI assistants\n- Faster error resolution\n- Team collaboration and knowledge sharing\n- QA testing and bug reporting\n\nHOW IT WORKS:\n1. Install Browser Console AI from Chrome Web Store\n2. Configure it with your AI assistant (Claude, etc.)\n3. Start coding - console logs flow automatically to your AI\n4. Get instant debugging suggestions and fixes\n\nOPEN SOURCE:\nBrowser Console AI is completely open source. View and contribute on GitHub.\n\nPRIVACY FIRST:\nWe don't collect any data. All logs stay on your machine unless you explicitly configure otherwise.",
+  "keywords": [
+    "debugging",
+    "AI",
+    "Claude",
+    "console",
+    "developer tools",
+    "JavaScript",
+    "React",
+    "Vue",
+    "Angular",
+    "MCP",
+    "web development",
+    "error handling",
+    "DevTools"
+  ],
+  "category": "Developer Tools",
+  "screenshots": {
+    "544x696": "Screenshot showing Browser Console AI capturing logs in real-time",
+    "1280x800": "Browser Console AI interface with smart filtering capabilities",
+    "800x600": "Integration with Claude Code showing AI analysis of console logs"
+  },
+  "supportUrl": "https://browserconsoleai.com/docs",
+  "privacyPolicy": "https://browserconsoleai.com/privacy",
+  "websiteUrl": "https://browserconsoleai.com"
+}

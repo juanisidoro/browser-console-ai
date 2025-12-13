@@ -1,0 +1,277 @@
+{
+  "nav": {
+    "features": "Funktionen",
+    "docs": "Dokumentation",
+    "blog": "Blog",
+    "pricing": "Preise",
+    "getStarted": "Loslegen",
+    "installNow": "Jetzt Installieren"
+  },
+
+  "hero": {
+    "tagline_global": "KI-gestütztes Browser-Debugging",
+    "tagline_variants": {
+      "DE": "Debugging für Deutsche Entwicklerteams",
+      "AT": "Debugging für Österreichische Entwickler",
+      "CH": "Debugging für Schweizer Tech-Teams"
+    },
+    "title_global": "Debuggen Sie mit KI in Echtzeit",
+    "title_variants": {
+      "DE": "Intelligentes Debugging für Deutsche Teams",
+      "AT": "Effizientes Debugging für Österreich",
+      "CH": "Professionelles Debugging für die Schweiz"
+    },
+    "subtitle_global": "Verbinden Sie Ihre Browser-Konsole direkt mit Claude und anderen KI-Modellen. Erfassen Sie Logs automatisch und analysieren Sie Fehler schneller.",
+    "subtitle_variants": {
+      "DE": "Vertraut von Entwicklungsteams in ganz Deutschland. DSGVO-konform und datenschutzfreundlich.",
+      "AT": "Perfekt für österreichische Startups. KI-Debugging mit Datenschutz.",
+      "CH": "Ideal für Schweizer Teams. Lokal-first und leistungsstark."
+    },
+    "cta": "Kostenlose Erweiterung Installieren",
+    "secondary": "Demo Ansehen",
+    "videoTitle": "Demo-Video Ansehen"
+  },
+
+  "trust": {
+    "badge_global": "100% Kostenlos und Open Source",
+    "badge_variants": {
+      "DE": "DSGVO-Konform und Kostenlos",
+      "AT": "Kostenlos für Österreichische Teams",
+      "CH": "Datenschutz-First und Kostenlos"
+    },
+    "items": {
+      "free": "100% Kostenlos",
+      "privacy": "Datenschutz Zuerst",
+      "opensource": "Open Source"
+    }
+  },
+
+  "problem": {
+    "title": "Schluss mit Copy-Paste-Wahnsinn",
+    "subtitle": "Es gibt einen besseren Weg zum Debuggen mit KI",
+    "before": {
+      "title": "Ohne Browser Console AI",
+      "items": [
+        "Fehler manuell kopieren",
+        "In KI-Chat einfügen",
+        "Kontext beim Tab-Wechsel verlieren",
+        "Wichtige Warnungen verpassen",
+        "Für jeden Fehler wiederholen"
+      ]
+    },
+    "after": {
+      "title": "Mit Browser Console AI",
+      "aiText": "KI sieht Ihre Konsole automatisch",
+      "items": [
+        "Automatische Log-Erfassung",
+        "KI sieht alles in Echtzeit",
+        "Vollständiger Kontext erhalten",
+        "Intelligente Filterung und Suche",
+        "Sofortige Debugging-Einblicke"
+      ]
+    }
+  },
+
+  "features": {
+    "title": "Warum Entwickler Browser Console AI Lieben",
+    "subtitle": "Alles was Sie brauchen, um schneller zu debuggen",
+    "autoCapture": {
+      "name": "Automatische Erfassung",
+      "desc": "Alle Logs werden automatisch erfasst und an Ihren KI-Assistenten gesendet"
+    },
+    "realTime": {
+      "name": "Echtzeit-Analyse",
+      "desc": "Ihre KI sieht Fehler, sobald sie auftreten"
+    },
+    "private": {
+      "name": "100% Privat",
+      "desc": "Alles läuft lokal. Ihr Code verlässt nie Ihren Browser."
+    },
+    "easy": {
+      "name": "Null Konfiguration",
+      "desc": "Installieren und sofort verwenden. Keine komplexe Einrichtung."
+    },
+    "filters": {
+      "name": "Intelligente Filter",
+      "desc": "Filtern nach Typ, URL, Zeitstempel. Finden Sie sofort, was Sie suchen."
+    },
+    "mcp": {
+      "name": "MCP-Protokoll",
+      "desc": "Funktioniert mit Claude Code und jedem MCP-kompatiblen KI-Assistenten."
+    }
+  },
+
+  "install": {
+    "title": "In 3 Schritten Starten",
+    "subtitle": "Installieren Sie Browser Console AI und debuggen Sie intelligenter.",
+    "step1": {
+      "title": "Zu Chrome Hinzufügen",
+      "desc": "Besuchen Sie den Chrome Web Store und klicken Sie auf 'Hinzufügen'."
+    },
+    "step2": {
+      "title": "Mit KI Verbinden",
+      "desc": "Öffnen Sie Ihren KI-Assistenten und konfigurieren Sie Browser Console AI."
+    },
+    "step3": {
+      "title": "Mit Debuggen Beginnen",
+      "desc": "Öffnen Sie DevTools und sehen Sie Ihre Logs zum KI-Assistenten fließen."
+    },
+    "videoTitle": "Sehen Sie Wie Es Funktioniert",
+    "videoDesc": "Sehen Sie Browser Console AI in Aktion."
+  },
+
+  "testimonial": {
+    "quote_global": "Browser Console AI hat meine Art zu debuggen transformiert.",
+    "quote_variants": {
+      "DE": "Als Berliner Entwickler hat dieses Tool unseren Workflow revolutioniert.",
+      "AT": "Perfekt für österreichische Teams. Einfach und datenschutzfreundlich.",
+      "CH": "Professionelles Tool für anspruchsvolle Schweizer Entwickler."
+    },
+    "author_global": "Senior Entwickler",
+    "author_variants": {
+      "DE": "Tech Lead, Berlin",
+      "AT": "Senior Engineer, Wien",
+      "CH": "Lead Developer, Zürich"
+    }
+  },
+
+  "cta": {
+    "title_global": "Bereit Intelligenter zu Debuggen?",
+    "title_variants": {
+      "DE": "Schließen Sie sich Deutschen Entwicklern An",
+      "AT": "Schließen Sie sich Österreichischen Entwicklern An",
+      "CH": "Schließen Sie sich Schweizer Entwicklern An"
+    },
+    "subtitle_global": "Installieren Sie Browser Console AI und erleben Sie die Zukunft des Debuggens.",
+    "subtitle_variants": {
+      "DE": "Tausende Entwickler in Deutschland nutzen bereits Browser Console AI.",
+      "AT": "DSGVO-konformes Debugging für österreichische Teams.",
+      "CH": "Privates Debugging für Schweizer Unternehmen."
+    },
+    "button": "Zu Chrome Hinzufügen",
+    "github": "Auf GitHub Ansehen"
+  },
+
+  "email": {
+    "title": "Bleiben Sie Informiert",
+    "subtitle": "Erhalten Sie Benachrichtigungen über neue Funktionen. Kein Spam.",
+    "placeholder": "E-Mail eingeben",
+    "button": "Abonnieren",
+    "success": "Sie sind abonniert! Überprüfen Sie Ihren Posteingang.",
+    "privacy": "Wir respektieren Ihre Privatsphäre."
+  },
+
+  "comparison": {
+    "title": "Warum Browser Console AI Hervorsticht",
+    "subtitle": "Im Vergleich zu manuellem Kopieren und anderen Lösungen",
+    "feature": "Funktion",
+    "bcai": "Browser Console AI",
+    "manual": "Manuelles Kopieren",
+    "other": "Andere Tools",
+    "features": [
+      { "name": "Echtzeit-Erfassung", "bcai": true, "manual": false, "other": false },
+      { "name": "KI-gestützte Analyse", "bcai": true, "manual": false, "other": false },
+      { "name": "100% lokal und privat", "bcai": true, "manual": true, "other": false },
+      { "name": "Null Konfiguration", "bcai": true, "manual": false, "other": false },
+      { "name": "Claude Code kompatibel", "bcai": true, "manual": false, "other": false },
+      { "name": "Suche und Filterung", "bcai": true, "manual": false, "other": true },
+      { "name": "Für immer kostenlos", "bcai": true, "manual": true, "other": false }
+    ]
+  },
+
+  "pricing": {
+    "title": "Einfache, Transparente Preise",
+    "subtitle": "Browser Console AI ist kostenlos. Keine Testversion, keine Karte erforderlich.",
+    "free": {
+      "name": "Kostenlos",
+      "price": "0€",
+      "period": "Für Immer",
+      "features": [
+        "Unbegrenzte Log-Erfassung",
+        "Echtzeit-KI-Analyse",
+        "Erweiterte Filterung",
+        "Vollständiger Verlauf",
+        "Open Source"
+      ]
+    },
+    "pro": {
+      "name": "Pro (Demnächst)",
+      "price": "9€",
+      "period": "/Monat",
+      "features": [
+        "Alles in Kostenlos",
+        "Cloud-Synchronisation",
+        "Team-Zusammenarbeit",
+        "Erweiterte Analytics",
+        "Prioritäts-Support"
+      ]
+    }
+  },
+
+  "useCases": {
+    "title": "Anwendungsfälle",
+    "subtitle": "Sehen Sie, wie Entwickler Browser Console AI nutzen",
+    "debugging": {
+      "title": "Unterstütztes Debugging",
+      "desc": "Lassen Sie Ihre KI Fehler in Echtzeit analysieren, während Sie programmieren."
+    },
+    "testing": {
+      "title": "QA-Tests",
+      "desc": "Erfassen Sie alle Fehler während der Testsitzungen."
+    },
+    "monitoring": {
+      "title": "Session-Überwachung",
+      "desc": "Überwachen Sie Benutzersitzungen und erkennen Sie Bugs."
+    },
+    "integration": {
+      "title": "CI/CD-Integration",
+      "desc": "Integrieren Sie Browser-Logs in Ihre Test-Pipeline."
+    }
+  },
+
+  "blog": {
+    "title": "Blog und Ressourcen",
+    "subtitle": "Lernen Sie Tipps und Best Practices für das Debuggen mit KI",
+    "readMore": "Mehr lesen",
+    "postedOn": "Veröffentlicht am"
+  },
+
+  "footer": {
+    "tagline": "Debuggen Sie intelligenter mit KI-gestützter Konsolen-Integration",
+    "product": "Produkt",
+    "features": "Funktionen",
+    "pricing": "Preise",
+    "chromeStore": "Chrome Web Store",
+    "resources": "Ressourcen",
+    "docs": "Dokumentation",
+    "blog": "Blog",
+    "github": "GitHub",
+    "legal": "Rechtliches",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "contact": "Kontakt",
+    "rights": "Alle Rechte vorbehalten.",
+    "madeWith": "Gemacht mit",
+    "forDevelopers": "für Entwickler"
+  },
+
+  "docs": {
+    "title": "Dokumentation",
+    "subtitle": "Lernen Sie, Browser Console AI effektiv zu nutzen"
+  },
+
+  "privacy": {
+    "title": "Datenschutzrichtlinie",
+    "content": "Browser Console AI verpflichtet sich, Ihre Privatsphäre zu schützen. Diese Erweiterung läuft vollständig lokal."
+  },
+
+  "terms": {
+    "title": "Nutzungsbedingungen",
+    "content": "Browser Console AI wird kostenlos und ohne Gewähr bereitgestellt."
+  },
+
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "back": "Zurück zur Startseite"
+  }
+}

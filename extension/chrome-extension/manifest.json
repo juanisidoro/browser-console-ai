@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Browser Console AI",
+  "version": "1.1.0",
+  "description": "Record browser console logs and send them to AI agents via MCP",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "http://localhost:9876/*",
+    "http://localhost/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "Open Browser Console AI"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/console-capture.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["content/injected.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

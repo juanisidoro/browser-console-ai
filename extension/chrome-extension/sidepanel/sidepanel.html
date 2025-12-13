@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Console AI</h1>
+      <div class="header-right">
+        <span class="plan-badge free" id="planBadge" title="Click to manage license">FREE</span>
+        <label class="capture-toggle" title="Enable/disable console capture">
+          <input type="checkbox" id="captureEnabled" checked>
+          <span class="toggle-slider"></span>
+          <span class="toggle-label" id="captureLabel">ON</span>
+        </label>
+        <div class="status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Offline</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Limit Warning Banner -->
+    <div class="limit-banner hidden" id="limitBanner">
+      <div class="limit-banner-content">
+        <span class="limit-banner-icon">!</span>
+        <span class="limit-banner-text" id="limitBannerText">Limit reached</span>
+      </div>
+      <a href="https://browserconsoleai.com/pricing" target="_blank" class="limit-banner-cta">Upgrade</a>
+    </div>
+
+    <!-- Disabled State Message -->
+    <section class="disabled-overlay hidden" id="disabledOverlay">
+      <div class="disabled-content">
+        <div class="disabled-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+          </svg>
+        </div>
+        <h2 class="disabled-title">Capture Disabled</h2>
+        <p class="disabled-text">Console logs are not being captured. Enable capture to start recording browser logs.</p>
+        <button class="btn-enable" id="btnEnableCapture">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Enable Capture
+        </button>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section" id="statsSection">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value" id="statTotal">0</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-item stat-log">
+          <span class="stat-value" id="statLog">0</span>
+          <span class="stat-label">Log</span>
+        </div>
+        <div class="stat-item stat-info">
+          <span class="stat-value" id="statInfo">0</span>
+          <span class="stat-label">Info</span>
+        </div>
+        <div class="stat-item stat-warn">
+          <span class="stat-value" id="statWarn">0</span>
+          <span class="stat-label">Warn</span>
+        </div>
+        <div class="stat-item stat-error">
+          <span class="stat-value" id="statError">0</span>
+          <span class="stat-label">Error</span>
+        </div>
+        <div class="stat-item stat-debug">
+          <span class="stat-value" id="statDebug">0</span>
+          <span class="stat-label">Debug</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recording Section -->
+    <section class="recording-section" id="recordingSection">
+      <!-- IDLE State -->
+      <div class="state state-idle" id="stateIdle">
+        <div class="record-hint">Click to start recording console logs</div>
+        <button class="btn-record" id="btnStartRecord">
+          <span class="record-icon"></span>
+          Start Recording
+        </button>
+      </div>
+
+      <!-- RECORDING State -->
+      <div class="state state-recording hidden" id="stateRecording">
+        <div class="recording-header">
+          <div class="recording-indicator">
+            <span class="pulse"></span>
+            <span id="recordingLabel">Recording...</span>
+          </div>
+          <label class="show-logs-toggle" title="Show/hide logs">
+            <input type="checkbox" id="showLogsToggle" checked>
+            <span class="toggle-slider-small"></span>
+            <span class="toggle-label-small">Logs</span>
+          </label>
+        </div>
+        <div class="logs-counter">
+          <span id="logsCount">0</span> logs captured
+        </div>
+        <div class="recording-actions">
+          <button class="btn-stop-only" id="btnStopOnly" title="Stop without sending">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            </svg>
+          </button>
+          <button class="btn-stop" id="btnStopRecord">
+            <span class="stop-icon"></span>
+            Stop & Send
+          </button>
+        </div>
+        <div class="recording-logs-container" id="logsContainer">
+          <div class="recording-logs" id="recordingLogs">
+            <!-- Live logs will appear here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SENT State -->
+      <div class="state state-sent hidden" id="stateSent">
+        <div class="success-icon">✓</div>
+        <div class="sent-message">Logs sent successfully!</div>
+        <div class="hash-container">
+          <div class="hash-label">Recording ID:</div>
+          <div class="hash-value" id="hashValue">REC-000000</div>
+          <button class="btn-copy" id="btnCopy" title="Copy to clipboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="hash-hint">Share this ID with your AI agent to analyze the logs</div>
+        <button class="btn-new" id="btnNewRecording">New Recording</button>
+      </div>
+    </section>
+
+    <!-- Settings (above Recordings) -->
+    <details class="settings-section">
+      <summary>Settings</summary>
+      <div class="settings-content">
+        <!-- Tabs -->
+        <div class="settings-tabs">
+          <button class="settings-tab active" data-tab="capture">Capture</button>
+          <button class="settings-tab" data-tab="mcp-output">MCP Output</button>
+          <button class="settings-tab" data-tab="license">License</button>
+        </div>
+
+        <!-- Tab: Capture -->
+        <div class="settings-page active" id="tabCapture">
+          <div class="filter-group">
+            <label>Show log types:</label>
+            <div class="log-type-filters">
+              <label class="type-toggle">
+                <input type="checkbox" id="filterLog" checked>
+                <span class="type-badge log">log</span>
+              </label>
+              <label class="type-toggle">
+                <input type="checkbox" id="filterInfo" checked>
+                <span class="type-badge info">info</span>
+              </label>
+              <label class="type-toggle">
+                <input type="checkbox" id="filterWarn" checked>
+                <span class="type-badge warn">warn</span>
+              </label>
+              <label class="type-toggle">
+                <input type="checkbox" id="filterError" checked>
+                <span class="type-badge error">error</span>
+              </label>
+              <label class="type-toggle">
+                <input type="checkbox" id="filterDebug" checked>
+                <span class="type-badge debug">debug</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label>Include patterns (comma separated)</label>
+            <input type="text" id="includePatterns" placeholder="error, critical, API">
+          </div>
+
+          <div class="filter-group">
+            <label>Exclude patterns (comma separated)</label>
+            <input type="text" id="excludePatterns" placeholder="[HMR], webpack">
+          </div>
+        </div>
+
+        <!-- Tab: MCP Output -->
+        <div class="settings-page" id="tabMcpOutput">
+          <label class="toggle">
+            <input type="checkbox" id="compactMode">
+            <span>Compact payload (minify JSON)</span>
+          </label>
+
+          <label class="toggle">
+            <input type="checkbox" id="compressObjects" checked>
+            <span>Compress objects > 50 chars</span>
+          </label>
+
+          <label class="toggle">
+            <input type="checkbox" id="plainTextFormat" checked>
+            <span>Plain text format</span>
+          </label>
+
+          <label class="toggle">
+            <input type="checkbox" id="showSourceInPlain" checked>
+            <span>Show file source</span>
+          </label>
+
+          <!-- Props selector -->
+          <div class="filter-group">
+            <label>Include properties:</label>
+            <div class="props-selector">
+              <label class="prop-toggle"><input type="checkbox" id="propId"><span>id</span></label>
+              <label class="prop-toggle"><input type="checkbox" id="propSessionId"><span>sessionId</span></label>
+              <label class="prop-toggle"><input type="checkbox" id="propRecordingId"><span>recordingId</span></label>
+              <label class="prop-toggle"><input type="checkbox" id="propTimestamp"><span>timestamp</span></label>
+              <label class="prop-toggle"><input type="checkbox" id="propUrl"><span>url</span></label>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div class="output-preview">
+            <label>Preview:</label>
+            <div class="preview-box" id="outputPreview">
+              [Store] Cache saved {"key":"pro...end"},{file.ts:42}|[API] Fetch complete|...
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: License -->
+        <div class="settings-page" id="tabLicense">
+          <div class="license-info">
+            <div class="license-plan">
+              <span class="license-plan-label">Current Plan:</span>
+              <span class="license-plan-value" id="licensePlanValue">FREE</span>
+            </div>
+            <div class="license-email hidden" id="licenseEmailRow">
+              <span class="license-email-label">Email:</span>
+              <span class="license-email-value" id="licenseEmailValue">-</span>
+            </div>
+            <div class="license-expires hidden" id="licenseExpiresRow">
+              <span class="license-expires-label">Expires:</span>
+              <span class="license-expires-value" id="licenseExpiresValue">-</span>
+            </div>
+          </div>
+
+          <div class="license-limits">
+            <div class="limit-row">
+              <span class="limit-label">Logs per recording:</span>
+              <span class="limit-value" id="limitLogs">0 / 100</span>
+            </div>
+            <div class="limit-row">
+              <span class="limit-label">Recordings this session:</span>
+              <span class="limit-value" id="limitRecordings">0 / 5</span>
+            </div>
+          </div>
+
+          <div class="license-token-section" id="tokenInputSection">
+            <label for="licenseToken">Activate PRO License:</label>
+            <div class="token-input-row">
+              <input type="text" id="licenseToken" placeholder="Paste your license token">
+              <button class="btn-activate" id="btnActivate">Activate</button>
+            </div>
+            <div class="token-error hidden" id="tokenError">Invalid or expired token</div>
+          </div>
+
+          <div class="license-actions hidden" id="licenseActions">
+            <button class="btn-remove-license" id="btnRemoveLicense">Remove License</button>
+          </div>
+
+          <a href="https://browserconsoleai.com/pricing" target="_blank" class="license-upgrade-link" id="upgradeLink">
+            Get PRO for unlimited logs & recordings
+          </a>
+        </div>
+      </div>
+    </details>
+
+    <!-- Recordings History -->
+    <details class="recordings-section" open>
+      <summary>Recordings</summary>
+      <div class="recordings-content">
+        <div class="recordings-list" id="recordingsList">
+          <div class="empty-state">No recordings yet</div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- Confirmation Dialog -->
+  <div class="dialog-overlay hidden" id="dialogOverlay">
+    <div class="dialog">
+      <div class="dialog-title">Delete Recording?</div>
+      <div class="dialog-message" id="dialogMessage">Are you sure you want to delete this recording?</div>
+      <div class="dialog-actions">
+        <button class="dialog-btn dialog-btn-cancel" id="dialogCancel">Cancel</button>
+        <button class="dialog-btn dialog-btn-confirm" id="dialogConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

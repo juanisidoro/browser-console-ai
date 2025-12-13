@@ -1,0 +1,33 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Browser Console AI",
+  "description": "AI-powered browser console debugging tool that connects to Claude and other AI assistants",
+  "url": "https://browserconsoleai.com",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "browserRequirements": "Chrome 90+",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "reviewCount": "42"
+  },
+  "screenshot": [
+    {
+      "@type": "ImageObject",
+      "url": "https://browserconsoleai.com/screenshot-1.png",
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "author": {
+    "@type": "Organization",
+    "name": "Browser Console AI",
+    "url": "https://browserconsoleai.com"
+  }
+}

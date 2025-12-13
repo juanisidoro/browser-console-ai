@@ -1,0 +1,308 @@
+{
+  "nav": {
+    "features": "Características",
+    "docs": "Documentación",
+    "blog": "Blog",
+    "pricing": "Precios",
+    "getStarted": "Comenzar",
+    "installNow": "Instalar Ahora"
+  },
+
+  "hero": {
+    "tagline_global": "Debugging Impulsado por IA",
+    "tagline_variants": {
+      "ES": "Debugging con IA para Desarrolladores Españoles",
+      "MX": "Debugging con IA para Desarrolladores Mexicanos",
+      "AR": "Debugging con IA para Desarrolladores Argentinos"
+    },
+    "title_global": "Depura con IA en Tiempo Real",
+    "title_variants": {
+      "ES": "Depuración Inteligente para Equipos Tech en España",
+      "MX": "Depuración Rápida para Desarrolladores Mexicanos",
+      "AR": "Depuración Inteligente para Devs Argentinos"
+    },
+    "subtitle_global": "Conecta tu consola del navegador directamente a Claude y otros modelos de IA. Captura logs automáticamente, analiza errores más rápido y nunca vuelvas a copiar y pegar logs.",
+    "subtitle_variants": {
+      "ES": "Usado por equipos de desarrollo en toda España. Conecta tu consola a la IA y depura de forma inteligente.",
+      "MX": "Perfecto para startups mexicanas. Debugging con IA que respeta tu privacidad.",
+      "AR": "Ideal para equipos argentinos. Local-first, privado y potente."
+    },
+    "cta": "Instalar Extensión Gratis",
+    "secondary": "Ver Demo",
+    "videoTitle": "Ver Video Demo"
+  },
+
+  "trust": {
+    "badge_global": "100% Gratis y Open Source",
+    "badge_variants": {
+      "ES": "Gratis y Confiado por Equipos Españoles",
+      "MX": "Gratis para Desarrolladores Mexicanos",
+      "AR": "Gratis para la Comunidad Argentina"
+    },
+    "items": {
+      "free": "100% Gratis",
+      "privacy": "Privacidad Primero",
+      "opensource": "Open Source"
+    }
+  },
+
+  "problem": {
+    "title": "Detén la Locura del Copy-Paste",
+    "subtitle": "Hay una mejor forma de depurar con IA",
+    "before": {
+      "title": "Sin Browser Console AI",
+      "items": [
+        "Copiar errores manualmente",
+        "Pegar en el chat de IA",
+        "Perder contexto cambiando pestañas",
+        "Perderte advertencias importantes",
+        "Repetir para cada error"
+      ]
+    },
+    "after": {
+      "title": "Con Browser Console AI",
+      "aiText": "La IA ve tu consola automáticamente",
+      "items": [
+        "Captura automática de logs",
+        "La IA ve todo en tiempo real",
+        "Contexto completo preservado",
+        "Filtrado y búsqueda inteligente",
+        "Insights de debugging instantáneos"
+      ]
+    }
+  },
+
+  "features": {
+    "title": "Por Qué los Desarrolladores Aman Browser Console AI",
+    "subtitle": "Todo lo que necesitas para depurar más rápido e inteligentemente",
+    "autoCapture": {
+      "name": "Captura Automática",
+      "desc": "Todos los logs de la consola se capturan automáticamente y se envían a tu asistente de IA"
+    },
+    "realTime": {
+      "name": "Análisis en Tiempo Real",
+      "desc": "Tu IA ve los errores mientras suceden, proporcionando insights de depuración instantáneos"
+    },
+    "private": {
+      "name": "100% Privado",
+      "desc": "Todo se ejecuta localmente en tu máquina. Tu código nunca sale de tu navegador."
+    },
+    "easy": {
+      "name": "Sin Configuración",
+      "desc": "Instala y comienza a usar inmediatamente. Sin configuración compleja ni claves API."
+    },
+    "filters": {
+      "name": "Filtros Inteligentes",
+      "desc": "Filtra por tipo, URL, timestamp y búsqueda. Encuentra lo que necesitas al instante."
+    },
+    "mcp": {
+      "name": "Protocolo MCP",
+      "desc": "Funciona con Claude Code y cualquier asistente de IA compatible con MCP."
+    }
+  },
+
+  "install": {
+    "title": "Comienza en 3 Pasos",
+    "subtitle": "Instala Browser Console AI y comienza a depurar de forma inteligente.",
+    "step1": {
+      "title": "Agregar a Chrome",
+      "desc": "Visita Chrome Web Store y haz clic en 'Agregar a Chrome' para instalar."
+    },
+    "step2": {
+      "title": "Conectar a IA",
+      "desc": "Abre tu asistente de IA (Claude, etc.) y configura Browser Console AI."
+    },
+    "step3": {
+      "title": "Comienza a Depurar",
+      "desc": "Abre la consola de DevTools y mira tus logs fluir a tu asistente de IA."
+    },
+    "videoTitle": "Ver Cómo Funciona",
+    "videoDesc": "Ve Browser Console AI en acción - desde la instalación hasta depurar tu primer error."
+  },
+
+  "testimonial": {
+    "quote_global": "Browser Console AI ha transformado cómo depuro. No puedo imaginar volver a copiar-pegar errores.",
+    "quote_variants": {
+      "ES": "Como desarrollador en Madrid, esta herramienta ha sido un cambio total para nuestro equipo.",
+      "MX": "Perfecto para startups mexicanas. Simple, rápido y respetuoso con la privacidad.",
+      "AR": "Increíble herramienta. La comunidad de devs argentina la va a amar."
+    },
+    "author_global": "Desarrollador Senior",
+    "author_variants": {
+      "ES": "Tech Lead, Madrid",
+      "MX": "Senior Engineer, CDMX",
+      "AR": "Lead Developer, Buenos Aires"
+    }
+  },
+
+  "cta": {
+    "title_global": "¿Listo para Depurar de Forma Inteligente?",
+    "title_variants": {
+      "ES": "Únete a los Desarrolladores Españoles",
+      "MX": "Únete a los Desarrolladores Mexicanos",
+      "AR": "Únete a los Desarrolladores Argentinos"
+    },
+    "subtitle_global": "Instala Browser Console AI hoy y experimenta el futuro del debugging.",
+    "subtitle_variants": {
+      "ES": "Miles de desarrolladores en España ya usan Browser Console AI.",
+      "MX": "Debugging de clase mundial para equipos mexicanos.",
+      "AR": "Debugging privado y potente para la comunidad argentina."
+    },
+    "button": "Agregar a Chrome",
+    "github": "Ver en GitHub"
+  },
+
+  "email": {
+    "title": "Mantente al Día",
+    "subtitle": "Recibe notificaciones sobre nuevas funciones y consejos de debugging. Sin spam.",
+    "placeholder": "Ingresa tu email",
+    "button": "Suscribirse",
+    "success": "¡Estás suscrito! Revisa tu bandeja de entrada.",
+    "privacy": "Respetamos tu privacidad. Cancela cuando quieras."
+  },
+
+  "comparison": {
+    "title": "Por Qué Browser Console AI Destaca",
+    "subtitle": "Comparado con copiar-pegar manual y otras soluciones",
+    "feature": "Característica",
+    "bcai": "Browser Console AI",
+    "manual": "Copiar-Pegar Manual",
+    "other": "Otras Herramientas",
+    "features": [
+      { "name": "Captura en tiempo real", "bcai": true, "manual": false, "other": false },
+      { "name": "Análisis impulsado por IA", "bcai": true, "manual": false, "other": false },
+      { "name": "100% local y privado", "bcai": true, "manual": true, "other": false },
+      { "name": "Sin configuración", "bcai": true, "manual": false, "other": false },
+      { "name": "Funciona con Claude Code", "bcai": true, "manual": false, "other": false },
+      { "name": "Buscar y filtrar logs", "bcai": true, "manual": false, "other": true },
+      { "name": "Gratis para siempre", "bcai": true, "manual": true, "other": false }
+    ]
+  },
+
+  "pricing": {
+    "title": "Precios Simples y Transparentes",
+    "subtitle": "Empieza gratis, mejora cuando necesites más potencia.",
+    "free": {
+      "name": "Gratis",
+      "price": "$0",
+      "period": "Siempre",
+      "features": [
+        "Hasta 100 logs por grabación",
+        "5 grabaciones en historial",
+        "Formato texto plano",
+        "Filtrado básico",
+        "Copiar/pegar a IA"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$9",
+      "period": "/mes",
+      "features": [
+        "Logs ilimitados",
+        "Grabaciones ilimitadas",
+        "Integración MCP directa",
+        "Formatos JSON y TOON",
+        "Exportar a archivo",
+        "Soporte prioritario"
+      ]
+    }
+  },
+
+  "useCases": {
+    "title": "Casos de Uso",
+    "subtitle": "Ve cómo los desarrolladores están usando Browser Console AI",
+    "debugging": {
+      "title": "Depuración Asistida",
+      "desc": "Deja que tu IA analice errores en tiempo real mientras codificas."
+    },
+    "testing": {
+      "title": "Pruebas de QA",
+      "desc": "Captura todos los errores durante las sesiones de prueba."
+    },
+    "monitoring": {
+      "title": "Monitoreo de Sesión",
+      "desc": "Monitorea sesiones de usuario y detecta errores que podrías perderte."
+    },
+    "integration": {
+      "title": "Integración CI/CD",
+      "desc": "Integra logs del navegador en tu pipeline de pruebas."
+    }
+  },
+
+  "blog": {
+    "title": "Blog y Recursos",
+    "subtitle": "Aprende consejos y mejores prácticas para depurar con IA",
+    "readMore": "Leer más",
+    "postedOn": "Publicado el"
+  },
+
+  "footer": {
+    "tagline": "Depura de forma inteligente con integración de consola impulsada por IA",
+    "product": "Producto",
+    "features": "Características",
+    "pricing": "Precios",
+    "chromeStore": "Chrome Web Store",
+    "resources": "Recursos",
+    "docs": "Documentación",
+    "blog": "Blog",
+    "github": "GitHub",
+    "legal": "Legal",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "contact": "Contacto",
+    "rights": "Todos los derechos reservados.",
+    "madeWith": "Hecho con",
+    "forDevelopers": "para desarrolladores"
+  },
+
+  "docs": {
+    "title": "Documentación",
+    "subtitle": "Aprende a usar Browser Console AI de manera efectiva"
+  },
+
+  "privacy": {
+    "title": "Política de Privacidad",
+    "content": "Browser Console AI se compromete a proteger tu privacidad. Esta extensión se ejecuta completamente en tu máquina y no recopila datos personales."
+  },
+
+  "terms": {
+    "title": "Términos de Servicio",
+    "content": "Browser Console AI se proporciona tal cual, de forma gratuita. Al usar esta extensión, aceptas estos términos."
+  },
+
+  "notFound": {
+    "title": "Página no encontrada",
+    "back": "Volver al inicio"
+  },
+
+  "auth": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "register": "Registrarse",
+    "email": "Correo",
+    "password": "Contraseña",
+    "loading": "Cargando...",
+    "or": "o",
+    "continueWithGoogle": "Continuar con Google",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "loginTitle": "Bienvenido de nuevo",
+    "loginDescription": "Inicia sesión para acceder a tu dashboard y funciones PRO",
+    "dashboard": "Dashboard",
+    "settings": "Configuración",
+    "errors": {
+      "emptyFields": "Por favor completa todos los campos",
+      "passwordTooShort": "La contraseña debe tener al menos 6 caracteres"
+    },
+    "callback": {
+      "loading": "Autenticando...",
+      "success": "¡Autenticación exitosa!",
+      "successDescription": "Puedes cerrar esta pestaña y volver a la extensión.",
+      "error": "Error de autenticación",
+      "errorDescription": "Por favor intenta de nuevo o contacta soporte.",
+      "tokenCopied": "Token para la extensión:",
+      "closeTab": "Puedes cerrar esta pestaña."
+    }
+  }
+}

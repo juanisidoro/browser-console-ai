@@ -1,0 +1,297 @@
+<!--
+Ejemplo completo: animación de logo Browser Console AI
+-->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Browser Console AI – Logo Animation</title>
+  <style>
+    :root {
+      --bcai-bg: #f5f6f8;
+      --bcai-dark: #0f1b2d;
+      --bcai-dark-soft: #101829;
+      --bcai-accent: #4a79a8;
+      --bcai-text: #0f1b2d;
+      --bcai-white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bcai-bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    /* ===== CONTENEDOR PRINCIPAL ===== */
+    .bcai-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 2rem 2.5rem;
+      border-radius: 1.25rem;
+      background: #ffffff;
+      box-shadow:
+        0 18px 40px rgba(5, 16, 32, 0.12),
+        0 1px 0 rgba(255, 255, 255, 0.6);
+      overflow: visible;
+    }
+
+    /* =========================
+       1) ICONO ANIMADO
+       ========================= */
+
+    .bcai-logo-wrapper {
+      position: relative;
+      width: 3.4rem;   /* tamaño inicial */
+      height: 3.4rem;
+      flex-shrink: 0;
+      transform-origin: center;
+    }
+
+    .bcai-logo-wrapper.animate {
+      animation: bcai-icon-grow 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    /* “Ventana” principal */
+    .bcai-logo {
+      position: absolute;
+      inset: 0;
+      border-radius: 0.75rem;
+      background: var(--bcai-dark-soft);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(10, 24, 52, 0.12);
+    }
+
+    /* Barra superior del navegador */
+    .bcai-logo__topbar {
+      flex: 0 0 32%;
+      background: var(--bcai-accent);
+      display: flex;
+      align-items: center;
+      padding-inline: 0.35rem;
+      gap: 0.25rem;
+    }
+
+    .bcai-logo__dot {
+      width: 0.32rem;
+      height: 0.32rem;
+      border-radius: 999px;
+      background: #0b1726;
+      opacity: 0.9;
+    }
+
+    /* Área inferior (fondo consola) */
+    /* ESTADO INICIAL: centrado */
+    .bcai-logo__body {
+      flex: 1;
+      background: var(--bcai-dark-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0.25rem;
+      transition: padding 0.7s ease-out,
+                  align-items 0.7s ease-out,
+                  justify-content 0.7s ease-out;
+    }
+
+    /* ESTADO ANIMADO: abajo-izquierda como logo final */
+    .bcai-logo-wrapper.animate .bcai-logo__body {
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 0.35rem 0.55rem 0.45rem;
+    }
+
+    /* “>” (prompt) */
+    /* INICIAL: más pequeño y centrado */
+    .bcai-logo__prompt {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;          /* inicio */
+      font-weight: 800;
+      color: var(--bcai-white);
+      line-height: 1;
+      letter-spacing: -0.08em;
+      transform: translateY(0);
+      transition: font-size 0.7s 0.1s ease-out,
+                  font-size 0.7s 0.1s ease-out,
+    }
+
+    /* ANIMADO: más grande y ligeramente abajo */
+    .bcai-logo-wrapper.animate .bcai-logo__prompt {
+      font-size: 1.9rem;
+      transform: translateY(1px);
+    }
+
+    /* “AI” – se muestra sólo en tamaño grande */
+    .bcai-logo__ai {
+      position: absolute;
+      right: 10%;
+      bottom: 16%;
+      color: var(--bcai-white);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      font-size: 0rem;   /* empieza invisible */
+      opacity: 0;
+      white-space: nowrap;
+    }
+
+    .bcai-logo-wrapper.show-ai .bcai-logo__ai {
+      animation:
+        bcai-ai-grow 0.45s 0.55s ease-out forwards,
+        bcai-ai-fade 0.45s 0.55s ease-out forwards;
+    }
+
+    /* =========================
+       2) TEXTO BRANDING
+       ========================= */
+
+    .bcai-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      opacity: 0;
+      transform: translateX(10px);
+    }
+
+    .bcai-brand.animate {
+      animation: bcai-text-in 0.5s 0.9s ease-out forwards;
+    }
+
+    .bcai-brand__line1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--bcai-text);
+      letter-spacing: 0.02em;
+    }
+
+    .bcai-brand__line2 {
+      font-size: 1.7rem;
+      font-weight: 500;
+      color: var(--bcai-text);
+      letter-spacing: 0.02em;
+    }
+
+    .bcai-brand__accent {
+      color: var(--bcai-accent);
+      font-weight: 700;
+    }
+
+    /* =========================
+       KEYFRAMES
+       ========================= */
+
+    @keyframes bcai-icon-grow {
+      0% {
+        width: 3.4rem;
+        height: 3.4rem;
+        transform: translateX(0);
+      }
+      65% {
+        width: 4.6rem;
+        height: 4.6rem;
+        transform: translateX(0);
+      }
+      100% {
+        width: 4.6rem;
+        height: 4.6rem;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes bcai-ai-grow {
+      from { font-size: 0rem; }
+      to   { font-size: 1.25rem; }
+    }
+
+    @keyframes bcai-ai-fade {
+      from { opacity: 0; transform: translateX(4px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes bcai-text-in {
+      from {
+        opacity: 0;
+        transform: translateX(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ===== MODO OSCURO OPCIONAL (ejemplo) ===== */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: radial-gradient(circle at top, #202a3b, #050812);
+      }
+      .bcai-hero {
+        background: #0b1320;
+        box-shadow:
+          0 18px 40px rgba(0, 0, 0, 0.65),
+          0 0 0 1px rgba(255, 255, 255, 0.03);
+      }
+      .bcai-brand__line1,
+      .bcai-brand__line2 {
+        color: #f6f7fb;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bcai-hero">
+    <!-- Logo animado -->
+    <div class="bcai-logo-wrapper" id="bcaiLogo">
+      <div class="bcai-logo">
+        <div class="bcai-logo__topbar">
+          <span class="bcai-logo__dot"></span>
+          <span class="bcai-logo__dot"></span>
+        </div>
+        <div class="bcai-logo__body">
+          <div class="bcai-logo__prompt">&gt;</div>
+          <span class="bcai-logo__ai">AI</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Texto de marca -->
+    <div class="bcai-brand" id="bcaiBrand">
+      <div class="bcai-brand__line1">Browser</div>
+      <div class="bcai-brand__line2">
+        Console <span class="bcai-brand__accent">AI</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dispara la animación cuando la página está lista
+    window.addEventListener("load", () => {
+      const logo = document.getElementById("bcaiLogo");
+      const brand = document.getElementById("bcaiBrand");
+
+      // pequeña pausa para que se vea el estado pequeño
+      setTimeout(() => {
+        logo.classList.add("animate");
+        logo.classList.add("show-ai");
+        brand.classList.add("animate");
+      }, 250);
+    });
+  </script>
+
+</body>
+</html>

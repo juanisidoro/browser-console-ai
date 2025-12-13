@@ -1,0 +1,38 @@
+Browser Console AI - Debug Faster with AI
+
+Debug Web Applications 10x Faster with Browser Console AI
+
+Transform your debugging workflow with Browser Console AI - the Chrome extension that connects your browser console directly to AI assistants like Claude Code.
+
+Stop wasting time copying and pasting console errors. Browser Console AI automatically captures all your logs and sends them to your AI assistant in real-time.
+
+FEATURES:
+• Automatic console log capture
+• Real-time AI analysis of errors
+• 100% private - runs locally on your machine
+• Zero configuration required
+• Advanced filtering and search
+• Compatible with Claude Code and MCP-based assistants
+• Open source and free
+
+PERFECT FOR:
+• React developers
+• Vue developers
+• Angular developers
+• Frontend teams
+• QA engineers
+• Anyone building web applications
+
+WHY YOU NEED THIS:
+1. Faster debugging - Get AI suggestions instantly
+2. Never lose context - AI sees complete console history
+3. Private by default - Your code stays on your machine
+4. Works with Claude Code - Seamless integration
+5. No setup required - Install and start debugging
+
+START DEBUGGING SMARTER TODAY
+Install Browser Console AI now and experience the future of web development debugging.
+
+Website: https://browserconsoleai.com
+Documentation: https://browserconsoleai.com/docs
+GitHub: https://github.com/browserconsoleai

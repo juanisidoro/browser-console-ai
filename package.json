@@ -1,0 +1,19 @@
+{
+  "name": "browser-console-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser Console AI - Monorepo",
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "build:shared": "cd shared && npm run build",
+    "clean:shared": "cd shared && npm run clean",
+    "typecheck:shared": "cd shared && npm run typecheck",
+    "mcp": "npm start --workspace=extension/mcp-server"
+  },
+  "workspaces": [
+    "shared",
+    "frontend",
+    "extension/mcp-server"
+  ]
+}
