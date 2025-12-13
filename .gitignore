@@ -23,8 +23,8 @@ out/
 *.swo
 .DS_Store
 
-# Logs
-logs/
+# Logs (only root level runtime logs, not shared/core/logs business logic)
+/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
