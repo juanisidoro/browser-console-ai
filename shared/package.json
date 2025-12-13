@@ -2,14 +2,14 @@
   "name": "@browser-console-ai/shared",
   "version": "1.0.0",
   "description": "Shared business logic for Browser Console AI",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "core/index.ts",
+  "module": "core/index.ts",
+  "types": "core/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "types": "./core/index.ts",
+      "import": "./core/index.ts",
+      "require": "./core/index.ts"
     }
   },
   "scripts": {
