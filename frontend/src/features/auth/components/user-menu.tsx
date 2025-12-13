@@ -22,7 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useI18n } from '@/lib/i18n-context';
 import { User, LogOut, Settings, BarChart3 } from 'lucide-react';
-import { isAdminEmail } from '../../../../../../shared/core';
+import { isAdminEmail } from '@/lib/admin';
 
 export function UserMenu() {
   const { locale, section } = useI18n();
