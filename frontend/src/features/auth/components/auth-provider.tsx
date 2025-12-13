@@ -18,7 +18,7 @@ import {
   GoogleAuthProvider,
 } from 'firebase/auth';
 import { getFirebaseAuth } from '@/infra/firebase/client';
-import type { User } from '@browser-console-ai/shared';
+import type { User } from '../../../../../../shared/core';
 
 interface AuthContextType {
   user: User | null;

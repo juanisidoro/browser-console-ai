@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminDb } from '@/infra/firebase/admin';
 import { signLicenseToken, verifyLicenseToken } from '@/infra/licensing/jwt-service';
-import type { Plan } from '@browser-console-ai/shared';
+import type { Plan } from '../../../../shared/core';
 
 /**
  * GET /api/license

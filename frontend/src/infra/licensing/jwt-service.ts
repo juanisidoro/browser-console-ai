@@ -14,8 +14,8 @@
  */
 
 import { SignJWT, jwtVerify, JWTPayload } from 'jose';
-import { generateLicensePayload, verifyLicensePayload } from '@browser-console-ai/shared';
-import type { Plan, LicensePayload } from '@browser-console-ai/shared';
+import { generateLicensePayload, verifyLicensePayload } from '../../../../shared/core';
+import type { Plan, LicensePayload } from '../../../../shared/core';
 
 // Secret key for signing JWTs - must be at least 32 characters
 function getJwtSecret(): Uint8Array {

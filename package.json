@@ -15,5 +15,8 @@
     "shared",
     "frontend",
     "extension/mcp-server"
-  ]
+  ],
+  "devDependencies": {
+    "next": "^14.2.35"
+  }
 }
