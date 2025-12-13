@@ -4,12 +4,15 @@
  * Admin Layout
  *
  * Protects admin routes - only accessible to admin users.
+ * Note: This page is not indexed by search engines (X-Robots-Tag in middleware).
  */
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth';
-import { isAdminEmail } from '../../../shared/core';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { isAdminEmail } from '@/lib/admin';
+import { Header } from '@/components/header';
+import { Loader2, ShieldAlert, BarChart3 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AdminLayout({
   children,
@@ -89,35 +92,36 @@ export default function AdminLayout({
   // Admin authenticated
   return (
     <div className="min-h-screen bg-background">
-      {/* Admin Header */}
-      <header className="border-b border-border bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* Site Header */}
+      <Header locale="en" />
+
+      {/* Admin Sub-header */}
+      <div className="pt-16 border-b border-border bg-card/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <a href="/" className="text-xl font-bold">
-                Browser Console AI
-              </a>
-              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
-                Admin
-              </span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">{user.email}</span>
-              <nav className="flex space-x-4">
-                <a
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Admin Panel</span>
+              </div>
+              <nav className="flex items-center gap-4 ml-6">
+                <Link
                   href="/admin/metrics"
-                  className="text-sm text-foreground hover:text-primary"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Metrics
-                </a>
+                </Link>
               </nav>
             </div>
+            <span className="text-xs text-muted-foreground">
+              {user.email}
+            </span>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Content */}
-      <main>{children}</main>
+      <main className="pt-6">{children}</main>
     </div>
   );
 }

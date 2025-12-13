@@ -17,7 +17,8 @@ import {
   ChevronRight,
   ExternalLink,
   Copy,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +31,7 @@ interface OnboardingStep {
     label: string;
     href?: string;
     onClick?: () => void;
+    loading?: boolean;
   };
   completed?: boolean;
 }
@@ -38,7 +40,12 @@ interface OnboardingStepsProps {
   hasExtension?: boolean;
   hasTrial?: boolean;
   hasToken?: boolean;
+  hasFirstRecording?: boolean;
   token?: string | null;
+  trialDaysRemaining?: number;
+  canActivateTrial?: boolean;
+  onActivateTrial?: () => Promise<{ success: boolean; error?: string }>;
+  activatingTrial?: boolean;
   locale: string;
 }
 
@@ -46,16 +53,31 @@ export function OnboardingSteps({
   hasExtension = false,
   hasTrial = false,
   hasToken = false,
+  hasFirstRecording = false,
   token,
+  trialDaysRemaining,
+  canActivateTrial = true,
+  onActivateTrial,
+  activatingTrial = false,
   locale
 }: OnboardingStepsProps) {
   const [copiedToken, setCopiedToken] = useState(false);
+  const [trialError, setTrialError] = useState<string | null>(null);
 
   const copyToken = () => {
     if (token) {
       navigator.clipboard.writeText(token);
       setCopiedToken(true);
       setTimeout(() => setCopiedToken(false), 2000);
+    }
+  };
+
+  const handleActivateTrial = async () => {
+    if (!onActivateTrial) return;
+    setTrialError(null);
+    const result = await onActivateTrial();
+    if (!result.success && result.error) {
+      setTrialError(result.error);
     }
   };
 
@@ -77,18 +99,29 @@ export function OnboardingSteps({
     },
     {
       id: 2,
-      title: isEn ? 'Activate Your Trial' : 'Activar tu Prueba',
-      description: isEn
-        ? 'Open the extension and click "Start Free Trial" for 3 days. Then enter your email for 3 more days!'
-        : 'Abre la extensión y pulsa "Start Free Trial" para 3 días. ¡Luego ingresa tu email para 3 días más!',
+      title: isEn ? 'Activate 6-Day Trial' : 'Activar Prueba de 6 Días',
+      description: hasTrial
+        ? (isEn
+          ? `Trial active! ${trialDaysRemaining || 0} days remaining`
+          : `¡Prueba activa! ${trialDaysRemaining || 0} días restantes`)
+        : (isEn
+          ? 'Start your free trial to unlock PRO features'
+          : 'Inicia tu prueba gratuita para desbloquear funciones PRO'),
       icon: <Sparkles className="w-6 h-6" />,
+      action: !hasTrial && canActivateTrial && onActivateTrial ? {
+        label: activatingTrial
+          ? (isEn ? 'Activating...' : 'Activando...')
+          : (isEn ? 'Activate Trial' : 'Activar Prueba'),
+        onClick: handleActivateTrial,
+        loading: activatingTrial,
+      } : undefined,
       completed: hasTrial,
     },
     {
       id: 3,
-      title: isEn ? 'Enter Your Token' : 'Ingresar tu Token',
+      title: isEn ? 'Enter Token in Extension' : 'Ingresar Token en Extensión',
       description: isEn
-        ? 'Copy your license token below and paste it in the extension settings'
+        ? 'Copy your license token and paste it in the extension settings'
         : 'Copia tu token de licencia y pégalo en los ajustes de la extensión',
       icon: <Key className="w-6 h-6" />,
       action: token ? {
@@ -101,12 +134,12 @@ export function OnboardingSteps({
     },
     {
       id: 4,
-      title: isEn ? 'Start Capturing!' : '¡Comenzar a Capturar!',
+      title: isEn ? 'Make Your First Recording' : 'Hacer tu Primera Grabación',
       description: isEn
-        ? 'Record console logs and send them to your AI agents via MCP'
-        : 'Graba logs de consola y envíalos a tus agentes IA vía MCP',
+        ? 'Open a webpage, start recording and capture console logs'
+        : 'Abre una web, inicia grabación y captura los logs de consola',
       icon: <Rocket className="w-6 h-6" />,
-      completed: hasExtension && hasTrial && hasToken,
+      completed: hasFirstRecording,
     },
   ];
 
@@ -212,17 +245,32 @@ export function OnboardingSteps({
               ) : (
                 <button
                   onClick={step.action.onClick}
+                  disabled={step.action.loading}
                   className={cn(
                     "flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                    copiedToken
+                    copiedToken && step.id === 3
                       ? "bg-green-500 text-white"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90",
+                    step.action.loading && "opacity-70 cursor-not-allowed"
                   )}
                 >
-                  {copiedToken ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {step.action.loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : step.id === 3 ? (
+                    copiedToken ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />
+                  ) : step.id === 2 ? (
+                    <Sparkles className="w-4 h-4" />
+                  ) : null}
                   {step.action.label}
                 </button>
               )
+            )}
+
+            {/* Trial error message */}
+            {step.id === 2 && trialError && (
+              <div className="text-xs text-destructive mt-2">
+                {trialError}
+              </div>
             )}
 
             {/* Completed checkmark */}

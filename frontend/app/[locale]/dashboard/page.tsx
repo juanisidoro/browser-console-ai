@@ -23,10 +23,14 @@ export default function DashboardPage() {
   const {
     subscription,
     license,
+    trial,
+    onboarding,
     isLoading: dashboardLoading,
     error,
+    activatingTrial,
     rotateToken,
     openBillingPortal,
+    activateTrial,
   } = useDashboard();
 
   // Redirect to login if not authenticated
@@ -87,10 +91,15 @@ export default function DashboardPage() {
               {/* Onboarding Steps - Show for free/trial users */}
               {(!subscription?.status || subscription?.status === 'free' || subscription?.status === 'trial') && (
                 <OnboardingSteps
-                  hasExtension={false}
-                  hasTrial={subscription?.status === 'trial'}
-                  hasToken={!!license?.token}
+                  hasExtension={onboarding.hasExtension}
+                  hasTrial={onboarding.hasTrial}
+                  hasToken={onboarding.hasToken}
+                  hasFirstRecording={onboarding.hasFirstRecording}
                   token={license?.token}
+                  trialDaysRemaining={trial?.daysRemaining}
+                  canActivateTrial={trial?.canActivate ?? true}
+                  onActivateTrial={activateTrial}
+                  activatingTrial={activatingTrial}
                   locale={locale}
                 />
               )}

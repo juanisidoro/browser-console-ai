@@ -89,7 +89,7 @@ export function UserMenu() {
         </DropdownMenuItem>
         {isAdminEmail(user.email) && (
           <DropdownMenuItem asChild>
-            <Link href="/admin" className="cursor-pointer">
+            <Link href="/admin/metrics" className="cursor-pointer">
               <BarChart3 className="mr-2 h-4 w-4" />
               {locale === 'en' ? 'Analytics' : 'Analíticas'}
             </Link>
