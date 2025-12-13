@@ -11,9 +11,10 @@ import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { useAuth } from '@/features/auth';
-import { useDashboard, SubscriptionCard, ExtensionToken } from '@/features/dashboard';
+import { useDashboard, SubscriptionCard, ExtensionToken, OnboardingSteps } from '@/features/dashboard';
 import { useI18n } from '@/lib/i18n-context';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const { locale } = useI18n();
@@ -83,56 +84,84 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="grid gap-6">
-              {/* Subscription Card */}
-              <SubscriptionCard
-                status={subscription?.status || 'free'}
-                currentPeriodEnd={subscription?.currentPeriodEnd}
-                cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd}
-                onManageBilling={openBillingPortal}
-              />
+              {/* Onboarding Steps - Show for free/trial users */}
+              {(!subscription?.status || subscription?.status === 'free' || subscription?.status === 'trial') && (
+                <OnboardingSteps
+                  hasExtension={false}
+                  hasTrial={subscription?.status === 'trial'}
+                  hasToken={!!license?.token}
+                  token={license?.token}
+                  locale={locale}
+                />
+              )}
 
-              {/* Extension Token */}
-              <ExtensionToken
-                token={license?.token || null}
-                plan={license?.plan || subscription?.status || 'free'}
-                expiresAt={license?.expiresAt || null}
-                onRotate={rotateToken}
-              />
+              {/* Two-column layout for subscription and token */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Subscription Card */}
+                <SubscriptionCard
+                  status={subscription?.status || 'free'}
+                  currentPeriodEnd={subscription?.currentPeriodEnd}
+                  cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd}
+                  onManageBilling={openBillingPortal}
+                />
+
+                {/* Extension Token */}
+                <ExtensionToken
+                  token={license?.token || null}
+                  plan={license?.plan || subscription?.status || 'free'}
+                  expiresAt={license?.expiresAt || null}
+                  onRotate={rotateToken}
+                />
+              </div>
 
               {/* Quick Links */}
               <div className="rounded-xl border bg-card p-6">
                 <h3 className="text-lg font-semibold mb-4">
                   {locale === 'en' ? 'Quick Links' : 'Enlaces Rápidos'}
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-3 gap-4">
                   <a
                     href="https://chrome.google.com/webstore"
                     target="_blank"
                     rel="noreferrer"
-                    className="p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                    className="p-4 rounded-lg border hover:bg-muted/50 transition-colors group"
                   >
-                    <h4 className="font-medium">
+                    <h4 className="font-medium group-hover:text-primary transition-colors">
                       {locale === 'en' ? 'Chrome Extension' : 'Extensión Chrome'}
                     </h4>
                     <p className="text-sm text-muted-foreground">
                       {locale === 'en'
-                        ? 'Install or update the extension'
-                        : 'Instalar o actualizar la extensión'}
+                        ? 'Install or update'
+                        : 'Instalar o actualizar'}
                     </p>
                   </a>
                   <a
                     href={`/${locale}/docs`}
-                    className="p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                    className="p-4 rounded-lg border hover:bg-muted/50 transition-colors group"
                   >
-                    <h4 className="font-medium">
+                    <h4 className="font-medium group-hover:text-primary transition-colors">
                       {locale === 'en' ? 'Documentation' : 'Documentación'}
                     </h4>
                     <p className="text-sm text-muted-foreground">
                       {locale === 'en'
-                        ? 'Learn how to use Browser Console AI'
-                        : 'Aprende a usar Browser Console AI'}
+                        ? 'Learn how to use'
+                        : 'Aprende a usar'}
                     </p>
                   </a>
+                  <Link
+                    href={`/${locale}/settings`}
+                    className="p-4 rounded-lg border hover:bg-muted/50 transition-colors group"
+                  >
+                    <h4 className="font-medium group-hover:text-primary transition-colors flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      {locale === 'en' ? 'Settings' : 'Configuración'}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {locale === 'en'
+                        ? 'Manage your account'
+                        : 'Gestionar tu cuenta'}
+                    </p>
+                  </Link>
                 </div>
               </div>
             </div>

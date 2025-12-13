@@ -21,7 +21,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useI18n } from '@/lib/i18n-context';
-import { User, LogOut, Settings } from 'lucide-react';
+import { User, LogOut, Settings, BarChart3 } from 'lucide-react';
+import { isAdminEmail } from '../../../../../../shared/core';
 
 export function UserMenu() {
   const { locale, section } = useI18n();
@@ -81,11 +82,19 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/${locale}/dashboard`} className="cursor-pointer">
+          <Link href={`/${locale}/settings`} className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             {auth.settings}
           </Link>
         </DropdownMenuItem>
+        {isAdminEmail(user.email) && (
+          <DropdownMenuItem asChild>
+            <Link href="/admin" className="cursor-pointer">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              {locale === 'en' ? 'Analytics' : 'Analíticas'}
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"
