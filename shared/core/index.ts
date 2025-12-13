@@ -15,11 +15,23 @@ export type {
   VerifyResult,
   Entitlements,
   OutputFormat,
+  DeviceFingerprint,
+  TrialLicense,
+  DeviceRegistration,
+  PlanConfig,
 } from './licensing/entities';
-export { getEntitlements } from './licensing/entities';
+export { getEntitlements, PLAN_CONFIGS } from './licensing/entities';
 export * from './licensing/errors';
 export { generateLicensePayload } from './licensing/use-cases/generate-payload';
 export { verifyLicensePayload, shouldRefreshToken } from './licensing/use-cases/verify-payload';
+export {
+  validateFingerprint,
+  generateFingerprintHash,
+  createTrialLicense,
+  isTrialValid,
+  getTrialDaysRemaining,
+} from './licensing/use-cases/activate-trial';
+export type { ActivateTrialInput, ActivateTrialResult } from './licensing/use-cases/activate-trial';
 
 // Billing domain (subscriptions, limits)
 export type {
@@ -59,3 +71,26 @@ export {
   formatLogsJson,
 } from './logs/use-cases/format-logs';
 export type { FormatOptions } from './logs/use-cases/format-logs';
+
+// Analytics domain
+export type {
+  AnalyticsEventType,
+  AnalyticsEvent,
+  EventMetadata,
+  DailyMetrics,
+  TotalMetrics,
+  AdminUser,
+} from './analytics/entities';
+export { DEFAULT_ADMIN_EMAILS, isAdminEmail } from './analytics/entities';
+export {
+  processAnalyticsEvent,
+  getEventDateString,
+} from './analytics/use-cases/process-event';
+export type { ProcessEventInput, ProcessEventResult } from './analytics/use-cases/process-event';
+export {
+  createEmptyDailyMetrics,
+  createEmptyTotalMetrics,
+  getDailyIncrements,
+  getTotalIncrements,
+  calculateRates,
+} from './analytics/use-cases/aggregate-metrics';

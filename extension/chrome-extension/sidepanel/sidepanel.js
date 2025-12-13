@@ -2,6 +2,11 @@
 
 const SERVER_URL = 'http://localhost:9876';
 
+// Track analytics helper
+function trackEvent(event, data = {}) {
+  chrome.runtime.sendMessage({ action: 'TRACK_EVENT', event, data });
+}
+
 // DOM Elements
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
@@ -86,6 +91,13 @@ const licenseActions = document.getElementById('licenseActions');
 const btnRemoveLicense = document.getElementById('btnRemoveLicense');
 const upgradeLink = document.getElementById('upgradeLink');
 
+// Trial elements
+const trialSection = document.getElementById('trialSection');
+const trialActiveSection = document.getElementById('trialActiveSection');
+const trialDaysRemaining = document.getElementById('trialDaysRemaining');
+const btnStartTrial = document.getElementById('btnStartTrial');
+const trialError = document.getElementById('trialError');
+
 // State
 let currentState = 'idle';
 let currentLicense = null;
@@ -117,15 +129,22 @@ function updateCaptureUI(enabled) {
 // Update license UI
 function updateLicenseUI(license, quota) {
   currentLicense = license;
-  const isPro = license.plan !== 'free' && license.isValid;
+  const isPro = ['pro', 'pro_early'].includes(license.plan) && license.isValid;
+  const isTrial = license.plan === 'trial' && license.isValid;
+  const isFree = license.plan === 'free' || !license.isValid;
 
   // Update plan badge
-  planBadge.textContent = license.plan.toUpperCase().replace('_', ' ');
-  planBadge.className = 'plan-badge ' + (isPro ? 'pro' : 'free');
+  if (isTrial) {
+    planBadge.textContent = 'TRIAL';
+    planBadge.className = 'plan-badge trial';
+  } else {
+    planBadge.textContent = license.plan.toUpperCase().replace('_', ' ');
+    planBadge.className = 'plan-badge ' + (isPro ? 'pro' : 'free');
+  }
 
   // Update license info section
   licensePlanValue.textContent = license.plan.toUpperCase().replace('_', ' ');
-  licensePlanValue.className = 'license-plan-value ' + (isPro ? 'pro' : 'free');
+  licensePlanValue.className = 'license-plan-value ' + (isPro || isTrial ? 'pro' : 'free');
 
   if (license.email) {
     licenseEmailRow.classList.remove('hidden');
@@ -157,16 +176,56 @@ function updateLicenseUI(license, quota) {
     }
   }
 
-  // Show/hide token input vs remove button
-  if (isPro) {
+  // Handle trial-specific UI
+  if (isTrial) {
+    // Show trial active banner
+    trialSection.classList.add('hidden');
+    trialActiveSection.classList.remove('hidden');
+
+    // Calculate days remaining
+    if (license.expiresAt) {
+      const daysLeft = Math.ceil((new Date(license.expiresAt) - Date.now()) / (24 * 60 * 60 * 1000));
+      trialDaysRemaining.textContent = Math.max(0, daysLeft);
+    }
+
+    // Hide token input, show upgrade
+    tokenInputSection.classList.add('hidden');
+    licenseActions.classList.remove('hidden');
+    upgradeLink.classList.remove('hidden');
+  } else if (isPro) {
+    // PRO plan - hide trial sections
+    trialSection.classList.add('hidden');
+    trialActiveSection.classList.add('hidden');
     tokenInputSection.classList.add('hidden');
     licenseActions.classList.remove('hidden');
     upgradeLink.classList.add('hidden');
   } else {
+    // FREE plan - check if can show trial option
+    trialActiveSection.classList.add('hidden');
     tokenInputSection.classList.remove('hidden');
     licenseActions.classList.add('hidden');
     upgradeLink.classList.remove('hidden');
+
+    // Check if trial is available
+    checkTrialAvailability();
   }
+}
+
+// Check if trial can be activated
+async function checkTrialAvailability() {
+  chrome.runtime.sendMessage({ action: 'CHECK_TRIAL_STATUS' }, (response) => {
+    if (response) {
+      if (response.canActivate && !response.hasTrialed) {
+        trialSection.classList.remove('hidden');
+      } else if (response.hasTrialed && response.isValid) {
+        // Trial is active - refresh license to show it
+        refreshLicense();
+      } else {
+        // Trial expired or already used
+        trialSection.classList.add('hidden');
+      }
+    }
+  });
 }
 
 // Show limit warning
@@ -395,6 +454,9 @@ function renderRecordingsHistory(recordings) {
         await navigator.clipboard.writeText(text);
         btn.classList.add('copied');
         setTimeout(() => btn.classList.remove('copied'), 1000);
+
+        // Track copy recording
+        trackEvent('copy_recording', { recordingId: id });
       } catch (err) {
         console.error('Failed to copy logs:', err);
       }
@@ -572,8 +634,12 @@ btnStopRecord.addEventListener('click', () => {
       } else if (!response.mcpAvailable) {
         sentMessage.textContent = 'Recording saved locally';
         sentMessage.classList.add('no-mcp');
-        hashHint.innerHTML = 'MCP access requires PRO plan. <a href="https://browserconsoleai.com/pricing" target="_blank">Upgrade</a>';
+        hashHint.innerHTML = 'MCP access requires PRO plan. <a href="https://browserconsoleai.com/pricing" target="_blank" id="upgradeHintLink">Upgrade</a>';
         hashHint.classList.add('no-mcp');
+        // Track upgrade link click in sent state
+        document.getElementById('upgradeHintLink')?.addEventListener('click', () => {
+          trackEvent('upgrade_clicked', { source: 'sidepanel_sent_state' });
+        });
       } else {
         sentMessage.textContent = 'Recording saved (MCP offline)';
         sentMessage.classList.remove('no-mcp');
@@ -791,6 +857,38 @@ btnRemoveLicense.addEventListener('click', async () => {
   }
 });
 
+// Track upgrade link clicks
+upgradeLink.addEventListener('click', () => {
+  trackEvent('upgrade_clicked', { source: 'sidepanel_license_tab' });
+});
+
+// Start trial button
+btnStartTrial.addEventListener('click', () => {
+  btnStartTrial.disabled = true;
+  btnStartTrial.textContent = 'Activating...';
+  trialError.classList.add('hidden');
+
+  chrome.runtime.sendMessage({ action: 'ACTIVATE_TRIAL' }, (response) => {
+    btnStartTrial.disabled = false;
+    btnStartTrial.textContent = 'Start Free Trial';
+
+    if (response && response.success) {
+      // Trial activated successfully
+      refreshLicense();
+      hideLimitWarning();
+    } else {
+      // Show error
+      trialError.textContent = response?.message || 'Failed to activate trial. Please try again.';
+      trialError.classList.remove('hidden');
+
+      // If trial already used, hide the trial section
+      if (response?.error === 'trial_already_used' || response?.error === 'trial_expired') {
+        trialSection.classList.add('hidden');
+      }
+    }
+  });
+});
+
 // Capture tab event listeners
 [filterLog, filterInfo, filterWarn, filterError, filterDebug].forEach(el => {
   el.addEventListener('change', saveSettings);
@@ -840,6 +938,9 @@ loadSettings();
 loadRecordingNames();
 refreshStatus();
 refreshLicense();
+
+// Track sidepanel opened
+trackEvent('sidepanel_opened');
 
 // Refresh status periodically
 setInterval(refreshStatus, 3000);

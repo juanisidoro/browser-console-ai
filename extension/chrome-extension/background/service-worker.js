@@ -1,8 +1,9 @@
 // Background Service Worker
 // Recording mode for console logs
 
-// Import license manager
+// Import license manager and analytics
 importScripts('../utils/license.js');
+importScripts('../utils/analytics.js');
 
 const SERVER_URL = 'http://localhost:9876';
 
@@ -181,12 +182,21 @@ async function sendLogsToServer(logs, recordingId) {
 }
 
 // Check server health
+let lastMcpConnectedState = false;
 async function checkServerHealth() {
   try {
     const response = await fetch(`${SERVER_URL}/health`);
     const data = await response.json();
+
+    // Track MCP connection (only once when transitioning to connected)
+    if (!lastMcpConnectedState) {
+      lastMcpConnectedState = true;
+      self.Analytics.trackEvent('mcp_connected');
+    }
+
     return { connected: true, ...data };
   } catch {
+    lastMcpConnectedState = false;
     return { connected: false };
   }
 }
@@ -320,6 +330,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         recordingLogs = [];
         logLimitNotified = false; // Reset limit notification flag
         refreshLicense(); // Refresh license at start of recording
+
+        // Track recording started
+        self.Analytics.trackEvent('recording_started');
+
         sendResponse({ started: true });
       } else {
         sendResponse({
@@ -338,20 +352,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'STOP_RECORDING') {
     isRecording = false;
     const hash = generateRecordingId();
+    const logCount = recordingLogs.length;
 
     sendLogsToServer(recordingLogs, hash).then(result => {
       // Always save to history (local recordings work for all users)
       recordingsHistory.push({
         id: hash,
-        count: recordingLogs.length,
+        count: logCount,
         timestamp: Date.now(),
         sentToMcp: result.success
       });
       saveRecordingsHistory();
 
+      // Track recording completed
+      self.Analytics.trackEvent('recording_completed', {
+        logCount,
+        sentToMcp: result.success
+      });
+
       sendResponse({
         hash,
-        count: recordingLogs.length,
+        count: logCount,
         success: result.success,
         mcpAvailable: result.reason !== 'mcp_not_available',
         reason: result.reason
@@ -423,6 +444,49 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+
+  // Track analytics event (from sidepanel or other UI)
+  if (message.action === 'TRACK_EVENT') {
+    self.Analytics.trackEvent(message.event, message.data || {});
+    sendResponse({ tracked: true });
+    return;
+  }
+
+  // Activate trial license
+  if (message.action === 'ACTIVATE_TRIAL') {
+    self.LicenseManager.activateTrial().then(result => {
+      if (result.success) {
+        currentLicense = null; // Clear cache to force refresh
+        self.Analytics.trackEvent('trial_activated', {
+          daysRemaining: result.daysRemaining
+        });
+      }
+      sendResponse(result);
+    });
+    return true;
+  }
+
+  // Check trial status
+  if (message.action === 'CHECK_TRIAL_STATUS') {
+    self.LicenseManager.canActivateTrial().then(result => {
+      sendResponse(result);
+    });
+    return true;
+  }
+
+  // Verify license online (on-demand)
+  if (message.action === 'VERIFY_LICENSE') {
+    self.LicenseManager.getLicenseInfo().then(license => {
+      if (!license.token) {
+        sendResponse({ valid: false, reason: 'no_token' });
+        return;
+      }
+      self.LicenseManager.verifyLicenseOnline(license.token).then(result => {
+        sendResponse(result);
+      });
+    });
+    return true;
+  }
 });
 
 // Open side panel when extension icon is clicked
@@ -460,6 +524,15 @@ async function injectIntoAllTabs() {
   }
 }
 
+// Track extension install/update
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    self.Analytics.trackInstall();
+  } else if (details.reason === 'update') {
+    self.Analytics.trackUpdate(details.previousVersion);
+  }
+});
+
 // Initialize
 async function initialize() {
   await loadSettings();
@@ -476,6 +549,10 @@ async function initialize() {
   if (captureEnabled) {
     injectIntoAllTabs();
   }
+
+  // Track install if not already tracked
+  self.Analytics.trackInstall();
+
   console.log('Browser Console AI - Capture:', captureEnabled ? 'ON' : 'OFF');
 }
 

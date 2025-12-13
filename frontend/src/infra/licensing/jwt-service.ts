@@ -65,6 +65,30 @@ export async function signLicenseToken(
 }
 
 /**
+ * Generate a signed JWT trial token (no email required)
+ */
+export async function signTrialToken(
+  installationId: string,
+  tokenId: string,
+  expiresAt: number
+): Promise<string> {
+  const secret = getJwtSecret();
+  const now = Date.now();
+
+  const token = await new SignJWT({
+    sub: installationId, // Use installationId as subject
+    plan: 'trial' as Plan,
+    tokenId,
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt(Math.floor(now / 1000))
+    .setExpirationTime(Math.floor(expiresAt / 1000))
+    .sign(secret);
+
+  return token;
+}
+
+/**
  * Verify a JWT license token
  */
 export async function verifyLicenseToken(token: string): Promise<{

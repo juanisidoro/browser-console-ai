@@ -7,7 +7,7 @@
 
 import type { LicensePayload, VerifyResult, Plan } from '../entities';
 
-const VALID_PLANS: Plan[] = ['free', 'pro', 'pro_early'];
+const VALID_PLANS: Plan[] = ['free', 'trial', 'pro', 'pro_early'];
 
 /**
  * Verify a license payload (after INFRA has verified the JWT signature)

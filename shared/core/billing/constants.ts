@@ -36,6 +36,7 @@ export function getLimitsForPlan(plan: Plan): PlanLimits {
   switch (plan) {
     case 'free':
       return FREE_LIMITS;
+    case 'trial':
     case 'pro':
     case 'pro_early':
       return PRO_LIMITS;
