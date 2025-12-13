@@ -420,7 +420,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         recordingsHistory.length
       ).then(quota => {
         sendResponse({ license, quota });
+      }).catch(error => {
+        console.error('[Service Worker] Error getting quota:', error);
+        sendResponse({ license, quota: null, error: error.message });
       });
+    }).catch(error => {
+      console.error('[Service Worker] Error getting license:', error);
+      sendResponse({ license: null, quota: null, error: error.message });
     });
     return true;
   }
@@ -441,6 +447,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     self.LicenseManager.removeLicenseToken().then(() => {
       currentLicense = null;
       sendResponse({ success: true });
+    }).catch(error => {
+      console.error('[Service Worker] Error removing license:', error);
+      sendResponse({ success: false, error: error.message });
     });
     return true;
   }
@@ -456,6 +465,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'GET_INSTALLATION_ID') {
     self.LicenseManager.getInstallationId().then(installationId => {
       sendResponse({ installationId });
+    }).catch(error => {
+      console.error('[Service Worker] Error getting installation ID:', error);
+      sendResponse({ installationId: null, error: error.message });
     });
     return true;
   }
@@ -484,6 +496,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
       }
       sendResponse(result);
+    }).catch(error => {
+      console.error('[Service Worker] Error activating trial:', error);
+      sendResponse({ success: false, error: error.message });
     });
     return true;
   }
@@ -492,6 +507,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'CHECK_TRIAL_STATUS') {
     self.LicenseManager.canActivateTrial().then(result => {
       sendResponse(result);
+    }).catch(error => {
+      console.error('[Service Worker] Error checking trial status:', error);
+      sendResponse({ canActivate: false, error: error.message });
     });
     return true;
   }
@@ -505,7 +523,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       self.LicenseManager.verifyLicenseOnline(license.token).then(result => {
         sendResponse(result);
+      }).catch(error => {
+        console.error('[Service Worker] Error verifying license online:', error);
+        sendResponse({ valid: false, error: error.message });
       });
+    }).catch(error => {
+      console.error('[Service Worker] Error getting license for verification:', error);
+      sendResponse({ valid: false, error: error.message });
     });
     return true;
   }
