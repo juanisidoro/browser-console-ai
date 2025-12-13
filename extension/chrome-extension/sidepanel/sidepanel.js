@@ -188,9 +188,9 @@ function updateLicenseUI(license, quota) {
       trialDaysRemaining.textContent = Math.max(0, daysLeft);
     }
 
-    // Hide token input, show upgrade
+    // Hide token input, hide remove button (can't revoke trial), show upgrade
     tokenInputSection.classList.add('hidden');
-    licenseActions.classList.remove('hidden');
+    licenseActions.classList.add('hidden');  // No remove option during trial
     upgradeLink.classList.remove('hidden');
   } else if (isPro) {
     // PRO plan - hide trial sections
