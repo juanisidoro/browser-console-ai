@@ -137,7 +137,7 @@ async function trackEvent(event, data = {}) {
     const installationId = await getAnalyticsInstallationId();
     const metadata = getMetadata();
 
-    // Get userId if logged in
+    // Get userId if logged in (Firebase UID, not installationId)
     let userId = null;
     const licenseResult = await chrome.storage.local.get('bcai_license_token');
     if (licenseResult.bcai_license_token) {
@@ -145,7 +145,13 @@ async function trackEvent(event, data = {}) {
         const parts = licenseResult.bcai_license_token.split('.');
         if (parts.length === 3) {
           const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-          userId = payload.sub || null;
+          // Use explicit userId field if present (for web users with Firebase account)
+          // Don't use 'sub' as it may be installationId for extension-only trials
+          userId = payload.userId || null;
+          // For pro/pro_early plans, 'sub' is the Firebase UID
+          if (!userId && payload.plan && payload.plan !== 'trial' && payload.plan !== 'free') {
+            userId = payload.sub || null;
+          }
         }
       } catch (e) {
         // Ignore decode errors
