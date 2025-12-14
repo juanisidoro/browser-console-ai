@@ -1646,6 +1646,43 @@ header {
   font-weight: 600;
 }
 
+/* Refresh Token Button */
+.btn-refresh-token {
+  background: transparent;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
+  color: #3b82f6;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.btn-refresh-token:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.btn-refresh-token:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-refresh-token .refresh-icon {
+  font-size: 12px;
+}
+
+.btn-refresh-token.syncing .refresh-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Extend Trial Section */
 .extend-trial-section {
   background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);

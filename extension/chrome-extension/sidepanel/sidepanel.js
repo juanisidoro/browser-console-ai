@@ -97,6 +97,7 @@ const trialActiveSection = document.getElementById('trialActiveSection');
 const trialDaysRemaining = document.getElementById('trialDaysRemaining');
 const btnStartTrial = document.getElementById('btnStartTrial');
 const trialError = document.getElementById('trialError');
+const btnRefreshToken = document.getElementById('btnRefreshToken');
 const extendTrialSection = document.getElementById('extendTrialSection');
 const extendEmailForm = document.getElementById('extendEmailForm');
 const extendEmail = document.getElementById('extendEmail');
@@ -194,10 +195,22 @@ function updateLicenseUI(license, quota) {
     trialSection.classList.add('hidden');
     trialActiveSection.classList.remove('hidden');
 
-    // Calculate days remaining
+    // Calculate days remaining - handle different date formats
     if (license.expiresAt) {
-      const daysLeft = Math.ceil((new Date(license.expiresAt) - Date.now()) / (24 * 60 * 60 * 1000));
+      let expiresAtMs;
+      if (typeof license.expiresAt === 'string') {
+        expiresAtMs = new Date(license.expiresAt).getTime();
+      } else if (typeof license.expiresAt === 'number') {
+        expiresAtMs = license.expiresAt;
+      } else if (license.expiresAt instanceof Date) {
+        expiresAtMs = license.expiresAt.getTime();
+      } else {
+        expiresAtMs = Date.now(); // fallback
+      }
+      const daysLeft = Math.ceil((expiresAtMs - Date.now()) / (24 * 60 * 60 * 1000));
       trialDaysRemaining.textContent = Math.max(0, daysLeft);
+    } else {
+      trialDaysRemaining.textContent = '-';
     }
 
     // Show "Extend Trial" section if not already extended (check if email exists)
@@ -205,10 +218,13 @@ function updateLicenseUI(license, quota) {
     const isExtended = license.email && license.email.length > 0;
     if (!isExtended) {
       extendTrialSection.classList.remove('hidden');
+      btnRefreshToken.classList.add('hidden');
       // Set the extend trial link with installationId
       setupExtendTrialLink();
     } else {
       extendTrialSection.classList.add('hidden');
+      // Show refresh button for extended trials (so they can sync with server)
+      btnRefreshToken.classList.remove('hidden');
     }
 
     // Hide token input, hide remove button (can't revoke trial), show upgrade
@@ -220,6 +236,7 @@ function updateLicenseUI(license, quota) {
     trialSection.classList.add('hidden');
     trialActiveSection.classList.add('hidden');
     extendTrialSection.classList.add('hidden');
+    btnRefreshToken.classList.add('hidden');
     tokenInputSection.classList.add('hidden');
     licenseActions.classList.remove('hidden');
     upgradeLink.classList.add('hidden');
@@ -227,6 +244,7 @@ function updateLicenseUI(license, quota) {
     // FREE plan - check if can show trial option
     trialActiveSection.classList.add('hidden');
     extendTrialSection.classList.add('hidden');
+    btnRefreshToken.classList.add('hidden');
     tokenInputSection.classList.remove('hidden');
     licenseActions.classList.add('hidden');
     upgradeLink.classList.remove('hidden');
@@ -1121,6 +1139,50 @@ function debounce(fn, delay) {
     timer = setTimeout(() => fn.apply(this, args), delay);
   };
 }
+
+// Refresh token button handler (for extended trials)
+btnRefreshToken.addEventListener('click', async () => {
+  btnRefreshToken.disabled = true;
+  btnRefreshToken.classList.add('syncing');
+
+  try {
+    // Get installation ID
+    const installationId = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: 'GET_INSTALLATION_ID' }, (response) => {
+        resolve(response?.installationId);
+      });
+    });
+
+    if (!installationId) {
+      throw new Error('Could not get installation ID');
+    }
+
+    // Fetch updated token from server
+    const response = await fetch(`https://browserconsoleai.com/api/license/get-extended-token?installationId=${encodeURIComponent(installationId)}`);
+    const data = await response.json();
+
+    if (data.success && data.token) {
+      // Save the new token
+      await new Promise((resolve) => {
+        chrome.runtime.sendMessage({
+          action: 'SAVE_LICENSE_TOKEN',
+          token: data.token
+        }, resolve);
+      });
+
+      // Refresh UI
+      refreshLicense();
+      console.log('[Sidepanel] Token synced successfully');
+    } else {
+      console.warn('[Sidepanel] Failed to sync token:', data.message);
+    }
+  } catch (error) {
+    console.error('[Sidepanel] Error syncing token:', error);
+  } finally {
+    btnRefreshToken.disabled = false;
+    btnRefreshToken.classList.remove('syncing');
+  }
+});
 
 // Listen for messages from background
 chrome.runtime.onMessage.addListener((message) => {
