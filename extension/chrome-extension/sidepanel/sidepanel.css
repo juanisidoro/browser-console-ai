@@ -1865,6 +1865,95 @@ header {
   color: #c4b5fd;
 }
 
+/* Code Input Section */
+.code-input-section {
+  margin: 12px 0;
+}
+
+.code-input-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.confirm-code-input {
+  width: 120px;
+  padding: 12px 16px;
+  background: #0a0a12;
+  border: 2px solid #3f3f5a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 18px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.confirm-code-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background: #12121f;
+}
+
+.confirm-code-input::placeholder {
+  color: #555;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.btn-confirm-code {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-confirm-code:hover {
+  filter: brightness(1.1);
+}
+
+.btn-confirm-code:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.code-error {
+  font-size: 11px;
+  color: #f87171;
+  padding: 6px 10px;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: 4px;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.code-confirming {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 8px;
+}
+
+.code-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #3f3f5a;
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
 /* Privacy Tab Styles */
 .privacy-header {
   margin-bottom: 16px;
@@ -2042,4 +2131,120 @@ input:checked + .toggle-slider:before {
 .privacy-policy-link:hover {
   border-color: #8b5cf6;
   background: rgba(139, 92, 246, 0.1);
+}
+
+/* Account Section Styles */
+.account-section {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.account-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  background: #2a2a4a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2a2a4a;
+  object-fit: cover;
+}
+
+.account-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.account-desc {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.account-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.account-email-display {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.btn-google-signin {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #fff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-google-signin:hover {
+  background: #f8f9fa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-google-signin:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
+.btn-sign-out {
+  width: 100%;
+  padding: 8px 16px;
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid #3f3f5a;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sign-out:hover {
+  color: #f87171;
+  border-color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.account-signed-in .account-header {
+  margin-bottom: 10px;
 }

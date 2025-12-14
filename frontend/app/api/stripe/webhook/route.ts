@@ -12,8 +12,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/infra/stripe/server';
 import { getAdminDb } from '@/infra/firebase/admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 import type Stripe from 'stripe';
+
+// Helper to track analytics events from webhook
+async function trackWebhookEvent(
+  db: FirebaseFirestore.Firestore,
+  eventName: string,
+  userId: string,
+  data?: Record<string, unknown>
+) {
+  try {
+    const eventId = `${eventName}-${userId}-${Date.now()}`;
+    await db.collection('analytics_events').doc(eventId).set({
+      event: eventName,
+      userId,
+      installationId: null, // Server-side event, no installationId
+      timestamp: Date.now(),
+      data: data || {},
+      metadata: { source: 'stripe_webhook' },
+      createdAt: FieldValue.serverTimestamp(),
+    });
+    console.log(`[Analytics] Tracked ${eventName} for user ${userId}`);
+  } catch (error) {
+    console.error(`[Analytics] Failed to track ${eventName}:`, error);
+  }
+}
 
 // Disable body parsing - we need the raw body for webhook signature verification
 export const runtime = 'nodejs';
@@ -162,6 +186,12 @@ async function handleCheckoutCompleted(
   }, { merge: true });
 
   console.log(`[Webhook] User ${firebaseUid} upgraded to ${plan}`);
+
+  // Track subscription_created event
+  await trackWebhookEvent(db, 'subscription_created', firebaseUid, {
+    plan,
+    priceId: subscription.items.data[0]?.price.id,
+  });
 }
 
 /**
@@ -225,6 +255,11 @@ async function handleSubscriptionDeleted(
   });
 
   console.log(`User ${userDoc.id} downgraded to free`);
+
+  // Track subscription_cancelled event
+  await trackWebhookEvent(db, 'subscription_cancelled', userDoc.id, {
+    reason: subscription.cancellation_details?.reason || 'unknown',
+  });
 }
 
 /**

@@ -7,9 +7,9 @@
  * URL: /extend-trial/confirm?token=xxx
  */
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Loader2, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, ExternalLink, Copy, Check } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
 
 type Status = 'loading' | 'success' | 'error';
@@ -19,6 +19,8 @@ interface ExtendResult {
   message?: string;
   daysRemaining?: number;
   expiresAt?: string;
+  oneTimeCode?: string;
+  codeExpiresAt?: string;
 }
 
 function ConfirmContent() {
@@ -28,6 +30,18 @@ function ConfirmContent() {
 
   const [status, setStatus] = useState<Status>('loading');
   const [result, setResult] = useState<ExtendResult | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyCode = useCallback(async () => {
+    if (!result?.oneTimeCode) return;
+    try {
+      await navigator.clipboard.writeText(result.oneTimeCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }, [result?.oneTimeCode]);
 
   useEffect(() => {
     async function confirmExtension() {
@@ -83,12 +97,37 @@ function ConfirmContent() {
             {result?.message || `You now have ${result?.daysRemaining} days remaining.`}
           </p>
 
-          <div className="w-full bg-muted/50 rounded-lg p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-2">
-              Your extension will automatically update.
-            </p>
-            <p className="text-sm font-medium">
-              Just open the Browser Console AI sidepanel and you&apos;re all set!
+          {/* One-time code section */}
+          {result?.oneTimeCode && (
+            <div className="w-full bg-primary/5 border-2 border-primary/20 rounded-lg p-6 text-center space-y-4">
+              <p className="text-sm font-medium text-foreground">
+                Enter this code in the Browser Console AI extension:
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <code className="text-3xl font-mono font-bold tracking-[0.3em] bg-background px-6 py-3 rounded-lg border">
+                  {result.oneTimeCode}
+                </code>
+                <button
+                  onClick={copyCode}
+                  className="p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  title="Copy code"
+                >
+                  {copied ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    <Copy className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Code expires in 15 minutes
+              </p>
+            </div>
+          )}
+
+          <div className="w-full bg-muted/50 rounded-lg p-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              Open the Browser Console AI sidepanel → License tab → Enter the code above
             </p>
           </div>
 

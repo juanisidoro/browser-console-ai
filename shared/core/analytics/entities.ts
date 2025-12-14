@@ -30,6 +30,14 @@ export type AnalyticsEventType =
   | 'checkout_started'
   | 'subscription_created'
   | 'subscription_cancelled'
+  // Auth events
+  | 'auth_anonymous_signin'
+  | 'auth_google_signin'
+  | 'auth_google_linked'
+  | 'auth_google_signin_existing'
+  | 'auth_email_link_sent'
+  | 'auth_email_link_completed'
+  | 'auth_signout'
   // Other
   | 'license_verified'
   | 'error_occurred'

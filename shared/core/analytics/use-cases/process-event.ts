@@ -30,6 +30,14 @@ const VALID_EVENTS: AnalyticsEventType[] = [
   'license_verified',
   'error_occurred',
   'analytics_consent_changed',
+  // Auth events
+  'auth_anonymous_signin',
+  'auth_google_signin',
+  'auth_google_linked',
+  'auth_google_signin_existing',
+  'auth_email_link_sent',
+  'auth_email_link_completed',
+  'auth_signout',
 ];
 
 export interface ProcessEventInput {

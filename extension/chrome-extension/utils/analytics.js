@@ -137,31 +137,48 @@ async function trackEvent(event, data = {}) {
     const installationId = await getAnalyticsInstallationId();
     const metadata = getMetadata();
 
-    // Get userId if logged in (Firebase UID, not installationId)
+    // Get userId from Firebase Auth (anonymous or registered)
+    // In extension, userId should NEVER be null - we always have at least an anonymous user
     let userId = null;
-    const licenseResult = await chrome.storage.local.get('bcai_license_token');
-    if (licenseResult.bcai_license_token) {
-      try {
-        const parts = licenseResult.bcai_license_token.split('.');
-        if (parts.length === 3) {
-          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-          // Use explicit userId field if present (for web users with Firebase account)
-          // Don't use 'sub' as it may be installationId for extension-only trials
-          userId = payload.userId || null;
-          // For pro/pro_early plans, 'sub' is the Firebase UID
-          if (!userId && payload.plan && payload.plan !== 'trial' && payload.plan !== 'free') {
-            userId = payload.sub || null;
+
+    // First, try to get from AuthManager (preferred - Firebase UID)
+    if (typeof AuthManager !== 'undefined' && AuthManager.getCurrentUserId) {
+      userId = await AuthManager.getCurrentUserId();
+    }
+
+    // Fallback: try to get from stored auth state
+    if (!userId) {
+      const authResult = await chrome.storage.local.get('bcai_firebase_user');
+      if (authResult.bcai_firebase_user?.uid) {
+        userId = authResult.bcai_firebase_user.uid;
+      }
+    }
+
+    // Legacy fallback: get from JWT token (for pro users)
+    if (!userId) {
+      const licenseResult = await chrome.storage.local.get('bcai_license_token');
+      if (licenseResult.bcai_license_token) {
+        try {
+          const parts = licenseResult.bcai_license_token.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            // Use explicit userId field if present
+            userId = payload.userId || null;
+            // For pro/pro_early plans, 'sub' is the Firebase UID
+            if (!userId && payload.plan && payload.plan !== 'trial' && payload.plan !== 'free') {
+              userId = payload.sub || null;
+            }
           }
+        } catch (e) {
+          // Ignore decode errors
         }
-      } catch (e) {
-        // Ignore decode errors
       }
     }
 
     const payload = {
       event,
       installationId,
-      userId,
+      userId, // May still be null for very first events before auth initializes
       timestamp: Date.now(),
       data: Object.keys(data).length > 0 ? data : undefined,
       metadata,
@@ -178,7 +195,7 @@ async function trackEvent(event, data = {}) {
       // Silent fail - analytics should never block functionality
     });
 
-    console.debug('[Analytics] Tracked:', event);
+    console.debug('[Analytics] Tracked:', event, userId ? `(uid: ${userId.slice(0, 8)}...)` : '(no uid yet)');
   } catch (error) {
     // Silent fail
     console.warn('[Analytics] Failed to track:', event, error);

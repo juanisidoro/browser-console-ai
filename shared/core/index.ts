@@ -7,6 +7,7 @@
 
 // Auth domain (identity)
 export type { User, Session } from './auth/entities';
+export { isDisposableEmail, validateTrialEmail } from './auth/disposable-emails';
 
 // Licensing domain (permissions)
 export type {

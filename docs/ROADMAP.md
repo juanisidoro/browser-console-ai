@@ -1,313 +1,258 @@
 # Roadmap de Implementación
 
-> Checklist por fases con Definition of Done.
+> Estado actual y próximos pasos del proyecto.
 
-## Configuración Confirmada
+## Estado del Proyecto: MVP Completado
+
+El MVP de Browser Console AI está funcional con todas las características core implementadas.
+
+## Configuración Actual
 
 | Aspecto | Valor |
 |---------|-------|
 | Límites FREE | 100 logs + 5 grabaciones |
-| Upsell triggers | Log #101, grabación #6 |
+| Límites TRIAL | 500 logs + 20 grabaciones + MCP |
+| Límites PRO | Ilimitado |
+| Trial base | 3 días |
+| Trial extendido | 6 días (si vincula email/Google) |
 | Formatos FREE | Solo Plain |
-| Formatos PRO | Plain + TOON + JSON + Export |
-| Grace period offline | 3 días |
+| Formatos TRIAL/PRO | Plain + TOON + JSON + Export |
 | Token storage | `chrome.storage.local` |
 
 ---
 
-## FASE 0: Fundación Arquitectura
+## FASE 0: Fundación Arquitectura - COMPLETADO
 
 **Objetivo**: Crear shared/core compilable y reglas en CLAUDE.md
 
-### Estructura a crear
+### Estado
 
-```
-/shared
-  /core
-    /auth                    # SOLO identidad (Firebase login)
-      entities.ts            # User, Session
-    /licensing               # Token JWT + entitlements + gating
-      entities.ts            # LicensePayload, Plan, VerifyResult, Entitlements
-      errors.ts              # LicenseExpiredError, InvalidTokenError
-      /use-cases
-        generate-payload.ts  # generateLicensePayload(userId, plan)
-        verify-payload.ts    # verifyLicensePayload(payload) - NO crypto
-    /billing
-      entities.ts            # Subscription, Price
-      constants.ts           # FREE_LIMITS, PRO_LIMITS
-    /logs
-      entities.ts            # ConsoleLog, Recording, LogType
-      /use-cases
-        check-limits.ts      # checkLimits(plan, logCount, recordingCount)
-        format-logs.ts       # formatLogs(logs, format)
-    /index.ts                # Re-exports públicos
-    tsconfig.json            # Config para compilar a /dist
-  /dist                      # Output JS + .d.ts
-  package.json               # name: "@browser-console-ai/shared"
-```
-
-### Tareas
-
-- [ ] Crear estructura `/shared/core` con dominios separados
-- [ ] Implementar entidades: User, Session, LicensePayload, Plan, Entitlements
-- [ ] Implementar constantes: FREE_LIMITS (100 logs, 5 recs), PRO_LIMITS
-- [ ] Implementar use-cases CORE (sin crypto):
-  - `generateLicensePayload(userId, plan)` → payload object
-  - `verifyLicensePayload(payload)` → VerifyResult (solo campos/expiry)
-  - `checkLimits(plan, logCount, recordingCount)` → LimitResult
-- [ ] Crear tsconfig.json para compilar a `/shared/dist`
-- [ ] Crear script `build:shared` en package.json raíz
-- [ ] Configurar alias `@shared/*` en frontend/tsconfig.json
-- [ ] Configurar imports en extension
-- [ ] Configurar imports en mcp-server
-- [ ] Actualizar CLAUDE.md con reglas InnerTech
-- [ ] Verificar: `npm run build:shared` genera /dist sin errores
-
-### Definition of Done
-
-- [ ] `/shared/dist` existe con JS + .d.ts
-- [ ] `checkLimits('free', 100, 5)` → `{ allowed: true }`
-- [ ] `checkLimits('free', 101, 5)` → `{ allowed: false, reason: 'log_limit' }`
-- [ ] `checkLimits('free', 50, 6)` → `{ allowed: false, reason: 'recording_limit' }`
-- [ ] `verifyLicensePayload({ exp: pastDate })` → `{ valid: false, reason: 'expired' }`
-- [ ] CLAUDE.md tiene reglas de arquitectura
-- [ ] Ningún archivo en /shared/core importa firebase/stripe/chrome/express/jose
+- [x] Crear estructura `/shared/core` con dominios separados
+- [x] Implementar entidades: User, Session, LicensePayload, Plan, Entitlements
+- [x] Implementar constantes: FREE_LIMITS, TRIAL_LIMITS, PRO_LIMITS
+- [x] Crear tsconfig.json para compilar a `/shared/dist`
+- [x] Actualizar CLAUDE.md con reglas InnerTech
 
 ---
 
-## FASE 1: Firebase Auth (Web)
+## FASE 1: Firebase Auth - COMPLETADO
 
-**Objetivo**: Login funcional con Google + email en Next.js
+**Objetivo**: Autenticación funcional en web y extensión
 
-### Estructura a crear
+### Implementado
 
-```
-/frontend/src
-  /infra
-    /firebase
-      client.ts              # initializeApp, getAuth
-      admin.ts               # Firebase Admin SDK (server)
-    /auth
-      firebase-adapter.ts    # Implementa lógica de auth
-  /features
-    /auth
-      /components
-        auth-provider.tsx    # Context + onAuthStateChanged
-        login-form.tsx       # UI login
-        user-menu.tsx        # Avatar + dropdown
-      /hooks
-        use-auth.ts          # useAuth() → { user, login, logout }
-      /api
-        auth-client.ts       # Calls a /api/auth/*
+- [x] Firebase Auth: Google + Email/Password en web
+- [x] Firebase Auth en extensión (Anonymous-first)
+- [x] `chrome.identity.launchWebAuthFlow` para OAuth en MV3
+- [x] Firebase SDK local en extensión (CSP compliance)
+- [x] Account linking (anonymous → Google/Email)
+- [x] API: `/api/users/ensure` - upsert user en Firestore
+- [x] API: `/api/auth/session` - verificar sesión
 
-/frontend/app
-  /[locale]/auth
-    /login/page.tsx          # Página de login
-    /callback/page.tsx       # Callback para extension
-  /api
-    /auth/session/route.ts   # GET: verificar sesión
-    /users/ensure/route.ts   # POST: upsert user en Firestore
-```
+### Archivos Clave
 
-### Tareas
-
-- [ ] Crear proyecto en Firebase Console
-- [ ] Habilitar Auth: Email/Password + Google
-- [ ] Crear Firestore database (production mode)
-- [ ] Instalar deps: `firebase`, `firebase-admin`
-- [ ] Crear `.env.local` con FIREBASE_* variables
-- [ ] Crear INFRA: `firebase/client.ts`
-- [ ] Crear INFRA: `firebase/admin.ts`
-- [ ] Crear API: `/api/users/ensure/route.ts`
-- [ ] Crear Feature: `auth/hooks/use-auth.ts`
-- [ ] Crear Feature: `auth/components/auth-provider.tsx`
-- [ ] Crear Feature: `auth/components/login-form.tsx`
-- [ ] Crear Page: `/auth/login/page.tsx`
-- [ ] Modificar Header: añadir UserMenu o Login button
-- [ ] Crear Page: `/auth/callback/page.tsx`
-- [ ] Añadir strings i18n: `messages/*.json`
-
-### Definition of Done
-
-- [ ] Usuario puede hacer login con Google
-- [ ] Usuario puede hacer login con email/password
-- [ ] Header muestra avatar cuando logueado
-- [ ] Header muestra "Login" cuando no logueado
-- [ ] `/auth/callback?token=xxx` funciona
-- [ ] POST `/api/users/ensure` crea `users/{uid}` en Firestore
-- [ ] Documento incluye: email, createdAt, subscription: { status: 'free' }
+| Archivo | Función |
+|---------|---------|
+| `extension/chrome-extension/utils/auth.js` | Firebase Auth + chrome.identity |
+| `extension/chrome-extension/utils/firebase-config.js` | Configuración Firebase + OAuth |
+| `extension/chrome-extension/lib/firebase-*.js` | SDK Firebase local |
+| `frontend/src/infra/firebase/` | Firebase client + admin |
+| `frontend/app/api/auth/` | Endpoints de auth |
 
 ---
 
-## FASE 2: Stripe + Pagos
+## FASE 2: Stripe + Pagos - COMPLETADO
 
 **Objetivo**: Checkout funcional y webhooks sincronizando Firestore
 
-### Estructura a crear
+### Implementado
 
-```
-/frontend/src
-  /infra
-    /stripe
-      client.ts              # Stripe SDK client-side
-      server.ts              # Stripe SDK server-side
-      webhooks.ts            # Handlers para eventos
-  /features
-    /billing
-      /hooks
-        use-subscription.ts
-      /api
-        billing-client.ts
+- [x] Stripe Checkout con metadata de Firebase UID
+- [x] Webhook: `checkout.session.completed`
+- [x] Webhook: `customer.subscription.updated`
+- [x] Webhook: `customer.subscription.deleted`
+- [x] Webhook: `invoice.payment_failed`
+- [x] Customer Portal para gestión de suscripción
+- [x] Prevención de suscripciones duplicadas
 
-/frontend/app/api
-  /stripe
-    /checkout/route.ts       # POST: crear checkout session
-    /webhook/route.ts        # POST: recibir eventos Stripe
-    /portal/route.ts         # POST: crear portal session
-```
+### Archivos Clave
 
-### Tareas
-
-- [ ] Crear cuenta Stripe (test mode)
-- [ ] Crear productos: "Pro Monthly" ($12), "Pro Yearly" ($99)
-- [ ] Crear precio "Early Access" ($9/mes)
-- [ ] Instalar dep: `stripe`
-- [ ] Crear `.env.local`: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
-- [ ] Crear INFRA: `stripe/server.ts`
-- [ ] Crear API: `/api/stripe/checkout/route.ts`
-- [ ] Crear API: `/api/stripe/webhook/route.ts`
-- [ ] Crear API: `/api/stripe/portal/route.ts`
-- [ ] Webhook: `checkout.session.completed` → crear subscription
-- [ ] Webhook: `customer.subscription.updated` → actualizar status
-- [ ] Webhook: `customer.subscription.deleted` → marcar cancelado
-- [ ] Modificar Pricing page: botón Pro → checkout
-- [ ] Test con Stripe CLI
-
-### Definition of Done
-
-- [ ] Usuario puede iniciar checkout desde pricing
-- [ ] Pago test crea subscription en Firestore
-- [ ] Webhook actualiza `users/{uid}.subscription.status = 'pro'`
-- [ ] Cancelación actualiza status a 'canceled'
+| Archivo | Función |
+|---------|---------|
+| `frontend/app/api/stripe/checkout/route.ts` | Crear checkout session |
+| `frontend/app/api/stripe/webhook/route.ts` | Procesar eventos Stripe |
+| `frontend/app/api/stripe/portal/route.ts` | Crear portal session |
 
 ---
 
-## FASE 3: Dashboard + Licencias
+## FASE 3: Dashboard + Licencias - COMPLETADO
 
-**Objetivo**: Dashboard PRO mínimo con token para extension
+**Objetivo**: Dashboard PRO con token y entitlements
 
-> **Nota**: PRO MVP = ilimitado local + MCP + formatos. Cloud history = post-tracción.
+### Implementado
 
-### Estructura a crear
+- [x] Dashboard con plan actual y uso
+- [x] Generación de JWT license tokens
+- [x] API: `/api/license` - generar/verificar tokens
+- [x] API: `/api/entitlements` - obtener entitlements
+- [x] UI: copiar token, rotar token
+- [x] UI: manage billing (Stripe Portal)
+- [x] Trial activation desde web
+- [x] Onboarding flow
 
-```
-/frontend/src
-  /infra
-    /licensing
-      jwt-service.ts         # sign/verify con jose
-  /features
-    /dashboard
-      /components
-        subscription-card.tsx
-        extension-token.tsx
-        billing-button.tsx
-      /hooks
-        use-license.ts
+### Archivos Clave
 
-/frontend/app
-  /[locale]/dashboard/page.tsx
-  /api/license
-    /route.ts                # POST: genera JWT, GET: verifica
-    /rotate/route.ts         # POST: invalida + genera nuevo
-```
-
-### Tareas
-
-- [ ] Instalar dep: `jose`
-- [ ] Crear INFRA: `licensing/jwt-service.ts`
-- [ ] Crear API: `/api/license/route.ts`
-- [ ] Crear API: `/api/license/rotate/route.ts`
-- [ ] Crear Feature: `dashboard/components/subscription-card.tsx`
-- [ ] Crear Feature: `dashboard/components/extension-token.tsx`
-- [ ] Crear Feature: `dashboard/hooks/use-license.ts`
-- [ ] Crear Page: `/dashboard/page.tsx` (protected)
-- [ ] UI: mostrar plan (FREE/PRO/EARLY ACCESS)
-- [ ] UI: token (oculto, botón copiar)
-- [ ] UI: botón "Rotate token"
-- [ ] UI: botón "Manage billing"
-- [ ] Añadir strings i18n
-
-### Definition of Done
-
-- [ ] Usuario PRO ve plan y token en dashboard
-- [ ] Token JWT tiene: userId, plan, exp (7 días), iat
-- [ ] "Copy token" funciona
-- [ ] "Rotate token" invalida + genera nuevo
-- [ ] "Manage billing" abre Stripe Portal
-- [ ] Usuario FREE ve "Upgrade to PRO"
+| Archivo | Función |
+|---------|---------|
+| `frontend/app/api/entitlements/route.ts` | Calcular entitlements |
+| `frontend/app/api/license/route.ts` | Generar/verificar JWT |
+| `frontend/src/features/dashboard/` | Dashboard components |
 
 ---
 
-## FASE 4: Extension FREE vs PRO
+## FASE 4: Extension FREE vs PRO - COMPLETADO
 
 **Objetivo**: Límites FREE + upsell modals + validación token
 
-### Tareas
+### Implementado
 
-- [ ] Modificar `service-worker.js`: contador logs, límite 100
-- [ ] Modificar historial: límite 5 grabaciones
-- [ ] Añadir sección "Account" en sidepanel
-- [ ] Crear upsell modal: "Log limit reached" (log #101)
-- [ ] Crear upsell modal: "Recording limit reached" (grabación #6)
-- [ ] Crear upsell modal: "MCP requires PRO"
-- [ ] Guardar token en `chrome.storage.local`
-- [ ] Validar token al iniciar (grace 3 días offline)
-- [ ] UI: mostrar plan actual (FREE/PRO badge)
+- [x] Contador de logs con límite configurable
+- [x] Límite de grabaciones por sesión
+- [x] UI: plan badge (FREE/TRIAL/PRO)
+- [x] UI: días restantes de trial
+- [x] Validación de entitlements al abrir
+- [x] Cache de entitlements (1 hora)
+- [x] Upsell banners cuando alcanza límites
+- [x] Sign in con Google desde extensión
+- [x] Extend trial con email
 
-### Definition of Done
+### Archivos Clave
 
-- [ ] Log #101 muestra upsell modal
-- [ ] Grabación #6 muestra upsell modal
-- [ ] Usuario FREE no puede usar MCP
-- [ ] Token PRO válido habilita todas las features
-- [ ] Token expirado + 3 días offline → downgrade FREE
-
----
-
-## FASE 5: MCP Server Auth
-
-**Objetivo**: Middleware que valida JWT en requests
-
-### Tareas
-
-- [ ] Crear `auth-middleware.js` (verifica JWT)
-- [ ] Aplicar middleware a endpoints PRO
-- [ ] FREE: bloquear MCP tools
-- [ ] PRO: acceso completo
-- [ ] Logging para debugging
-
-### Definition of Done
-
-- [ ] Request sin token → 401
-- [ ] Request con token inválido → 401
-- [ ] Request con token PRO válido → 200 + datos
+| Archivo | Función |
+|---------|---------|
+| `extension/chrome-extension/utils/license.js` | Gestión de entitlements |
+| `extension/chrome-extension/sidepanel/sidepanel.js` | UI + handlers |
+| `extension/chrome-extension/background/service-worker.js` | Log gating |
 
 ---
 
-## FASE 6: Testing + Launch
+## FASE 5: MCP Server - COMPLETADO
 
-### Tareas
+**Objetivo**: MCP server funcional con HTTP bridge
 
-- [ ] Test E2E: registro → pago → dashboard → extension → MCP
-- [ ] Verificar números coherentes en toda la UI
-- [ ] Publicar extensión en Chrome Web Store
-- [ ] Deploy Vercel producción
-- [ ] Configurar dominio
-- [ ] Soft launch con early access price
+### Implementado
 
-### Definition of Done
+- [x] MCP server con stdio transport
+- [x] HTTP bridge en puerto configurable (default 9876)
+- [x] Endpoints: POST/GET /logs, /stats, DELETE /logs
+- [x] Formato TOON encoder para logs concisos
+- [x] Session/recording isolation
+- [x] Tools MCP: get_console_logs, get_console_stats, clear_console_logs
 
-- [ ] Flujo completo funciona sin errores
-- [ ] Extensión publicada
-- [ ] Web en producción
-- [ ] Al menos 1 pago real procesado
+### Archivos Clave
+
+| Archivo | Función |
+|---------|---------|
+| `extension/mcp-server/src/index.js` | Startup MCP + HTTP |
+| `extension/mcp-server/src/http-bridge.js` | Express endpoints |
+| `extension/mcp-server/src/logs-store.js` | In-memory storage |
+| `extension/mcp-server/src/toon-encoder.js` | Formato TOON |
+
+---
+
+## FASE 6: Privacy & Compliance - COMPLETADO
+
+**Objetivo**: GDPR/CCPA compliance
+
+### Implementado
+
+- [x] Privacy consent system
+- [x] Consent modal en web
+- [x] Consent storage en Firestore
+- [x] Analytics solo con consent
+- [x] Marketing consent separado
+
+### Archivos Clave
+
+| Archivo | Función |
+|---------|---------|
+| `frontend/src/features/privacy/` | Privacy components |
+| `frontend/app/api/privacy/consent/route.ts` | Save consent |
+
+---
+
+## FASE 7: Admin Panel - COMPLETADO
+
+**Objetivo**: Panel de administración básico
+
+### Implementado
+
+- [x] Dashboard de analytics
+- [x] Vista de usuarios
+- [x] Vista de eventos
+- [x] Filtros por fecha
+- [x] Acceso restringido por rol
+
+### Archivos Clave
+
+| Archivo | Función |
+|---------|---------|
+| `frontend/src/features/admin/` | Admin components |
+| `frontend/app/api/admin/` | Admin endpoints |
+| `frontend/app/(admin)/admin/` | Admin pages |
+
+---
+
+## Próximos Pasos (Post-MVP)
+
+### P1 - Alta Prioridad
+
+| Feature | Descripción | Estado |
+|---------|-------------|--------|
+| Magic link confirm | Confirmar email link y vincular cuenta | Pendiente |
+| One-time codes | Códigos para vincular extension ↔ web | Pendiente |
+| Rate limiting | Limitar requests por IP/user | Pendiente |
+| Disposable email block | Bloquear emails temporales | Pendiente |
+
+### P2 - Media Prioridad
+
+| Feature | Descripción | Estado |
+|---------|-------------|--------|
+| Device fingerprinting | Detectar reinstalaciones | Pendiente |
+| Export recordings | Exportar a JSON/CSV | Parcial |
+| Share recordings | Links compartibles | Pendiente |
+| Chrome Web Store | Publicar extensión | Pendiente |
+
+### P3 - Baja Prioridad
+
+| Feature | Descripción | Estado |
+|---------|-------------|--------|
+| Team plan | Multi-usuario con workspace | Pendiente |
+| Cloud history | Persistir recordings en cloud | Pendiente |
+| Slack/Discord alerts | Notificaciones de errores | Pendiente |
+| API pública | REST API para integraciones | Pendiente |
+
+---
+
+## Definition of Done - MVP
+
+- [x] Usuario puede instalar extensión y capturar logs inmediatamente
+- [x] Usuario FREE tiene límites (100 logs, 5 recordings)
+- [x] Usuario puede iniciar trial (3 días) al instalar
+- [x] Usuario puede extender trial (+3 días) vinculando cuenta
+- [x] Usuario puede hacer checkout y convertirse en PRO
+- [x] Usuario PRO tiene límites ilimitados + MCP
+- [x] MCP server recibe logs y los expone a Claude Code
+- [x] Dashboard muestra plan y permite gestionar suscripción
+- [x] Admin puede ver analytics y usuarios
+
+---
+
+## Métricas de Éxito
+
+| Métrica | Objetivo | Actual |
+|---------|----------|--------|
+| Instalaciones | 1000/mes | TBD |
+| Trial → PRO conversion | 5% | TBD |
+| PRO churn | < 5%/mes | TBD |
+| NPS | > 40 | TBD |

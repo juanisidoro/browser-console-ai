@@ -1,10 +1,12 @@
 // License Management Module
-// Handles JWT token storage, validation, and plan limits
+// Handles JWT token storage, validation, plan limits, and entitlements
 
 const LICENSE_STORAGE_KEY = 'bcai_license_token';
 const INSTALLATION_ID_KEY = 'bcai_installation_id';
 const VERIFICATION_CACHE_KEY = 'bcai_verification_cache';
+const ENTITLEMENTS_CACHE_KEY = 'bcai_entitlements_cache';
 const VERIFICATION_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const ENTITLEMENTS_CACHE_TTL = 60 * 60 * 1000; // 1 hour
 const OFFLINE_GRACE_PERIOD = 24 * 60 * 60 * 1000; // 24 hours
 const API_BASE_URL = 'https://browserconsoleai.com';
 
@@ -400,6 +402,130 @@ async function clearVerificationCache() {
   await chrome.storage.local.remove(VERIFICATION_CACHE_KEY);
 }
 
+// === Entitlements API ===
+
+// Get cached entitlements
+async function getCachedEntitlements() {
+  const result = await chrome.storage.local.get(ENTITLEMENTS_CACHE_KEY);
+  const cache = result[ENTITLEMENTS_CACHE_KEY];
+
+  if (!cache) return null;
+
+  // Check if cache is still valid
+  if (Date.now() - cache.timestamp < ENTITLEMENTS_CACHE_TTL) {
+    return cache.data;
+  }
+
+  return null;
+}
+
+// Save entitlements to cache
+async function cacheEntitlements(data) {
+  await chrome.storage.local.set({
+    [ENTITLEMENTS_CACHE_KEY]: {
+      data,
+      timestamp: Date.now(),
+    }
+  });
+}
+
+// Clear entitlements cache (call when auth state changes)
+async function clearEntitlementsCache() {
+  await chrome.storage.local.remove(ENTITLEMENTS_CACHE_KEY);
+}
+
+// Fetch entitlements from server
+async function fetchEntitlements(forceRefresh = false) {
+  // Check cache first unless force refresh
+  if (!forceRefresh) {
+    const cached = await getCachedEntitlements();
+    if (cached) {
+      return cached;
+    }
+  }
+
+  try {
+    const installationId = await getInstallationId();
+
+    // Build URL with installationId
+    const url = new URL(`${API_BASE_URL}/api/entitlements`);
+    url.searchParams.set('installationId', installationId);
+
+    // Add auth token if available (for future Firebase integration)
+    const headers = { 'Content-Type': 'application/json' };
+    const licenseResult = await chrome.storage.local.get(LICENSE_STORAGE_KEY);
+    if (licenseResult[LICENSE_STORAGE_KEY]) {
+      // Note: Currently using JWT, will switch to Firebase ID token later
+      // headers['Authorization'] = `Bearer ${firebaseIdToken}`;
+    }
+
+    const response = await fetch(url.toString(), { headers });
+
+    if (!response.ok) {
+      throw new Error(`Entitlements request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Cache the result
+    await cacheEntitlements(data);
+
+    return data;
+  } catch (error) {
+    console.debug('[License] Failed to fetch entitlements:', error);
+
+    // Return cached data if available, even if expired
+    const result = await chrome.storage.local.get(ENTITLEMENTS_CACHE_KEY);
+    if (result[ENTITLEMENTS_CACHE_KEY]?.data) {
+      return { ...result[ENTITLEMENTS_CACHE_KEY].data, offline: true };
+    }
+
+    // Return default free entitlements
+    return {
+      plan: 'free',
+      planEndsAt: null,
+      daysRemaining: null,
+      limits: PLAN_LIMITS.free,
+      canExtendTrial: false,
+      requiresAuth: true,
+      offline: true,
+    };
+  }
+}
+
+// === API Request Helper with Auto-Refresh ===
+
+// Make an API request with automatic retry on 401
+// This prepares for Firebase Auth integration where we'll refresh the ID token
+async function apiRequest(url, options = {}) {
+  const response = await fetch(url, options);
+
+  if (response.status === 401) {
+    // Token expired or invalid
+    // For now, clear cache and return the 401 response
+    // When Firebase Auth is integrated, this will:
+    // 1. Call getIdToken(true) to force refresh
+    // 2. Retry the request with the new token
+    await clearEntitlementsCache();
+    await clearVerificationCache();
+
+    console.debug('[License] Received 401, cleared caches');
+
+    // TODO: When Firebase Auth is integrated:
+    // const auth = getAuth();
+    // if (auth.currentUser) {
+    //   const newToken = await getIdToken(auth.currentUser, true);
+    //   options.headers = {
+    //     ...options.headers,
+    //     'Authorization': `Bearer ${newToken}`
+    //   };
+    //   return fetch(url, options);
+    // }
+  }
+
+  return response;
+}
+
 // Export functions for use in service worker and sidepanel
 const LicenseManagerExports = {
   getLicenseInfo,
@@ -413,6 +539,11 @@ const LicenseManagerExports = {
   activateTrial,
   verifyLicenseOnline,
   clearVerificationCache,
+  // Entitlements API
+  fetchEntitlements,
+  clearEntitlementsCache,
+  // API helper with auto-refresh
+  apiRequest,
   PLAN_LIMITS
 };
 

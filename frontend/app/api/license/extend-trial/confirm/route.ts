@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminDb } from '@/infra/firebase/admin';
+import { getAdminDb, getAdminAuth } from '@/infra/firebase/admin';
 import { signTrialToken } from '@/infra/licensing/jwt-service';
 import {
   calculateExtendedExpiry,
@@ -16,6 +16,19 @@ import {
 } from '../../../../../../shared/core';
 import type { TrialLicense } from '../../../../../../shared/core';
 import { v4 as uuidv4 } from 'uuid';
+
+// Generate a short one-time code (6 alphanumeric characters)
+function generateOneTimeCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid confusing chars like 0/O, 1/I/L
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+// One-time code expiry (15 minutes)
+const ONE_TIME_CODE_EXPIRY_MS = 15 * 60 * 1000;
 
 interface MagicLinkData {
   email: string;
@@ -130,6 +143,21 @@ export async function POST(request: NextRequest) {
       expiresAt: newExpiresAt,
     });
 
+    // Generate a one-time code for extension to link the account
+    const oneTimeCode = generateOneTimeCode();
+    const codeExpiresAt = Date.now() + ONE_TIME_CODE_EXPIRY_MS;
+
+    // Store the one-time code in Firestore
+    await db.collection('confirm_codes').doc(oneTimeCode).set({
+      installationId,
+      email: email.toLowerCase(),
+      expiresAt: codeExpiresAt,
+      used: false,
+      createdAt: Date.now(),
+      licenseToken, // Include the license token for the extension to retrieve
+      trialExpiresAt: newExpiresAt,
+    });
+
     const daysRemaining = getDaysRemainingAfterExtension(newExpiresAt);
 
     return NextResponse.json({
@@ -137,6 +165,9 @@ export async function POST(request: NextRequest) {
       message: `Trial extended by ${TRIAL_EXTENSION_DAYS} days! You now have ${daysRemaining} days remaining.`,
       daysRemaining,
       expiresAt: new Date(newExpiresAt).toISOString(),
+      // Include the one-time code for the extension to use
+      oneTimeCode,
+      codeExpiresAt: new Date(codeExpiresAt).toISOString(),
     });
 
   } catch (error) {

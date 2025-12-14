@@ -11,7 +11,8 @@ El archivo `.mcp.json` en la raíz del proyecto configura Claude Code:
   "mcpServers": {
     "browser-console": {
       "command": "node",
-      "args": ["extension/mcp-server/src/index.js"]
+      "args": ["extension/mcp-server/src/index.js"],
+      "env": {}
     }
   }
 }

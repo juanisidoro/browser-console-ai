@@ -97,7 +97,6 @@ const trialActiveSection = document.getElementById('trialActiveSection');
 const trialDaysRemaining = document.getElementById('trialDaysRemaining');
 const btnStartTrial = document.getElementById('btnStartTrial');
 const trialError = document.getElementById('trialError');
-const btnRefreshToken = document.getElementById('btnRefreshToken');
 const extendTrialSection = document.getElementById('extendTrialSection');
 const extendEmailForm = document.getElementById('extendEmailForm');
 const extendEmail = document.getElementById('extendEmail');
@@ -107,9 +106,23 @@ const extendSending = document.getElementById('extendSending');
 const extendSent = document.getElementById('extendSent');
 const btnResendLink = document.getElementById('btnResendLink');
 const btnRefreshTrial = document.getElementById('btnRefreshTrial');
+const confirmCode = document.getElementById('confirmCode');
+const btnConfirmCode = document.getElementById('btnConfirmCode');
+const codeError = document.getElementById('codeError');
+const codeConfirming = document.getElementById('codeConfirming');
 
 // Privacy elements
 const analyticsConsent = document.getElementById('analyticsConsent');
+
+// Account/Auth elements
+const accountSection = document.getElementById('accountSection');
+const accountAnonymous = document.getElementById('accountAnonymous');
+const accountSignedIn = document.getElementById('accountSignedIn');
+const accountAvatar = document.getElementById('accountAvatar');
+const accountName = document.getElementById('accountName');
+const accountEmailDisplay = document.getElementById('accountEmailDisplay');
+const btnGoogleSignIn = document.getElementById('btnGoogleSignIn');
+const btnSignOut = document.getElementById('btnSignOut');
 
 // State
 let currentState = 'idle';
@@ -218,13 +231,10 @@ function updateLicenseUI(license, quota) {
     const isExtended = license.email && license.email.length > 0;
     if (!isExtended) {
       extendTrialSection.classList.remove('hidden');
-      btnRefreshToken.classList.add('hidden');
       // Set the extend trial link with installationId
       setupExtendTrialLink();
     } else {
       extendTrialSection.classList.add('hidden');
-      // Show refresh button for extended trials (so they can sync with server)
-      btnRefreshToken.classList.remove('hidden');
     }
 
     // Hide token input, hide remove button (can't revoke trial), show upgrade
@@ -236,7 +246,6 @@ function updateLicenseUI(license, quota) {
     trialSection.classList.add('hidden');
     trialActiveSection.classList.add('hidden');
     extendTrialSection.classList.add('hidden');
-    btnRefreshToken.classList.add('hidden');
     tokenInputSection.classList.add('hidden');
     licenseActions.classList.remove('hidden');
     upgradeLink.classList.add('hidden');
@@ -244,7 +253,6 @@ function updateLicenseUI(license, quota) {
     // FREE plan - check if can show trial option
     trialActiveSection.classList.add('hidden');
     extendTrialSection.classList.add('hidden');
-    btnRefreshToken.classList.add('hidden');
     tokenInputSection.classList.remove('hidden');
     licenseActions.classList.add('hidden');
     upgradeLink.classList.remove('hidden');
@@ -306,6 +314,24 @@ async function setupExtendTrialLink() {
     // Setup refresh button
     if (btnRefreshTrial) {
       btnRefreshTrial.addEventListener('click', handleRefreshTrial);
+    }
+
+    // Setup code confirmation button
+    if (btnConfirmCode) {
+      btnConfirmCode.addEventListener('click', handleConfirmCode);
+    }
+
+    // Setup enter key on code input
+    if (confirmCode) {
+      confirmCode.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleConfirmCode();
+        }
+      });
+      // Auto-uppercase as user types
+      confirmCode.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      });
     }
   } catch (error) {
     console.error('[Sidepanel] Failed to setup extend trial:', error);
@@ -407,6 +433,101 @@ async function handleSendMagicLink() {
     console.error('[Sidepanel] Failed to send magic link:', error);
     showExtendState('form');
     showExtendError('Network error. Please try again.');
+  }
+}
+
+// Handle confirming the one-time code from the web
+async function handleConfirmCode() {
+  const code = confirmCode?.value?.trim();
+
+  if (!code) {
+    showCodeError('Please enter the code from the website');
+    return;
+  }
+
+  if (code.length !== 6) {
+    showCodeError('Code must be 6 characters');
+    return;
+  }
+
+  if (!currentInstallationId) {
+    showCodeError('Unable to identify installation. Please reload.');
+    return;
+  }
+
+  // Show confirming state
+  showCodeConfirming(true);
+  hideCodeError();
+
+  try {
+    const response = await fetch('https://browserconsoleai.com/api/license/confirm-link-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code,
+        installationId: currentInstallationId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.licenseToken) {
+      // Save the new token
+      chrome.runtime.sendMessage({
+        action: 'SAVE_LICENSE_TOKEN',
+        token: data.licenseToken
+      }, (result) => {
+        showCodeConfirming(false);
+
+        if (result?.success) {
+          // Refresh the license display
+          refreshLicense();
+          // Hide extend section (trial is now extended)
+          extendTrialSection?.classList.add('hidden');
+          // Clear the code input
+          if (confirmCode) confirmCode.value = '';
+          // Track event
+          trackEvent('trial_extended', { method: 'one_time_code' });
+        } else {
+          showCodeError('Failed to save token. Please try again.');
+        }
+      });
+    } else {
+      showCodeConfirming(false);
+      showCodeError(data.message || 'Invalid code. Please check and try again.');
+    }
+  } catch (error) {
+    console.error('[Sidepanel] Failed to confirm code:', error);
+    showCodeConfirming(false);
+    showCodeError('Network error. Please try again.');
+  }
+}
+
+// Show/hide code confirming state
+function showCodeConfirming(show) {
+  if (codeConfirming) {
+    codeConfirming.classList.toggle('hidden', !show);
+  }
+  if (btnConfirmCode) {
+    btnConfirmCode.disabled = show;
+  }
+  if (confirmCode) {
+    confirmCode.disabled = show;
+  }
+}
+
+// Show code error
+function showCodeError(message) {
+  if (codeError) {
+    codeError.textContent = message;
+    codeError.classList.remove('hidden');
+  }
+}
+
+// Hide code error
+function hideCodeError() {
+  if (codeError) {
+    codeError.classList.add('hidden');
   }
 }
 
@@ -1140,50 +1261,6 @@ function debounce(fn, delay) {
   };
 }
 
-// Refresh token button handler (for extended trials)
-btnRefreshToken.addEventListener('click', async () => {
-  btnRefreshToken.disabled = true;
-  btnRefreshToken.classList.add('syncing');
-
-  try {
-    // Get installation ID
-    const installationId = await new Promise((resolve) => {
-      chrome.runtime.sendMessage({ action: 'GET_INSTALLATION_ID' }, (response) => {
-        resolve(response?.installationId);
-      });
-    });
-
-    if (!installationId) {
-      throw new Error('Could not get installation ID');
-    }
-
-    // Fetch updated token from server
-    const response = await fetch(`https://browserconsoleai.com/api/license/get-extended-token?installationId=${encodeURIComponent(installationId)}`);
-    const data = await response.json();
-
-    if (data.success && data.token) {
-      // Save the new token
-      await new Promise((resolve) => {
-        chrome.runtime.sendMessage({
-          action: 'SAVE_LICENSE_TOKEN',
-          token: data.token
-        }, resolve);
-      });
-
-      // Refresh UI
-      refreshLicense();
-      console.log('[Sidepanel] Token synced successfully');
-    } else {
-      console.warn('[Sidepanel] Failed to sync token:', data.message);
-    }
-  } catch (error) {
-    console.error('[Sidepanel] Error syncing token:', error);
-  } finally {
-    btnRefreshToken.disabled = false;
-    btnRefreshToken.classList.remove('syncing');
-  }
-});
-
 // Listen for messages from background
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === 'RECORDING_UPDATE' && currentState === 'recording') {
@@ -1202,11 +1279,152 @@ showLogsToggle.addEventListener('change', () => {
   logsContainer.classList.toggle('hidden', !showLogsToggle.checked);
 });
 
+// ================================================
+// Firebase Auth Integration
+// ================================================
+
+// Update account UI based on auth state
+function updateAccountUI(user) {
+  if (!accountSection) return;
+
+  if (user && !user.isAnonymous) {
+    // User is signed in (not anonymous)
+    accountAnonymous.classList.add('hidden');
+    accountSignedIn.classList.remove('hidden');
+
+    // Update user info
+    if (user.photoURL) {
+      accountAvatar.src = user.photoURL;
+      accountAvatar.style.display = 'block';
+    } else {
+      accountAvatar.style.display = 'none';
+    }
+
+    accountName.textContent = user.displayName || 'User';
+    accountEmailDisplay.textContent = user.email || '';
+  } else {
+    // Anonymous or not signed in
+    accountAnonymous.classList.remove('hidden');
+    accountSignedIn.classList.add('hidden');
+  }
+}
+
+// Initialize Firebase Auth
+async function initializeAuth() {
+  // Wait for Firebase SDK and AuthManager to be available
+  if (typeof AuthManager === 'undefined') {
+    console.log('[Sidepanel] AuthManager not loaded yet, retrying...');
+    setTimeout(initializeAuth, 100);
+    return;
+  }
+
+  try {
+    // Initialize Firebase
+    AuthManager.initializeFirebase();
+
+    // Listen for auth state changes
+    AuthManager.onAuthStateChanged((user) => {
+      console.log('[Sidepanel] Auth state changed:', user?.uid, user?.isAnonymous ? '(anonymous)' : '');
+      updateAccountUI(user);
+
+      // Refresh license when auth changes
+      refreshLicense();
+    });
+
+    // Ensure user is signed in (anonymous if no account)
+    await AuthManager.ensureSignedIn();
+
+    console.log('[Sidepanel] Auth initialized');
+  } catch (error) {
+    console.error('[Sidepanel] Failed to initialize auth:', error);
+  }
+}
+
+// Google Sign-In handler
+if (btnGoogleSignIn) {
+  btnGoogleSignIn.addEventListener('click', async () => {
+    if (typeof AuthManager === 'undefined') {
+      console.error('[Sidepanel] AuthManager not available');
+      return;
+    }
+
+    btnGoogleSignIn.disabled = true;
+    btnGoogleSignIn.textContent = 'Signing in...';
+
+    try {
+      const result = await AuthManager.signInWithGoogle();
+
+      if (result.linked) {
+        console.log('[Sidepanel] Google account linked to anonymous user');
+        trackEvent('auth_google_linked');
+      } else if (result.existingAccount) {
+        console.log('[Sidepanel] Signed in with existing Google account');
+        trackEvent('auth_google_signin_existing');
+      } else {
+        console.log('[Sidepanel] Signed in with Google');
+        trackEvent('auth_google_signin');
+      }
+
+      // Refresh license to get updated entitlements
+      refreshLicense();
+    } catch (error) {
+      console.error('[Sidepanel] Google sign-in failed:', error);
+
+      // Handle specific errors
+      if (error.code === 'auth/popup-blocked') {
+        alert('Popup was blocked. Please allow popups for this extension.');
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup, do nothing
+      } else {
+        alert('Sign-in failed. Please try again.');
+      }
+    } finally {
+      btnGoogleSignIn.disabled = false;
+      btnGoogleSignIn.innerHTML = `
+        <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      `;
+    }
+  });
+}
+
+// Sign Out handler
+if (btnSignOut) {
+  btnSignOut.addEventListener('click', async () => {
+    if (typeof AuthManager === 'undefined') {
+      console.error('[Sidepanel] AuthManager not available');
+      return;
+    }
+
+    try {
+      await AuthManager.signOut();
+      console.log('[Sidepanel] Signed out');
+      trackEvent('auth_signout');
+
+      // Sign in anonymously after sign out (to maintain a userId for tracking)
+      await AuthManager.signInAnonymously();
+
+      // Refresh license
+      refreshLicense();
+    } catch (error) {
+      console.error('[Sidepanel] Sign out failed:', error);
+    }
+  });
+}
+
 // Initialize
 loadSettings();
 loadRecordingNames();
 refreshStatus();
 refreshLicense();
+
+// Initialize Firebase Auth
+initializeAuth();
 
 // Track sidepanel opened
 trackEvent('sidepanel_opened');

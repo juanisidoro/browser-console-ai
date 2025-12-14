@@ -140,22 +140,19 @@ Este proyecto sigue el modelo InnerTech: Clean Architecture + Hexagonal pragmát
 ## Commands
 
 ```bash
-# Shared Core
-npm run build:shared    # Compila shared/core a shared/dist
+# From root directory (monorepo)
+npm install             # Install all workspaces
+npm run dev             # Run frontend dev server
+npm run mcp             # Run MCP server
+npm run build:shared    # Compile shared/core to shared/dist
 
-# MCP Server
-cd extension/mcp-server
-npm install
-npm start               # Production
-npm run dev             # With --watch
-
-# Frontend
-cd frontend
-npm install
-npm run dev             # Development server
+# Individual workspaces
+cd frontend && npm run dev          # Frontend dev server (localhost:3000)
+cd extension/mcp-server && npm start # MCP server (localhost:9876)
 
 # Chrome Extension
 # Load unpacked from extension/chrome-extension/ in chrome://extensions
+# After changes, click reload button in chrome://extensions
 ```
 
 ## Key Data Model
@@ -192,6 +189,72 @@ const PRO_LIMITS = { maxLogs: Infinity, maxRecordings: Infinity };
 - `get_console_logs` - Query logs with filters
 - `get_console_stats` - Get log counts by type
 - `clear_console_logs` - Clear logs
+
+## Authentication & Entitlements
+
+### Extension Auth (Firebase + chrome.identity)
+- Anonymous-first: User gets Firebase anonymous UID on first open
+- Google Sign-in via `chrome.identity.launchWebAuthFlow` (MV3 compatible)
+- Files: `extension/chrome-extension/utils/auth.js`, `firebase-config.js`
+
+### Entitlements API
+```
+GET /api/entitlements?installationId=xxx
+Authorization: Bearer <firebase-id-token>  (optional)
+
+Response: { plan, planEndsAt, daysRemaining, limits, canExtendTrial }
+```
+
+Priority: PRO (by userId) > TRIAL (by userId) > TRIAL (by installationId) > FREE
+
+### Trial Extension Flow
+1. User enters email → `POST /api/license/extend-trial-request` → Magic link sent
+2. User clicks link → Web page shows 6-char one-time code
+3. User enters code in extension → `POST /api/license/confirm-link-code` → Trial extended
+
+### Anti-Abuse
+- Disposable email blocking: `shared/core/auth/disposable-emails.ts`
+- Rate limiting on extend-trial endpoints
+- One-time codes expire in 15 minutes, single-use
+
+## Key API Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/entitlements` | Get user plan and limits |
+| `POST /api/license/activate-trial` | Start trial |
+| `POST /api/license/extend-trial-request` | Send magic link |
+| `POST /api/license/confirm-link-code` | Validate one-time code |
+| `POST /api/stripe/webhook` | Handle Stripe events |
+| `POST /api/analytics` | Track events |
+
+## Firestore Collections
+
+| Collection | Purpose |
+|------------|---------|
+| `users` | User profiles + subscription status |
+| `trials` | Trial licenses by installationId |
+| `magic_links` | Email verification tokens |
+| `confirm_codes` | One-time codes for trial extension |
+| `analytics_events` | Tracked events |
+| `pending_tokens` | License tokens awaiting pickup |
+
+## Environment Variables
+
+### Frontend Required
+```
+NEXT_PUBLIC_FIREBASE_*    # Firebase client config
+FIREBASE_SERVICE_ACCOUNT_KEY  # Firebase Admin SDK (JSON)
+STRIPE_SECRET_KEY         # Stripe API key
+STRIPE_WEBHOOK_SECRET     # Stripe webhook signing
+JWT_SECRET                # License token signing
+RESEND_API_KEY           # Email sending
+```
+
+### Extension Required
+Update `extension/chrome-extension/utils/firebase-config.js` with:
+- Firebase config (matches NEXT_PUBLIC_FIREBASE_*)
+- OAuth clientId (from Google Cloud Console, type "Web application")
 
 ## Documentation
 

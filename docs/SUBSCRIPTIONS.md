@@ -1,8 +1,117 @@
-# Subscriptions & Billing
+# Subscriptions, Trials & Billing
 
-Este documento detalla el sistema de suscripciones, control de errores y mejores prácticas.
+Este documento detalla el sistema de suscripciones, trials y control de pagos.
 
-## Arquitectura
+## Arquitectura General
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        ENTITLEMENTS FLOW                             │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  Extension/Web                                                       │
+│       │                                                              │
+│       ▼                                                              │
+│  GET /api/entitlements ─────────────────────────────────────────┐   │
+│       │                                                          │   │
+│       ├─> Check PRO subscription (Stripe) ────> plan=pro        │   │
+│       ├─> Check Trial by userId ──────────────> plan=trial      │   │
+│       ├─> Check Trial by installationId ──────> plan=trial      │   │
+│       └─> Default ────────────────────────────> plan=free       │   │
+│                                                                  │   │
+│  Stripe Webhooks ───────────────────────────────────────────────┘   │
+│       │                                                              │
+│       ▼                                                              │
+│  Firestore                                                           │
+│  ├── users/{uid}/subscription                                       │
+│  └── trials/{trialId}                                               │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## Sistema de Trials
+
+### Tipos de Trial
+
+| Tipo | Duración | Condición | Límites |
+|------|----------|-----------|---------|
+| Trial base | 3 días | Auto al instalar | 500 logs, 20 recs, MCP |
+| Trial extendido | 6 días | Vincular email/Google | Mismos límites |
+| Trial web | 6 días | Signup en web | Mismos límites |
+
+### Flujo de Trial
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     TRIAL LIFECYCLE                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. INICIO (automático)                                          │
+│     └─> Extension install → signInAnonymously                   │
+│     └─> Crear trial en Firestore                                │
+│     └─> installationId + userId + 3 días                        │
+│                                                                  │
+│  2. EXTENSIÓN (opcional)                                         │
+│     └─> Usuario vincula cuenta (Google/Email)                   │
+│     └─> linkWithCredential preserva uid                         │
+│     └─> Trial extendido +3 días                                 │
+│     └─> trial.extended = true                                   │
+│                                                                  │
+│  3. EXPIRACIÓN                                                   │
+│     └─> planEndsAt < now                                        │
+│     └─> Entitlements devuelve plan=free                         │
+│     └─> UI muestra upsell modal                                 │
+│                                                                  │
+│  4. CONVERSIÓN                                                   │
+│     └─> Usuario hace checkout                                   │
+│     └─> Stripe webhook actualiza subscription                   │
+│     └─> Trial.status = 'converted'                              │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Endpoints de Trial
+
+**POST /api/license/extend-trial-request**
+
+```typescript
+// Input
+{
+  installationId: string;
+  email: string;
+}
+
+// Output
+{
+  success: true;
+  message: 'Email sent';
+}
+
+// Errores
+{ error: 'disposable_email' }      // Email desechable bloqueado
+{ error: 'already_extended' }      // Trial ya extendido
+{ error: 'rate_limited' }          // Muchos intentos
+```
+
+**POST /api/license/extend-trial** (Google OAuth)
+
+```typescript
+// Input (Bearer token requerido)
+{
+  installationId: string;
+}
+
+// Output
+{
+  success: true;
+  newExpiresAt: number;
+  daysRemaining: number;
+}
+```
+
+## Stripe Billing
+
+### Flujo de Suscripción
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
@@ -17,65 +126,159 @@ Este documento detalla el sistema de suscripciones, control de errores y mejores
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Flujo de Suscripción
-
-### 1. Checkout (Usuario inicia compra)
+### Checkout
 
 **Endpoint:** `POST /api/stripe/checkout`
 
 **Validaciones:**
 - Usuario autenticado (Bearer token)
-- Email verificado
-- **No tiene suscripción activa** (previene duplicados)
+- No tiene suscripción PRO activa
 
 ```typescript
-// Verificación anti-duplicados en checkout
-const currentPlan = userData?.subscription?.status;
-if (currentPlan && currentPlan !== 'free') {
-  return NextResponse.json(
-    { error: 'You already have an active subscription.' },
-    { status: 400 }
-  );
+// Request
+{
+  priceId?: string;  // Opcional, default: PRO_EARLY
 }
+
+// Response
+{
+  url: string;  // Stripe Checkout URL
+}
+
+// Errores
+{ error: 'You already have an active subscription.' }  // 400
+{ error: 'Unauthorized' }                               // 401
 ```
 
-### 2. Webhook (Stripe notifica eventos)
+### Webhooks
 
 **Endpoint:** `POST /api/stripe/webhook`
 
-**Eventos manejados:**
 | Evento | Acción |
 |--------|--------|
-| `checkout.session.completed` | Activa suscripción, cancela anteriores |
+| `checkout.session.completed` | Activa suscripción PRO |
 | `customer.subscription.updated` | Actualiza plan/estado |
 | `customer.subscription.deleted` | Downgrade a FREE |
-| `invoice.payment_failed` | Log (futuro: notificar usuario) |
+| `invoice.payment_failed` | Log para retry |
 
-**Cancelación automática de suscripciones previas:**
+**Procesamiento de checkout.session.completed:**
 
 ```typescript
-// En handleCheckoutCompleted
-const previousSubId = userData?.subscription?.stripeSubscriptionId;
-if (previousSubId && previousSubId !== subscriptionId) {
-  await stripe.subscriptions.cancel(previousSubId);
+async function handleCheckoutCompleted(session) {
+  const { firebaseUid } = session.metadata;
+  const subscriptionId = session.subscription;
+
+  // Obtener detalles de suscripción
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+  // Determinar plan
+  const plan = determinePlan(subscription.items.data[0].price.id);
+
+  // Actualizar Firestore
+  await db.doc(`users/${firebaseUid}`).update({
+    'subscription.status': plan,
+    'subscription.stripeCustomerId': session.customer,
+    'subscription.stripeSubscriptionId': subscriptionId,
+    'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
+    'subscription.cancelAtPeriodEnd': subscription.cancel_at_period_end,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  // Marcar trial como convertido
+  await markTrialConverted(firebaseUid);
 }
 ```
 
-### 3. Modelo de Datos (Firestore)
+### Customer Portal
+
+**Endpoint:** `POST /api/stripe/portal`
+
+Permite al usuario:
+- Ver historial de facturas
+- Actualizar método de pago
+- Cancelar suscripción
+- Ver próxima fecha de cobro
 
 ```typescript
-// users/{uid}
+// Request (Bearer token requerido)
+{}
+
+// Response
 {
-  email: string,
-  displayName: string,
+  url: string;  // Stripe Portal URL
+}
+```
+
+## Modelo de Datos (Firestore)
+
+### users/{uid}
+
+```typescript
+{
   subscription: {
-    status: 'free' | 'pro' | 'pro_early',
-    stripeCustomerId: string,
-    stripeSubscriptionId: string,
-    currentPeriodEnd: Timestamp,
-    cancelAtPeriodEnd: boolean
+    status: 'free' | 'trial' | 'pro' | 'pro_early' | 'canceled' | 'past_due',
+    plan?: 'monthly' | 'yearly',
+    stripeCustomerId?: string,
+    stripeSubscriptionId?: string,
+    currentPeriodStart?: Timestamp,
+    currentPeriodEnd?: Timestamp,
+    cancelAtPeriodEnd?: boolean
+  },
+  trial?: {
+    startedAt: Timestamp,
+    expiresAt: Timestamp,
+    source: 'extension' | 'web',
+    extended: boolean,
+    extendedAt?: Timestamp
   }
 }
+```
+
+### trials/{trialId}
+
+```typescript
+{
+  installationId?: string,
+  browserId?: string,
+  userId?: string,
+  status: 'active' | 'expired' | 'converted',
+  startedAt: Timestamp,
+  expiresAt: Timestamp,
+  extended: boolean,
+  extendedAt?: Timestamp,
+  extendedVia?: 'email' | 'google'
+}
+```
+
+## Subscription Status Flow
+
+```
+                                 TRIAL
+                              (3-6 días)
+                                  │
+                                  │ checkout
+                                  ▼
+┌─────────┐                ┌─────────────┐
+│  FREE   │ ◄──────────────│  PRO_EARLY  │
+└─────────┘   expired/     └─────────────┘
+     ▲        canceled            │
+     │                            │ price change
+     │                            ▼
+     │                     ┌─────────────┐
+     │                     │     PRO     │
+     │                     └─────────────┘
+     │                            │
+     │                            │ payment fails
+     │                            ▼
+     │                     ┌─────────────┐
+     └─────────────────────│  PAST_DUE   │
+           grace period    └─────────────┘
+           ends                   │
+                                  │ subscription deleted
+                                  ▼
+                           ┌─────────────┐
+                           │  CANCELED   │
+                           └─────────────┘
 ```
 
 ## Control de Errores
@@ -84,58 +287,38 @@ if (previousSubId && previousSubId !== subscriptionId) {
 
 | Capa | Validación |
 |------|------------|
-| **Checkout** | Bloquea si `status !== 'free'` |
-| **Webhook** | Cancela suscripción anterior automáticamente |
-| **Stripe** | Customer Portal permite gestionar suscripciones |
+| **Checkout** | Bloquea si ya tiene PRO |
+| **Webhook** | Usa stripeSubscriptionId único |
+| **Trial extend** | Bloquea si trial.extended = true |
 
 ### Errores Comunes
 
 | Error | Causa | Solución |
 |-------|-------|----------|
-| `No such price` | Price ID de modo incorrecto (live vs test) | Usar Price ID del mismo modo que API key |
-| `Invalid signature` | STRIPE_WEBHOOK_SECRET incorrecto | Regenerar con `stripe listen` |
-| `Value for "seconds" not valid` | Timestamp mal formateado | Usar `Timestamp.fromMillis()` |
-| `User already has subscription` | Intento de duplicar | Redirigir a Customer Portal |
-
-### Manejo de Webhooks Fallidos
-
-Si un webhook falla (500), Stripe lo reintentará automáticamente:
-- 1er reintento: inmediato
-- 2do reintento: 1 hora
-- 3er reintento: 24 horas
-
-**Logs importantes:**
-```
-[Webhook] handleCheckoutCompleted started
-[Webhook] Session metadata: { firebaseUid: '...' }
-[Webhook] Plan determined: pro_early
-[Webhook] User X upgraded to pro_early
-```
-
-## Customer Portal
-
-**Endpoint:** `POST /api/stripe/portal`
-
-Permite al usuario:
-- Ver historial de facturas
-- Actualizar método de pago
-- Cancelar suscripción
-- Cambiar plan (si está configurado)
+| `No such price` | Price ID incorrecto | Verificar env vars |
+| `Invalid signature` | WEBHOOK_SECRET incorrecto | Regenerar con stripe listen |
+| `already_extended` | Usuario ya extendió trial | Mostrar mensaje apropiado |
+| `disposable_email` | Email temporal | Pedir email real |
 
 ## Variables de Entorno
 
 ```env
 # Stripe
-STRIPE_SECRET_KEY=sk_test_...          # API key (test o live)
-STRIPE_WEBHOOK_SECRET=whsec_...        # Secreto del webhook
-STRIPE_PRICE_PRO_EARLY=price_...       # Price ID (mismo modo que API key)
-STRIPE_PRICE_PRO_MONTHLY=price_...     # Price ID regular
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_PRO_EARLY=price_...
+STRIPE_PRICE_PRO_MONTHLY=price_...
+STRIPE_PRICE_PRO_YEARLY=price_...
+
+# Trial
+TRIAL_BASE_DAYS=3
+TRIAL_EXTENDED_DAYS=6
 ```
 
 ## Testing Local
 
 ```bash
-# Terminal 1: Stripe CLI para webhooks
+# Terminal 1: Stripe CLI
 stripe listen --forward-to localhost:3000/api/stripe/webhook
 
 # Terminal 2: Next.js
@@ -144,19 +327,27 @@ npm run dev
 
 **Tarjeta de prueba:** `4242 4242 4242 4242`
 
-## Limpieza de Suscripciones Duplicadas
-
-Si hay suscripciones duplicadas de pruebas:
-
-1. **Stripe Dashboard** → Customers → [email] → Cancelar duplicadas
-2. **Customer Portal** → El usuario puede cancelar desde ahí
-3. **Automático** → El webhook cancela la anterior al crear una nueva
-
 ## Checklist Pre-Producción
 
-- [ ] Cambiar a API keys de modo LIVE
+- [ ] Cambiar a Stripe API keys LIVE
 - [ ] Crear productos/precios en modo LIVE
-- [ ] Configurar webhook en Stripe Dashboard (no CLI)
+- [ ] Configurar webhook en Stripe Dashboard
 - [ ] Verificar STRIPE_WEBHOOK_SECRET de producción
-- [ ] Probar flujo completo con tarjeta real (pequeño monto)
+- [ ] Probar flujo completo con tarjeta real
 - [ ] Configurar emails de Stripe (facturas, renovaciones)
+- [ ] Verificar trial auto-start funciona
+- [ ] Verificar trial extend funciona
+- [ ] Verificar checkout → PRO funciona
+- [ ] Verificar cancelación funciona
+
+## Logs de Debug
+
+```
+[Trial] Started for installation: xxx, expires: 2024-01-18
+[Trial] Extended for user: yyy, new expiry: 2024-01-21
+[Trial] Expired for installation: xxx
+[Webhook] checkout.session.completed for user: yyy
+[Webhook] User yyy upgraded to pro_early
+[Webhook] subscription.deleted for user: yyy
+[Entitlements] User yyy: plan=pro, expires=2024-02-15
+```

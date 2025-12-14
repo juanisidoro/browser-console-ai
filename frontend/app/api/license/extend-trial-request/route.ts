@@ -12,6 +12,7 @@ import { getAdminDb } from '@/infra/firebase/admin';
 import { getEmailServiceInstance } from '@/infra/email';
 import { v4 as uuidv4 } from 'uuid';
 import type { TrialLicense } from '../../../../../shared/core';
+import { isDisposableEmail } from '../../../../../shared/core';
 
 /**
  * Check if this email is new (never received welcome email)
@@ -121,6 +122,14 @@ export async function POST(request: NextRequest) {
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { success: false, message: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Block disposable/temporary emails
+    if (isDisposableEmail(email)) {
+      return NextResponse.json(
+        { success: false, message: 'Temporary email addresses are not allowed. Please use a permanent email.' },
         { status: 400 }
       );
     }

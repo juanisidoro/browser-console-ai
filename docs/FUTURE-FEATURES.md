@@ -1,5 +1,7 @@
 # Future Features - Browser Console AI
 
+> Features planned for post-MVP implementation.
+
 ## Recording Display Options
 
 ### 1. Truncar logs largos
@@ -219,19 +221,111 @@ Behavior:
 
 ---
 
+## Anti-Abuse Features
+
+### 15. Disposable Email Blocking
+Bloquear emails temporales en trial extend.
+
+```
+Implementation:
+  - Lista de dominios conocidos (mailinator, tempmail, etc.)
+  - API externa para verificación (opcional)
+  - Rate limiting por IP
+
+Response: { error: 'disposable_email' }
+```
+
+### 16. Device Fingerprinting
+Detectar reinstalaciones de extensión.
+
+```
+Implementation:
+  - Hash de características del dispositivo
+  - Canvas fingerprint
+  - WebGL fingerprint
+  - Audio fingerprint
+
+Use case: Detectar trial abuse por reinstalación
+```
+
+### 17. One-Time Codes
+Códigos para vincular extension ↔ web de forma segura.
+
+```
+Flow:
+  1. Usuario verifica email en web
+  2. Web genera código de 6 caracteres
+  3. Usuario pega código en extensión
+  4. Backend valida y vincula installationId ↔ userId
+
+Security:
+  - Expira en 15 minutos
+  - Single use
+  - Rate limited
+```
+
+---
+
+## Team Features
+
+### 18. Team Workspaces
+Múltiples usuarios compartiendo recordings.
+
+```
+Features:
+  - Crear workspace
+  - Invitar miembros por email
+  - Roles: Admin, Member, Viewer
+  - Shared recordings history
+```
+
+### 19. Cloud History
+Persistir recordings en cloud.
+
+```
+Features:
+  - Recordings guardados en Firestore
+  - Búsqueda por contenido
+  - Filtros por fecha, tipo, URL
+  - Retention policy (7 días default)
+```
+
+### 20. Real-time Alerts
+Notificaciones cuando ocurren errores.
+
+```
+Channels:
+  - Slack integration
+  - Discord integration
+  - Email digest
+
+Filters:
+  - Solo errores
+  - Por URL pattern
+  - Por frecuencia
+```
+
+---
+
 ## Priority Matrix
 
-| Feature | Effort | Value | Priority |
-|---------|--------|-------|----------|
-| Truncar logs largos | Low | Medium | P1 |
-| Sanitizar datos sensibles | Medium | High | P1 |
-| Export JSON/CSV | Low | High | P1 |
-| Rate limiting | Low | Medium | P2 |
-| Agrupar logs similares | Medium | Medium | P2 |
-| Formato timestamp | Low | Low | P3 |
-| Compartir por link | High | High | P2 |
-| Webhooks | High | Medium | P3 |
-| Integración Sentry | High | Medium | P3 |
+| Feature | Effort | Value | Priority | Status |
+|---------|--------|-------|----------|--------|
+| Export JSON/CSV | Low | High | P1 | Parcial |
+| Sanitizar datos sensibles | Medium | High | P1 | Pendiente |
+| Disposable email block | Low | High | P1 | Pendiente |
+| Rate limiting API | Low | Medium | P1 | Pendiente |
+| Truncar logs largos | Low | Medium | P2 | Pendiente |
+| Agrupar logs similares | Medium | Medium | P2 | Pendiente |
+| One-time codes | Medium | High | P2 | Pendiente |
+| Compartir por link | High | High | P2 | Pendiente |
+| Device fingerprinting | High | Medium | P3 | Pendiente |
+| Formato timestamp | Low | Low | P3 | Pendiente |
+| Webhooks | High | Medium | P3 | Pendiente |
+| Integración Sentry | High | Medium | P3 | Pendiente |
+| Team workspaces | Very High | High | P4 | Pendiente |
+| Cloud history | Very High | High | P4 | Pendiente |
+| Real-time alerts | High | Medium | P4 | Pendiente |
 
 ---
 
@@ -241,13 +335,16 @@ Behavior:
 - Settings se guardan en `chrome.storage.local`
 - Recordings grandes pueden requerir IndexedDB
 - Límite de storage: 5MB local, 100KB sync
+- Cloud history requiere Firestore con TTL
 
 ### Performance
 - Usar Web Workers para procesamiento pesado
 - Debounce en filtros de texto
 - Virtualización para listas largas de logs
+- Lazy loading para recordings history
 
 ### Security
 - Sanitización debe ser opt-out para usuarios PRO
 - No almacenar datos sensibles en plain text
 - Tokens de sharing deben ser criptográficamente seguros
+- Device fingerprinting solo para anti-abuse, no tracking
