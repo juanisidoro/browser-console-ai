@@ -14,6 +14,7 @@ export type AnalyticsEventType =
   | 'first_recording'
   | 'trial_activated'
   | 'trial_extended'
+  | 'trial_extension_email_sent'
   | 'user_registered'
   // Engagement
   | 'recording_started'
@@ -25,12 +26,14 @@ export type AnalyticsEventType =
   // Revenue
   | 'upgrade_clicked'
   | 'extend_trial_clicked'
+  | 'extend_trial_email_sent'
   | 'checkout_started'
   | 'subscription_created'
   | 'subscription_cancelled'
   // Other
   | 'license_verified'
-  | 'error_occurred';
+  | 'error_occurred'
+  | 'analytics_consent_changed';
 
 // Event payload structure
 export interface AnalyticsEvent {

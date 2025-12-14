@@ -22,11 +22,14 @@ const VALID_EVENTS: AnalyticsEventType[] = [
   'export_recording',
   'upgrade_clicked',
   'extend_trial_clicked',
+  'extend_trial_email_sent',
+  'trial_extension_email_sent',
   'checkout_started',
   'subscription_created',
   'subscription_cancelled',
   'license_verified',
   'error_occurred',
+  'analytics_consent_changed',
 ];
 
 export interface ProcessEventInput {

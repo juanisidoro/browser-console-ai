@@ -334,6 +334,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // Track recording started
         self.Analytics.trackEvent('recording_started');
 
+        // Track first recording (for activation metrics)
+        if (recordingsHistory.length === 0) {
+          self.Analytics.trackEvent('first_recording');
+        }
+
         sendResponse({ started: true });
       } else {
         sendResponse({
