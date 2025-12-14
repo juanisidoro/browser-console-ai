@@ -113,8 +113,9 @@ export async function POST(request: NextRequest) {
         ...applyIncrements(newDaily, dailyIncrements),
       });
     } else {
-      // Update existing daily record
+      // Update existing daily record - use set with merge to handle missing fields
       const updates: Record<string, unknown> = {};
+      const currentData = dailyDoc.data() || {};
 
       for (const [key, value] of Object.entries(dailyIncrements)) {
         if (key === 'installsByCountry' && typeof value === 'object') {
@@ -123,12 +124,17 @@ export async function POST(request: NextRequest) {
             updates[`installsByCountry.${countryCode}`] = FieldValue.increment(count);
           }
         } else if (typeof value === 'number') {
-          updates[key] = FieldValue.increment(value);
+          // Check if field exists, if not initialize it first
+          if (currentData[key] === undefined) {
+            updates[key] = value; // Set initial value
+          } else {
+            updates[key] = FieldValue.increment(value);
+          }
         }
       }
 
       if (Object.keys(updates).length > 0) {
-        await dailyRef.update(updates);
+        await dailyRef.set(updates, { merge: true });
       }
     }
 
@@ -147,21 +153,27 @@ export async function POST(request: NextRequest) {
         updatedAt: FieldValue.serverTimestamp(),
       });
     } else {
-      // Update existing totals
+      // Update existing totals - use set with merge to handle missing fields
       const updates: Record<string, unknown> = {
         updatedAt: FieldValue.serverTimestamp(),
       };
+      const currentData = totalsDoc.data() || {};
 
       for (const [key, value] of Object.entries(totalIncrements)) {
         if (typeof value === 'number' && key !== 'lastEventAt') {
-          updates[key] = FieldValue.increment(value);
+          // Check if field exists, if not initialize it first
+          if (currentData[key] === undefined) {
+            updates[key] = value;
+          } else {
+            updates[key] = FieldValue.increment(value);
+          }
         } else if (key === 'lastEventAt') {
           updates[key] = value;
         }
       }
 
       if (Object.keys(updates).length > 0) {
-        await totalsRef.update(updates);
+        await totalsRef.set(updates, { merge: true });
       }
     }
 
@@ -204,9 +216,16 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error tracking analytics:', error);
+    // Log detailed error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('Error tracking analytics:', {
+      message: errorMessage,
+      stack: errorStack,
+      error,
+    });
     return NextResponse.json(
-      { error: 'Failed to track event' },
+      { error: 'Failed to track event', details: errorMessage },
       { status: 500 }
     );
   }
