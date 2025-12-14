@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       installationId,
       trialData.tokenId,
       trialData.expiresAt,
-      { email: trialData.email }
+      { email: trialData.email, userId: trialData.userId }
     );
 
     const daysRemaining = Math.ceil((trialData.expiresAt - Date.now()) / (24 * 60 * 60 * 1000));
