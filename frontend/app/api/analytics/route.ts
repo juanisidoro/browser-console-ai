@@ -94,10 +94,18 @@ export async function POST(request: NextRequest) {
     const dateStr = getEventDateString(event.timestamp);
 
     // Store raw event (for detailed analysis later)
-    await db.collection('analytics_events').add({
-      ...event,
+    // Filter out undefined values (Firestore doesn't accept undefined)
+    const eventToStore: Record<string, unknown> = {
+      event: event.event,
+      installationId: event.installationId,
+      timestamp: event.timestamp,
+      metadata: event.metadata,
       createdAt: FieldValue.serverTimestamp(),
-    });
+    };
+    if (event.userId) eventToStore.userId = event.userId;
+    if (event.data && Object.keys(event.data).length > 0) eventToStore.data = event.data;
+
+    await db.collection('analytics_events').add(eventToStore);
 
     // Update daily metrics
     const dailyRef = db.collection('metrics').doc('daily').collection('days').doc(dateStr);
