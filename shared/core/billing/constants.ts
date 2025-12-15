@@ -5,6 +5,7 @@
  */
 
 import type { Plan } from '../licensing/entities';
+import { UNLIMITED } from '../licensing/entities';
 
 export interface PlanLimits {
   maxLogs: number;
@@ -23,10 +24,11 @@ export const FREE_LIMITS: PlanLimits = {
 
 /**
  * PRO plan limits (no limits)
+ * Uses UNLIMITED constant for JSON serialization compatibility
  */
 export const PRO_LIMITS: PlanLimits = {
-  maxLogs: Infinity,
-  maxRecordings: Infinity,
+  maxLogs: UNLIMITED,
+  maxRecordings: UNLIMITED,
 };
 
 /**

@@ -21,7 +21,7 @@ export type {
   DeviceRegistration,
   PlanConfig,
 } from './licensing/entities';
-export { getEntitlements, PLAN_CONFIGS } from './licensing/entities';
+export { getEntitlements, PLAN_CONFIGS, UNLIMITED } from './licensing/entities';
 export * from './licensing/errors';
 export { generateLicensePayload } from './licensing/use-cases/generate-payload';
 export { verifyLicensePayload, shouldRefreshToken } from './licensing/use-cases/verify-payload';

@@ -114,6 +114,13 @@ export interface Entitlements {
 export type OutputFormat = 'plain' | 'toon' | 'json';
 
 /**
+ * Constant representing "unlimited" for JSON serialization
+ * Note: Infinity becomes null in JSON, so we use a large number
+ * The UI interprets values > 10000 as "Unlimited"
+ */
+export const UNLIMITED = 999999999;
+
+/**
  * Get entitlements for a given plan
  */
 export function getEntitlements(plan: Plan): Entitlements {
@@ -130,8 +137,8 @@ export function getEntitlements(plan: Plan): Entitlements {
     case 'trial':
       // Trial has same entitlements as PRO but limited duration
       return {
-        maxLogs: Infinity,
-        maxRecordings: Infinity,
+        maxLogs: UNLIMITED,
+        maxRecordings: UNLIMITED,
         formats: ['plain', 'toon', 'json'],
         mcpDirect: true,
         export: true,
@@ -140,8 +147,8 @@ export function getEntitlements(plan: Plan): Entitlements {
     case 'pro':
     case 'pro_early':
       return {
-        maxLogs: Infinity,
-        maxRecordings: Infinity,
+        maxLogs: UNLIMITED,
+        maxRecordings: UNLIMITED,
         formats: ['plain', 'toon', 'json'],
         mcpDirect: true,
         export: true,
