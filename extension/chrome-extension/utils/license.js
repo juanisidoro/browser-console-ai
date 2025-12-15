@@ -453,8 +453,11 @@ async function fetchEntitlements(forceRefresh = false, firebaseIdToken = null) {
     const url = new URL(`${API_BASE_URL}/api/entitlements`);
     url.searchParams.set('installationId', installationId);
 
-    // Add auth token if available
-    const headers = { 'Content-Type': 'application/json' };
+    // Add auth token and installation ID header
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Installation-Id': installationId,
+    };
     if (firebaseIdToken) {
       headers['Authorization'] = `Bearer ${firebaseIdToken}`;
     }

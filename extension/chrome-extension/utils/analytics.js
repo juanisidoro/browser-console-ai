@@ -219,12 +219,73 @@ async function trackUpdate(previousVersion) {
   });
 }
 
+// ================================================
+// Onboarding Progress Sync
+// ================================================
+// Called when a user logs in to re-send onboarding events with userId
+// This ensures events that happened before login are linked to the user
+
+async function syncOnboardingProgress() {
+  console.log('[Analytics] Syncing onboarding progress...');
+
+  try {
+    // 1. EXTENSION_INSTALLED: If we're here, extension is installed
+    // Always re-send with userId to ensure it's tracked
+    await trackEvent('extension_installed');
+    console.log('[Analytics] Synced: extension_installed');
+
+    // 2. TRIAL_ACTIVATED: Check if user has active trial/pro
+    const licenseResult = await chrome.storage.local.get('bcai_license_token');
+    if (licenseResult.bcai_license_token) {
+      try {
+        const parts = licenseResult.bcai_license_token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          if (payload.plan && ['trial', 'pro', 'pro_early'].includes(payload.plan)) {
+            await trackEvent('trial_activated', { plan: payload.plan, synced: true });
+            console.log('[Analytics] Synced: trial_activated');
+          }
+        }
+      } catch (e) {
+        // Ignore decode errors
+      }
+    }
+
+    // 3. FIRST_RECORDING: Check if user has any recordings in history
+    const recordingsResult = await chrome.storage.local.get('bcai_recordings_history');
+    const recordingsHistory = recordingsResult.bcai_recordings_history || [];
+    if (recordingsHistory.length > 0) {
+      await trackEvent('first_recording', { synced: true, totalRecordings: recordingsHistory.length });
+      console.log('[Analytics] Synced: first_recording');
+    }
+
+    // 4. MCP_CONNECTED: Check current MCP status via service worker
+    // This one is more complex - we need to check with the service worker
+    // Send a message to check MCP status
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'CHECK_MCP_STATUS' });
+      if (response?.connected) {
+        await trackEvent('mcp_connected', { synced: true });
+        console.log('[Analytics] Synced: mcp_connected');
+      }
+    } catch (e) {
+      // Service worker might not be ready, that's ok
+      console.log('[Analytics] Could not check MCP status for sync');
+    }
+
+    console.log('[Analytics] Onboarding sync complete');
+  } catch (error) {
+    console.warn('[Analytics] Error syncing onboarding:', error);
+  }
+}
+
 // Export for use in other scripts
 if (typeof window !== 'undefined') {
   window.Analytics = {
     trackEvent,
     trackInstall,
     trackUpdate,
+    syncOnboardingProgress,
     getInstallationId: getAnalyticsInstallationId,
     getConsent: getAnalyticsConsent,
     setConsent: setAnalyticsConsent,
@@ -238,6 +299,7 @@ if (typeof self !== 'undefined' && typeof window === 'undefined') {
     trackEvent,
     trackInstall,
     trackUpdate,
+    syncOnboardingProgress,
     getInstallationId: getAnalyticsInstallationId,
     getConsent: getAnalyticsConsent,
     setConsent: setAnalyticsConsent,

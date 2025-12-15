@@ -70,6 +70,7 @@ function initializeFirebase() {
 
 // Handle auth state changes
 async function handleAuthStateChange(user) {
+  const previousUser = currentUser;
   currentUser = user;
 
   if (user) {
@@ -85,6 +86,21 @@ async function handleAuthStateChange(user) {
     });
 
     console.log('[Auth] User signed in:', user.uid, user.isAnonymous ? '(anonymous)' : '');
+
+    // Sync onboarding progress when a real (non-anonymous) user logs in
+    // Only do this on transition from anonymous/no-user to real user
+    const wasAnonymousOrNoUser = !previousUser || previousUser.isAnonymous;
+    const isNowRealUser = !user.isAnonymous;
+
+    if (wasAnonymousOrNoUser && isNowRealUser) {
+      console.log('[Auth] Real user logged in, syncing onboarding progress...');
+      // Delay slightly to ensure Analytics is ready
+      setTimeout(() => {
+        if (typeof Analytics !== 'undefined' && Analytics.syncOnboardingProgress) {
+          Analytics.syncOnboardingProgress();
+        }
+      }, 500);
+    }
   } else {
     await chrome.storage.local.remove(AUTH_USER_KEY);
     console.log('[Auth] User signed out');

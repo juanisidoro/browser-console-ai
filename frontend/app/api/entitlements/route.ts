@@ -52,7 +52,8 @@ interface UserData {
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
-    const installationId = url.searchParams.get('installationId');
+    const installationId = url.searchParams.get('installationId') ||
+                          request.headers.get('X-Installation-Id');
     const browserId = url.searchParams.get('browserId');
 
     const db = getAdminDb();
@@ -70,6 +71,13 @@ export async function GET(request: NextRequest) {
         // Token invalid or expired - continue without userId
         // Don't return 401 here, just treat as anonymous
       }
+    }
+
+    // ================================================================
+    // Merge onboarding progress from installationId to userId
+    // ================================================================
+    if (userId && installationId) {
+      await mergeOnboardingProgress(db, userId, installationId);
     }
 
     // ================================================================
@@ -257,5 +265,83 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to get entitlements' },
       { status: 500 }
     );
+  }
+}
+
+// ================================================================
+// Helper: Merge onboarding progress from installationId to userId
+// ================================================================
+async function mergeOnboardingProgress(
+  db: FirebaseFirestore.Firestore,
+  userId: string,
+  installationId: string
+) {
+  try {
+    // Get user's current onboarding
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+    const userOnboarding = {
+      extensionInstalled: userData?.onboarding?.extensionInstalled || false,
+      trialActivated: userData?.onboarding?.trialActivated || false,
+      firstRecording: userData?.onboarding?.firstRecording || false,
+      mcpConnected: userData?.onboarding?.mcpConnected || false,
+    };
+
+    // Get installation-based onboarding
+    const installationDoc = await db.collection('onboarding_progress').doc(installationId).get();
+    let installationOnboarding = {
+      extensionInstalled: false,
+      trialActivated: false,
+      firstRecording: false,
+      mcpConnected: false,
+    };
+
+    if (installationDoc.exists) {
+      const data = installationDoc.data();
+      installationOnboarding = {
+        extensionInstalled: data?.extensionInstalled || false,
+        trialActivated: data?.trialActivated || false,
+        firstRecording: data?.firstRecording || false,
+        mcpConnected: data?.mcpConnected || false,
+      };
+    }
+
+    // Merge with OR logic
+    const merged = {
+      extensionInstalled: userOnboarding.extensionInstalled || installationOnboarding.extensionInstalled,
+      trialActivated: userOnboarding.trialActivated || installationOnboarding.trialActivated,
+      firstRecording: userOnboarding.firstRecording || installationOnboarding.firstRecording,
+      mcpConnected: userOnboarding.mcpConnected || installationOnboarding.mcpConnected,
+    };
+
+    // Check if user has active trial/pro subscription (counts as trial activated)
+    const subscription = userData?.subscription;
+    if (subscription?.status && ['trial', 'pro', 'pro_early'].includes(subscription.status)) {
+      merged.trialActivated = true;
+    }
+
+    // Update user document if anything changed
+    const needsUpdate =
+      merged.extensionInstalled !== userOnboarding.extensionInstalled ||
+      merged.trialActivated !== userOnboarding.trialActivated ||
+      merged.firstRecording !== userOnboarding.firstRecording ||
+      merged.mcpConnected !== userOnboarding.mcpConnected;
+
+    if (needsUpdate) {
+      await db.collection('users').doc(userId).set(
+        { onboarding: merged },
+        { merge: true }
+      );
+      console.log(`[Entitlements] Merged onboarding for user ${userId} from installation ${installationId}`);
+    }
+
+    // Link installation to user
+    await db.collection('onboarding_progress').doc(installationId).set(
+      { linkedUserId: userId, linkedAt: Date.now() },
+      { merge: true }
+    );
+  } catch (error) {
+    // Non-critical - log but don't fail the request
+    console.error('[Entitlements] Error merging onboarding:', error);
   }
 }

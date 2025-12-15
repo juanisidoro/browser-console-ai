@@ -322,6 +322,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  // Check MCP connection status (for onboarding sync)
+  if (message.action === 'CHECK_MCP_STATUS') {
+    checkServerHealth().then(health => {
+      sendResponse({ connected: health.connected });
+    });
+    return true;
+  }
+
   // Start recording
   if (message.action === 'START_RECORDING') {
     canCreateRecording().then(check => {
