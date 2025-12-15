@@ -11,8 +11,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/infra/stripe/server';
-import { getAdminDb } from '@/infra/firebase/admin';
+import { getAdminDb, getAdminAuth } from '@/infra/firebase/admin';
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { signLicenseToken } from '@/infra/licensing/jwt-service';
 import type Stripe from 'stripe';
 
 // Helper to track analytics events from webhook
@@ -175,6 +176,29 @@ async function handleCheckoutCompleted(
     ? Timestamp.fromMillis(subscription.current_period_end * 1000)
     : null;
 
+  // Get user email for token generation
+  let userEmail = session.customer_email || session.customer_details?.email || '';
+  if (!userEmail) {
+    try {
+      const adminAuth = getAdminAuth();
+      const userRecord = await adminAuth.getUser(firebaseUid);
+      userEmail = userRecord.email || '';
+    } catch (e) {
+      console.log('[Webhook] Could not get user email from Auth:', e);
+    }
+  }
+
+  // Generate license token for auto-sync to extension
+  let licenseToken: string | null = null;
+  if (userEmail) {
+    try {
+      licenseToken = await signLicenseToken(firebaseUid, userEmail, plan);
+      console.log('[Webhook] Generated license token for user:', firebaseUid);
+    } catch (e) {
+      console.error('[Webhook] Failed to generate license token:', e);
+    }
+  }
+
   await userRef.set({
     subscription: {
       status: plan,
@@ -182,6 +206,8 @@ async function handleCheckoutCompleted(
       stripeCustomerId: session.customer as string,
       currentPeriodEnd: periodEnd,
       cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
+      licenseToken: licenseToken, // Store token for auto-sync
+      tokenGeneratedAt: licenseToken ? FieldValue.serverTimestamp() : null,
     }
   }, { merge: true });
 

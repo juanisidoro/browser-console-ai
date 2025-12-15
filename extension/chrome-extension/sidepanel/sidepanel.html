@@ -6,39 +6,36 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <div class="header-top">
-        <div class="header-brand">
-          <svg class="header-logo" viewBox="0 0 128 128" width="24" height="24">
-            <rect x="4" y="4" width="120" height="120" rx="20" ry="20" fill="#1e293b"/>
-            <clipPath id="headerLogoClip">
-              <rect x="4" y="4" width="120" height="30" rx="20" ry="20"/>
-            </clipPath>
-            <rect x="4" y="4" width="120" height="34" fill="#64748b" clip-path="url(#headerLogoClip)"/>
-            <rect x="4" y="24" width="120" height="10" fill="#64748b"/>
-            <path d="M 40 52 L 82 78 L 40 104" fill="none" stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="brand-name">Browser Console <span class="ai-text">AI</span></span>
-        </div>
-        <div class="header-controls">
-          <span class="plan-badge free" id="planBadge" title="Click to manage license">FREE</span>
-          <div class="mcp-status" id="mcpStatus" title="MCP Server status">
-            <span class="status-dot" id="statusDot"></span>
-            <span id="statusText">Offline</span>
-          </div>
-        </div>
+    <!-- ========== HEADER ========== -->
+    <header class="header">
+      <div class="header-left">
+        <svg class="header-logo" viewBox="0 0 128 128" width="24" height="24">
+          <rect x="4" y="4" width="120" height="120" rx="20" ry="20" fill="#1e293b"/>
+          <clipPath id="headerLogoClip">
+            <rect x="4" y="4" width="120" height="30" rx="20" ry="20"/>
+          </clipPath>
+          <rect x="4" y="4" width="120" height="34" fill="#64748b" clip-path="url(#headerLogoClip)"/>
+          <rect x="4" y="24" width="120" height="10" fill="#64748b"/>
+          <path d="M 40 52 L 82 78 L 40 104" fill="none" stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-name">Browser Console <span class="ai-text">AI</span></span>
       </div>
-      <div class="header-capture">
-        <span class="capture-label">Console Capture</span>
-        <label class="capture-switch" title="Enable/disable console capture">
+      <div class="header-center">
+        <label class="capture-toggle" title="Enable/disable console capture">
+          <span class="capture-label">Capture</span>
           <input type="checkbox" id="captureEnabled" checked>
-          <span class="switch-track"></span>
-          <span class="switch-status" id="captureLabel">ON</span>
+          <span class="toggle-track"></span>
         </label>
+      </div>
+      <div class="header-right">
+        <button class="plan-badge" id="planBadge" title="Click to manage account">
+          <span class="plan-text" id="planText">FREE</span>
+          <span class="mcp-dot" id="mcpDot"></span>
+        </button>
       </div>
     </header>
 
-    <!-- Limit Warning Banner -->
+    <!-- ========== LIMIT WARNING BANNER ========== -->
     <div class="limit-banner hidden" id="limitBanner">
       <div class="limit-banner-content">
         <span class="limit-banner-icon">!</span>
@@ -47,7 +44,7 @@
       <a href="https://browserconsoleai.com/pricing" target="_blank" class="limit-banner-cta">Upgrade</a>
     </div>
 
-    <!-- Disabled State Message -->
+    <!-- ========== DISABLED OVERLAY ========== -->
     <section class="disabled-overlay hidden" id="disabledOverlay">
       <div class="disabled-content">
         <div class="disabled-icon">
@@ -57,7 +54,7 @@
           </svg>
         </div>
         <h2 class="disabled-title">Capture Disabled</h2>
-        <p class="disabled-text">Console logs are not being captured. Enable capture to start recording browser logs.</p>
+        <p class="disabled-text">Enable capture to start recording browser logs.</p>
         <button class="btn-enable" id="btnEnableCapture">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -67,116 +64,95 @@
       </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="stats-section" id="statsSection">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-value" id="statTotal">0</span>
-          <span class="stat-label">Total</span>
-        </div>
-        <div class="stat-item stat-log">
-          <span class="stat-value" id="statLog">0</span>
-          <span class="stat-label">Log</span>
-        </div>
-        <div class="stat-item stat-info">
-          <span class="stat-value" id="statInfo">0</span>
-          <span class="stat-label">Info</span>
-        </div>
-        <div class="stat-item stat-warn">
-          <span class="stat-value" id="statWarn">0</span>
-          <span class="stat-label">Warn</span>
-        </div>
-        <div class="stat-item stat-error">
-          <span class="stat-value" id="statError">0</span>
-          <span class="stat-label">Error</span>
-        </div>
-        <div class="stat-item stat-debug">
-          <span class="stat-value" id="statDebug">0</span>
-          <span class="stat-label">Debug</span>
-        </div>
-      </div>
-    </section>
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content" id="mainContent">
 
-    <!-- Recording Section -->
-    <section class="recording-section" id="recordingSection">
-      <!-- IDLE State -->
-      <div class="state state-idle" id="stateIdle">
-        <div class="record-hint">Click to start recording console logs</div>
-        <button class="btn-record" id="btnStartRecord">
-          <span class="record-icon"></span>
-          Start Recording
-        </button>
-      </div>
-
-      <!-- RECORDING State -->
-      <div class="state state-recording hidden" id="stateRecording">
-        <div class="recording-header">
-          <div class="recording-indicator">
-            <span class="pulse"></span>
-            <span id="recordingLabel">Recording...</span>
+      <!-- ========== #1 ACTION BLOCK (Fixed Height) ========== -->
+      <section class="action-block" id="actionBlock">
+        <!-- Action Header -->
+        <div class="action-header">
+          <div class="action-status">
+            <span class="action-dot" id="actionDot"></span>
+            <div class="action-info">
+              <span class="action-title" id="actionTitle">Ready to capture</span>
+              <span class="action-subtitle" id="actionSubtitle">Start recording to capture console logs</span>
+            </div>
           </div>
-          <label class="show-logs-toggle" title="Show/hide logs">
-            <input type="checkbox" id="showLogsToggle" checked>
-            <span class="toggle-slider-small"></span>
-            <span class="toggle-label-small">Logs</span>
-          </label>
-        </div>
-        <div class="logs-counter">
-          <span id="logsCount">0</span> logs captured
-        </div>
-        <div class="recording-actions">
-          <button class="btn-stop-only" id="btnStopOnly" title="Stop without sending">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
-            </svg>
-          </button>
-          <button class="btn-stop" id="btnStopRecord">
-            <span class="stop-icon"></span>
-            Stop & Send
-          </button>
-        </div>
-        <div class="recording-logs-container" id="logsContainer">
-          <div class="recording-logs" id="recordingLogs">
-            <!-- Live logs will appear here -->
-          </div>
-        </div>
-      </div>
-
-      <!-- SENT State -->
-      <div class="state state-sent hidden" id="stateSent">
-        <div class="success-icon">✓</div>
-        <div class="sent-message">Logs sent successfully!</div>
-        <div class="hash-container">
-          <div class="hash-label">Recording ID:</div>
-          <div class="hash-value" id="hashValue">REC-000000</div>
-          <button class="btn-copy" id="btnCopy" title="Copy to clipboard">
+          <button class="btn-expand-logs" id="btnExpandLogs" title="View all logs">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
         </div>
-        <div class="hash-hint">Share this ID with your AI agent to analyze the logs</div>
-        <button class="btn-new" id="btnNewRecording">New Recording</button>
-      </div>
-    </section>
 
-    <!-- Settings (above Recordings) -->
-    <details class="settings-section">
-      <summary>Settings</summary>
-      <div class="settings-content">
-        <!-- Tabs -->
-        <div class="settings-tabs">
-          <button class="settings-tab active" data-tab="capture">Capture</button>
-          <button class="settings-tab" data-tab="mcp-output">MCP Output</button>
-          <button class="settings-tab" data-tab="license">License</button>
-          <button class="settings-tab" data-tab="privacy">Privacy</button>
+        <!-- Stats Grid -->
+        <div class="action-stats">
+          <div class="stat-item">
+            <span class="stat-value" id="statTotal">--</span>
+            <span class="stat-label">TOTAL</span>
+          </div>
+          <div class="stat-item stat-log">
+            <span class="stat-value" id="statLog">--</span>
+            <span class="stat-label">LOG</span>
+          </div>
+          <div class="stat-item stat-info">
+            <span class="stat-value" id="statInfo">--</span>
+            <span class="stat-label">INFO</span>
+          </div>
+          <div class="stat-item stat-warn">
+            <span class="stat-value" id="statWarn">--</span>
+            <span class="stat-label">WARN</span>
+          </div>
+          <div class="stat-item stat-error">
+            <span class="stat-value" id="statError">--</span>
+            <span class="stat-label">ERROR</span>
+          </div>
+          <div class="stat-item stat-debug">
+            <span class="stat-value" id="statDebug">--</span>
+            <span class="stat-label">DEBUG</span>
+          </div>
         </div>
 
-        <!-- Tab: Capture -->
-        <div class="settings-page active" id="tabCapture">
+        <!-- Action Button -->
+        <div class="action-button-container">
+          <button class="btn-action" id="btnAction">
+            <span class="btn-action-icon" id="btnActionIcon"></span>
+            <span class="btn-action-text" id="btnActionText">Start Recording</span>
+          </button>
+        </div>
+
+        <!-- Preview Area (Fixed Height) -->
+        <div class="action-preview" id="actionPreview">
+          <div class="preview-content" id="previewContent">
+            <div class="preview-placeholder">
+              <span class="preview-placeholder-text">Logs will appear here during recording</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MCP CTA -->
+        <div class="action-mcp">
+          <span class="mcp-icon">👑</span>
+          <span class="mcp-text">Connect MCP</span>
+          <span class="mcp-badge">PRO</span>
+        </div>
+      </section>
+
+      <!-- ========== #2 CAPTURE SETTINGS ACCORDION ========== -->
+      <details class="accordion" id="accordionCapture">
+        <summary class="accordion-header">
+          <div class="accordion-title">
+            <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 1v6m0 6v10M1 12h6m6 0h10"></path>
+            </svg>
+            <span>Capture Settings</span>
+          </div>
+          <span class="accordion-badge" id="captureBadge">Default</span>
+        </summary>
+        <div class="accordion-content">
           <div class="filter-group">
-            <label>Show log types:</label>
+            <label class="filter-label">Log types to capture:</label>
             <div class="log-type-filters">
               <label class="type-toggle">
                 <input type="checkbox" id="filterLog" checked>
@@ -200,56 +176,63 @@
               </label>
             </div>
           </div>
-
           <div class="filter-group">
-            <label>Include patterns (comma separated)</label>
-            <input type="text" id="includePatterns" placeholder="error, critical, API">
+            <label class="filter-label">Include patterns (comma separated)</label>
+            <input type="text" id="includePatterns" class="filter-input" placeholder="error, critical, API">
           </div>
-
           <div class="filter-group">
-            <label>Exclude patterns (comma separated)</label>
-            <input type="text" id="excludePatterns" placeholder="[HMR], webpack">
+            <label class="filter-label">Exclude patterns (comma separated)</label>
+            <input type="text" id="excludePatterns" class="filter-input" placeholder="[HMR], webpack">
           </div>
         </div>
+      </details>
 
-        <!-- Tab: MCP Output -->
-        <div class="settings-page" id="tabMcpOutput">
-          <!-- Recording Display Section -->
+      <!-- ========== #3 OUTPUT SETTINGS MCP ACCORDION ========== -->
+      <details class="accordion" id="accordionOutput">
+        <summary class="accordion-header">
+          <div class="accordion-title">
+            <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Output Settings (MCP)</span>
+          </div>
+          <span class="accordion-badge mcp-status-badge" id="outputBadge">Offline</span>
+        </summary>
+        <div class="accordion-content">
+          <!-- Recording Display -->
           <div class="settings-group">
             <div class="settings-group-header">
-              <span class="settings-group-icon">📋</span>
               <span class="settings-group-title">Recording Display</span>
             </div>
             <div class="settings-group-content">
-              <label class="toggle">
+              <label class="toggle-row">
                 <input type="checkbox" id="compressObjects" checked>
                 <span>Compress large objects</span>
               </label>
-              <label class="toggle">
+              <label class="toggle-row">
                 <input type="checkbox" id="plainTextFormat" checked>
                 <span>Plain text format</span>
               </label>
-              <label class="toggle">
+              <label class="toggle-row">
                 <input type="checkbox" id="showSourceInPlain" checked>
                 <span>Show file source</span>
               </label>
             </div>
           </div>
-
-          <!-- MCP Server Section -->
-          <div class="settings-group mcp-group">
+          <!-- MCP Server Output -->
+          <div class="settings-group">
             <div class="settings-group-header">
-              <span class="settings-group-icon">🔌</span>
               <span class="settings-group-title">MCP Server Output</span>
-              <span class="pro-badge">PRO</span>
+              <span class="pro-badge-small">PRO</span>
             </div>
             <div class="settings-group-content">
-              <label class="toggle">
+              <label class="toggle-row">
                 <input type="checkbox" id="compactMode">
                 <span>Minify JSON payload</span>
               </label>
               <div class="filter-group">
-                <label>Include metadata:</label>
+                <label class="filter-label">Include metadata:</label>
                 <div class="props-selector">
                   <label class="prop-toggle"><input type="checkbox" id="propId"><span>id</span></label>
                   <label class="prop-toggle"><input type="checkbox" id="propTimestamp"><span>timestamp</span></label>
@@ -260,233 +243,317 @@
               </div>
             </div>
           </div>
-
           <!-- Preview -->
           <div class="output-preview">
-            <label>Preview:</label>
+            <label class="filter-label">Preview:</label>
             <div class="preview-box" id="outputPreview">
               [log] Cache saved {"key":"..."} {file.ts:42}
             </div>
           </div>
         </div>
+      </details>
 
-        <!-- Tab: License -->
-        <div class="settings-page" id="tabLicense">
-          <!-- Account Section -->
-          <div class="account-section" id="accountSection">
-            <!-- Not signed in (anonymous) -->
-            <div class="account-anonymous" id="accountAnonymous">
-              <div class="account-header">
-                <span class="account-icon">👤</span>
-                <div class="account-info">
-                  <span class="account-title">Guest Mode</span>
-                  <span class="account-desc">Sign in to sync across devices</span>
-                </div>
+      <!-- ========== #4 RECORDINGS ACCORDION ========== -->
+      <details class="accordion" id="accordionRecordings" open>
+        <summary class="accordion-header">
+          <div class="accordion-title">
+            <svg class="accordion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="3" y1="9" x2="21" y2="9"></line>
+              <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            <span>Recordings</span>
+          </div>
+          <span class="accordion-badge recordings-count" id="recordingsCount">0</span>
+        </summary>
+        <div class="accordion-content">
+          <div class="recordings-list" id="recordingsList">
+            <div class="empty-state">No recordings yet</div>
+          </div>
+        </div>
+      </details>
+
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+      <button class="footer-preferences" id="btnPreferences">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>Preferences</span>
+      </button>
+      <div class="footer-links">
+        <a href="https://browserconsoleai.com/docs" target="_blank">Docs</a>
+        <a href="https://browserconsoleai.com/pricing" target="_blank">Pricing</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========== ACCOUNT MODAL ========== -->
+  <div class="modal-overlay hidden" id="accountModalOverlay">
+    <div class="modal account-modal" id="accountModal">
+      <div class="modal-header">
+        <span class="modal-title">Account</span>
+        <button class="modal-close" id="btnCloseAccountModal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Account Section -->
+        <div class="account-section" id="accountSection">
+          <!-- Anonymous State -->
+          <div class="account-anonymous" id="accountAnonymous">
+            <div class="account-header">
+              <span class="account-icon">👤</span>
+              <div class="account-info">
+                <span class="account-title">Guest Mode</span>
+                <span class="account-desc">Sign in to sync across devices</span>
               </div>
-              <button class="btn-google-signin" id="btnGoogleSignIn">
-                <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Sign in with Google
-              </button>
             </div>
-
-            <!-- Signed in -->
-            <div class="account-signed-in hidden" id="accountSignedIn">
-              <div class="account-header">
-                <img class="account-avatar" id="accountAvatar" src="" alt="">
-                <div class="account-info">
-                  <span class="account-name" id="accountName">User</span>
-                  <span class="account-email-display" id="accountEmailDisplay">email@example.com</span>
-                </div>
+            <button class="btn-google-signin" id="btnGoogleSignIn">
+              <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+          <!-- Signed In State -->
+          <div class="account-signed-in hidden" id="accountSignedIn">
+            <div class="account-header">
+              <img class="account-avatar" id="accountAvatar" src="" alt="">
+              <div class="account-info">
+                <span class="account-name" id="accountName">User</span>
+                <span class="account-email" id="accountEmail">email@example.com</span>
               </div>
-              <button class="btn-sign-out" id="btnSignOut">Sign Out</button>
+            </div>
+            <button class="btn-sign-out" id="btnSignOut">Sign Out</button>
+          </div>
+        </div>
+
+        <div class="modal-divider"></div>
+
+        <!-- Plan Info -->
+        <div class="plan-info-section">
+          <div class="plan-info-row">
+            <span class="plan-info-label">Plan</span>
+            <span class="plan-info-value" id="planInfoValue">FREE</span>
+          </div>
+          <div class="plan-info-row">
+            <span class="plan-info-label">Logs this recording</span>
+            <span class="plan-info-value" id="logsQuotaValue">0 / 100</span>
+          </div>
+          <div class="plan-info-row">
+            <span class="plan-info-label">Recordings this session</span>
+            <span class="plan-info-value" id="recordingsQuotaValue">0 / 5</span>
+          </div>
+        </div>
+
+        <div class="modal-divider"></div>
+
+        <!-- Trial Section (for FREE users) -->
+        <div class="trial-section" id="trialSection">
+          <div class="trial-promo">
+            <span class="trial-icon">⚡</span>
+            <div class="trial-promo-text">
+              <span class="trial-promo-title">Start Free Trial</span>
+              <span class="trial-promo-desc">Get 3 days of PRO features</span>
             </div>
           </div>
+          <button class="btn-start-trial" id="btnStartTrial">Start Trial</button>
+          <div class="trial-error hidden" id="trialError">Error message</div>
+        </div>
 
-          <div class="license-info">
-            <div class="license-plan">
-              <span class="license-plan-label">Current Plan:</span>
-              <span class="license-plan-value" id="licensePlanValue">FREE</span>
-            </div>
-            <div class="license-email hidden" id="licenseEmailRow">
-              <span class="license-email-label">Email:</span>
-              <span class="license-email-value" id="licenseEmailValue">-</span>
-            </div>
-            <div class="license-expires hidden" id="licenseExpiresRow">
-              <span class="license-expires-label">Expires:</span>
-              <span class="license-expires-value" id="licenseExpiresValue">-</span>
-            </div>
+        <!-- Trial Active Section -->
+        <div class="trial-active-section hidden" id="trialActiveSection">
+          <div class="trial-active-badge">
+            <span class="trial-active-icon">⚡</span>
+            <span class="trial-active-label">TRIAL</span>
+            <span class="trial-active-days"><span id="trialDaysRemaining">-</span> days left</span>
           </div>
-
-          <div class="license-limits">
-            <div class="limit-row">
-              <span class="limit-label">Logs per recording:</span>
-              <span class="limit-value" id="limitLogs">0 / 100</span>
-            </div>
-            <div class="limit-row">
-              <span class="limit-label">Recordings this session:</span>
-              <span class="limit-value" id="limitRecordings">0 / 5</span>
-            </div>
-          </div>
-
-          <!-- Trial Activation Section -->
-          <div class="trial-section" id="trialSection">
-            <div class="trial-promo">
-              <span class="trial-badge">FREE</span>
-              <span class="trial-text">Try PRO features for 3 days</span>
-            </div>
-            <button class="btn-start-trial" id="btnStartTrial">Start Free Trial</button>
-            <div class="trial-info">No credit card required</div>
-            <div class="trial-error hidden" id="trialError">Error message</div>
-          </div>
-
-          <!-- Trial Active Banner -->
-          <div class="trial-active-section hidden" id="trialActiveSection">
-            <div class="trial-active-badge">
-              <span class="trial-icon">⚡</span>
-              <span class="trial-label">TRIAL</span>
-            </div>
-            <div class="trial-expiry">
-              <span id="trialDaysRemaining">-</span> days remaining
-            </div>
-          </div>
-
-          <!-- Extend Trial Section (shown during active non-extended trial) -->
-          <div class="extend-trial-section hidden" id="extendTrialSection">
+          <!-- Extend Trial -->
+          <div class="extend-trial-section" id="extendTrialSection">
             <div class="extend-trial-promo">
               <span class="extend-badge">🎁</span>
               <span class="extend-text">Get 3 MORE days FREE!</span>
             </div>
-
-            <!-- Email input state -->
+            <!-- Email Form -->
             <div class="extend-email-form" id="extendEmailForm">
               <div class="extend-input-row">
                 <input type="email" id="extendEmail" placeholder="your@email.com" class="extend-email-input">
-                <button class="btn-send-link" id="btnSendMagicLink">Send Link</button>
+                <button class="btn-send-link" id="btnSendMagicLink">Send</button>
               </div>
-              <div class="extend-info">We'll email you a magic link</div>
               <div class="extend-error hidden" id="extendError">Error message</div>
             </div>
-
-            <!-- Sending state -->
+            <!-- Sending State -->
             <div class="extend-sending hidden" id="extendSending">
               <div class="extend-spinner"></div>
-              <div class="extend-info">Sending magic link...</div>
+              <span>Sending...</span>
             </div>
-
-            <!-- Sent state -->
+            <!-- Sent State -->
             <div class="extend-sent hidden" id="extendSent">
-              <div class="extend-sent-icon">✉️</div>
-              <div class="extend-sent-title">Check your email!</div>
-              <div class="extend-sent-text">Click the magic link, then enter the code shown:</div>
-
-              <!-- Code input -->
-              <div class="code-input-section" id="codeInputSection">
-                <div class="code-input-row">
-                  <input type="text" id="confirmCode" placeholder="ABC123" class="confirm-code-input" maxlength="6" autocomplete="off" spellcheck="false">
-                  <button class="btn-confirm-code" id="btnConfirmCode">Confirm</button>
-                </div>
-                <div class="code-error hidden" id="codeError">Invalid code</div>
-                <div class="code-confirming hidden" id="codeConfirming">
-                  <span class="code-spinner"></span>
-                  Verifying...
-                </div>
+              <div class="extend-sent-header">
+                <span class="extend-sent-icon">✉️</span>
+                <span>Check your email!</span>
               </div>
-
-              <div class="extend-sent-actions">
-                <button class="btn-resend-link" id="btnResendLink">Resend link</button>
+              <div class="code-input-row">
+                <input type="text" id="confirmCode" placeholder="ABC123" class="confirm-code-input" maxlength="6">
+                <button class="btn-confirm-code" id="btnConfirmCode">Confirm</button>
               </div>
+              <div class="code-error hidden" id="codeError">Invalid code</div>
+              <button class="btn-resend-link" id="btnResendLink">Resend link</button>
             </div>
           </div>
-
-          <div class="license-token-section" id="tokenInputSection">
-            <label for="licenseToken">Activate PRO License:</label>
-            <div class="token-input-row">
-              <input type="text" id="licenseToken" placeholder="Paste your license token">
-              <button class="btn-activate" id="btnActivate">Activate</button>
-            </div>
-            <div class="token-error hidden" id="tokenError">Invalid or expired token</div>
-          </div>
-
-          <div class="license-actions hidden" id="licenseActions">
-            <button class="btn-remove-license" id="btnRemoveLicense">Remove License</button>
-          </div>
-
-          <a href="https://browserconsoleai.com/pricing" target="_blank" class="license-upgrade-link" id="upgradeLink">
-            Get PRO for unlimited logs & recordings
-          </a>
         </div>
 
-        <!-- Tab: Privacy -->
-        <div class="settings-page" id="tabPrivacy">
-          <div class="privacy-header">
-            <h3 class="privacy-title">Privacy & Data</h3>
-            <p class="privacy-subtitle">Control how your data is collected and used</p>
+        <!-- Token Input (for advanced users) -->
+        <div class="token-section hidden" id="tokenSection">
+          <div class="token-input-row">
+            <input type="text" id="licenseToken" placeholder="Paste license token" class="token-input">
+            <button class="btn-activate" id="btnActivate">Activate</button>
           </div>
-
-          <div class="privacy-section">
-            <div class="privacy-toggle-row">
-              <div class="privacy-toggle-info">
-                <span class="privacy-toggle-label">Anonymous Usage Analytics</span>
-                <span class="privacy-toggle-desc">Help us improve Browser Console AI</span>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="analyticsConsent" checked>
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <div class="privacy-info-box">
-            <div class="privacy-info-title">What we collect:</div>
-            <ul class="privacy-info-list">
-              <li>Extension usage (recordings count, feature usage)</li>
-              <li>Device info (OS, browser version)</li>
-              <li>Error reports to fix bugs</li>
-            </ul>
-          </div>
-
-          <div class="privacy-info-box privacy-info-positive">
-            <div class="privacy-info-title">What we DON'T collect:</div>
-            <ul class="privacy-info-list">
-              <li>Content of your console logs</li>
-              <li>Website URLs you visit</li>
-              <li>Personal data or browsing history</li>
-            </ul>
-          </div>
-
-          <div class="privacy-note">
-            <p>Essential data (license verification, critical errors) is always collected to ensure the extension works properly.</p>
-          </div>
-
-          <a href="https://browserconsoleai.com/en/privacy" target="_blank" class="privacy-policy-link">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Read our Privacy Policy
-          </a>
+          <div class="token-error hidden" id="tokenError">Invalid token</div>
         </div>
+
+        <div class="modal-divider"></div>
+
+        <!-- Upgrade CTA -->
+        <a href="https://browserconsoleai.com/pricing" target="_blank" class="btn-upgrade" id="btnUpgrade">
+          <span>Upgrade to PRO</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
       </div>
-    </details>
-
-    <!-- Recordings History -->
-    <details class="recordings-section" open>
-      <summary>Recordings</summary>
-      <div class="recordings-content">
-        <div class="recordings-list" id="recordingsList">
-          <div class="empty-state">No recordings yet</div>
-        </div>
-      </div>
-    </details>
+    </div>
   </div>
 
-  <!-- Confirmation Dialog -->
+  <!-- ========== LOGS SIDEBAR MODAL ========== -->
+  <div class="sidebar-overlay hidden" id="logsModalOverlay">
+    <div class="sidebar-modal" id="logsModal">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Recording Logs</span>
+        <div class="sidebar-actions">
+          <button class="sidebar-btn" id="btnCopyAllLogs" title="Copy all logs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+          <button class="sidebar-btn" id="btnDownloadLogs" title="Download logs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+          <button class="sidebar-btn sidebar-close" id="btnCloseLogsModal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Stats in sidebar -->
+      <div class="sidebar-stats">
+        <div class="stat-mini"><span id="sidebarStatTotal">0</span> TOTAL</div>
+        <div class="stat-mini stat-log"><span id="sidebarStatLog">0</span> LOG</div>
+        <div class="stat-mini stat-info"><span id="sidebarStatInfo">0</span> INFO</div>
+        <div class="stat-mini stat-warn"><span id="sidebarStatWarn">0</span> WARN</div>
+        <div class="stat-mini stat-error"><span id="sidebarStatError">0</span> ERR</div>
+        <div class="stat-mini stat-debug"><span id="sidebarStatDebug">0</span> DBG</div>
+      </div>
+      <!-- Search -->
+      <div class="sidebar-search">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="logsSearchInput" placeholder="Search logs..." class="search-input">
+      </div>
+      <!-- Filters -->
+      <div class="sidebar-filters">
+        <label class="filter-chip active" data-type="log">
+          <input type="checkbox" checked>
+          <span>LOG</span>
+        </label>
+        <label class="filter-chip active" data-type="info">
+          <input type="checkbox" checked>
+          <span>INFO</span>
+        </label>
+        <label class="filter-chip active" data-type="warn">
+          <input type="checkbox" checked>
+          <span>WARN</span>
+        </label>
+        <label class="filter-chip active" data-type="error">
+          <input type="checkbox" checked>
+          <span>ERR</span>
+        </label>
+        <label class="filter-chip active" data-type="debug">
+          <input type="checkbox" checked>
+          <span>DBG</span>
+        </label>
+      </div>
+      <!-- Logs List -->
+      <div class="sidebar-logs" id="sidebarLogs">
+        <div class="sidebar-logs-empty">No logs captured yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PREFERENCES PANEL (Slide-up) ========== -->
+  <div class="preferences-panel hidden" id="preferencesPanel">
+    <div class="preferences-header">
+      <span class="preferences-title">Preferences</span>
+      <button class="preferences-close" id="btnClosePreferences">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="preferences-content">
+      <div class="privacy-section">
+        <div class="privacy-toggle-row">
+          <div class="privacy-toggle-info">
+            <span class="privacy-toggle-label">Anonymous usage analytics</span>
+            <span class="privacy-toggle-desc">Helps improve Browser Console AI (no log content)</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="analyticsConsent" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="privacy-info-box">
+        <div class="privacy-info-title">We NEVER collect:</div>
+        <ul class="privacy-info-list">
+          <li>✓ Console log content</li>
+          <li>✓ Browsing history</li>
+          <li>✓ Personal data</li>
+        </ul>
+      </div>
+      <a href="https://browserconsoleai.com/en/privacy" target="_blank" class="privacy-policy-link">
+        Read Privacy Policy
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ========== CONFIRMATION DIALOG ========== -->
   <div class="dialog-overlay hidden" id="dialogOverlay">
     <div class="dialog">
       <div class="dialog-title">Delete Recording?</div>
@@ -496,6 +563,12 @@
         <button class="dialog-btn dialog-btn-confirm" id="dialogConfirm">Delete</button>
       </div>
     </div>
+  </div>
+
+  <!-- ========== MCP TOOLTIP ========== -->
+  <div class="mcp-tooltip hidden" id="mcpTooltip">
+    <span class="mcp-tooltip-status" id="mcpTooltipStatus">Offline</span>
+    <span class="mcp-tooltip-text" id="mcpTooltipText">MCP server not running</span>
   </div>
 
   <!-- Firebase SDK (local copy for MV3 CSP compliance) -->

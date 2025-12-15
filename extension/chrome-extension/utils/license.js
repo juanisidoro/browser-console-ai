@@ -435,7 +435,9 @@ async function clearEntitlementsCache() {
 }
 
 // Fetch entitlements from server
-async function fetchEntitlements(forceRefresh = false) {
+// @param forceRefresh - Skip cache and fetch fresh data
+// @param firebaseIdToken - Firebase ID token for authenticated users
+async function fetchEntitlements(forceRefresh = false, firebaseIdToken = null) {
   // Check cache first unless force refresh
   if (!forceRefresh) {
     const cached = await getCachedEntitlements();
@@ -451,12 +453,10 @@ async function fetchEntitlements(forceRefresh = false) {
     const url = new URL(`${API_BASE_URL}/api/entitlements`);
     url.searchParams.set('installationId', installationId);
 
-    // Add auth token if available (for future Firebase integration)
+    // Add auth token if available
     const headers = { 'Content-Type': 'application/json' };
-    const licenseResult = await chrome.storage.local.get(LICENSE_STORAGE_KEY);
-    if (licenseResult[LICENSE_STORAGE_KEY]) {
-      // Note: Currently using JWT, will switch to Firebase ID token later
-      // headers['Authorization'] = `Bearer ${firebaseIdToken}`;
+    if (firebaseIdToken) {
+      headers['Authorization'] = `Bearer ${firebaseIdToken}`;
     }
 
     const response = await fetch(url.toString(), { headers });

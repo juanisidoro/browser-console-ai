@@ -90,6 +90,23 @@ export function ExtensionToken({
         </div>
       ) : token ? (
         <>
+          {/* Auto-sync notice */}
+          <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-2">
+            <Check className="w-4 h-4 text-green-500" />
+            <div>
+              <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                {locale === 'en'
+                  ? 'Auto-sync enabled'
+                  : 'Sincronización automática activada'}
+              </p>
+              <p className="text-xs text-green-600/80 dark:text-green-400/80">
+                {locale === 'en'
+                  ? 'Sign in with Google in the extension to auto-sync your Pro license.'
+                  : 'Inicia sesión con Google en la extensión para sincronizar automáticamente tu licencia Pro.'}
+              </p>
+            </div>
+          </div>
+
           {isExpiringSoon && (
             <div className="mb-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-yellow-500" />
@@ -101,65 +118,74 @@ export function ExtensionToken({
             </div>
           )}
 
-          <div className="mb-4">
-            <div className="relative">
-              <div className="p-3 rounded-lg bg-muted font-mono text-xs break-all">
-                {isVisible ? token : '•'.repeat(Math.min(token.length, 60))}
+          {/* Manual copy section (collapsible/secondary) */}
+          <details className="group">
+            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground flex items-center gap-2 mb-3">
+              <span>{locale === 'en' ? 'Manual token (advanced)' : 'Token manual (avanzado)'}</span>
+              <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <div className="mb-4">
+              <div className="relative">
+                <div className="p-3 rounded-lg bg-muted font-mono text-xs break-all">
+                  {isVisible ? token : '•'.repeat(Math.min(token.length, 60))}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-1 right-1"
+                  onClick={() => setIsVisible(!isVisible)}
+                >
+                  {isVisible ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-1 right-1"
-                onClick={() => setIsVisible(!isVisible)}
-              >
-                {isVisible ? (
-                  <EyeOff className="w-4 h-4" />
+
+              {expiresAt && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  {locale === 'en' ? 'Expires: ' : 'Expira: '}
+                  {formatDate(expiresAt)}
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <Button variant="outline" size="sm" onClick={handleCopy}>
+                {isCopied ? (
+                  <>
+                    <Check className="w-4 h-4 mr-2 text-green-500" />
+                    {locale === 'en' ? 'Copied!' : '¡Copiado!'}
+                  </>
                 ) : (
-                  <Eye className="w-4 h-4" />
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    {locale === 'en' ? 'Copy Token' : 'Copiar Token'}
+                  </>
                 )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRotate}
+                disabled={isRotating}
+              >
+                <RefreshCw
+                  className={`w-4 h-4 mr-2 ${isRotating ? 'animate-spin' : ''}`}
+                />
+                {locale === 'en' ? 'Rotate Token' : 'Rotar Token'}
               </Button>
             </div>
 
-            {expiresAt && (
-              <p className="text-xs text-muted-foreground mt-2">
-                {locale === 'en' ? 'Expires: ' : 'Expira: '}
-                {formatDate(expiresAt)}
-              </p>
-            )}
-          </div>
-
-          <div className="flex gap-3">
-            <Button variant="outline" size="sm" onClick={handleCopy}>
-              {isCopied ? (
-                <>
-                  <Check className="w-4 h-4 mr-2 text-green-500" />
-                  {locale === 'en' ? 'Copied!' : '¡Copiado!'}
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-2" />
-                  {locale === 'en' ? 'Copy Token' : 'Copiar Token'}
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRotate}
-              disabled={isRotating}
-            >
-              <RefreshCw
-                className={`w-4 h-4 mr-2 ${isRotating ? 'animate-spin' : ''}`}
-              />
-              {locale === 'en' ? 'Rotate Token' : 'Rotar Token'}
-            </Button>
-          </div>
-
-          <p className="text-xs text-muted-foreground mt-4">
-            {locale === 'en'
-              ? 'Rotating the token will invalidate the previous one. Use this if you suspect your token has been compromised.'
-              : 'Rotar el token invalidará el anterior. Úsalo si sospechas que tu token ha sido comprometido.'}
-          </p>
+            <p className="text-xs text-muted-foreground mt-4">
+              {locale === 'en'
+                ? 'Only use manual token if auto-sync is not working. Rotating the token will invalidate the previous one.'
+                : 'Solo usa el token manual si la sincronización automática no funciona. Rotar el token invalidará el anterior.'}
+            </p>
+          </details>
         </>
       ) : (
         <div className="p-4 rounded-lg bg-muted/50">

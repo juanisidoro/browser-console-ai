@@ -519,6 +519,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  // Refresh entitlements from backend (with optional Firebase ID token)
+  if (message.action === 'REFRESH_ENTITLEMENTS') {
+    const firebaseIdToken = message.firebaseIdToken || null;
+    self.LicenseManager.fetchEntitlements(true, firebaseIdToken).then(entitlements => {
+      // Also refresh the local license cache based on entitlements
+      currentLicense = null;
+      sendResponse({ success: true, entitlements });
+    }).catch(error => {
+      console.error('[Service Worker] Error refreshing entitlements:', error);
+      sendResponse({ success: false, error: error.message });
+    });
+    return true;
+  }
+
   // Verify license online (on-demand)
   if (message.action === 'VERIFY_LICENSE') {
     self.LicenseManager.getLicenseInfo().then(license => {

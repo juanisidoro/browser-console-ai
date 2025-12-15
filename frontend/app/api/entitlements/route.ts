@@ -36,6 +36,7 @@ interface UserSubscription {
   status: string;
   currentPeriodEnd?: { toMillis?: () => number } | null;
   cancelAtPeriodEnd?: boolean;
+  licenseToken?: string | null; // PRO license token for auto-sync
 }
 
 interface UserData {
@@ -99,6 +100,7 @@ export async function GET(request: NextRequest) {
             canExtendTrial: false,
             requiresAuth: false,
             cancelAtPeriodEnd: subscription.cancelAtPeriodEnd || false,
+            token: subscription.licenseToken || null, // Include token for auto-sync to extension
           });
         }
       }
@@ -108,7 +110,7 @@ export async function GET(request: NextRequest) {
     // PRIORITY 2: Check TRIAL by userId (web trial or extended)
     // ================================================================
     if (userId) {
-      // Check if there's a trial linked to this userId
+      // Check if there's a trial linked to this userId in extension trials
       const userTrialsSnapshot = await db
         .collection('trials')
         .where('userId', '==', userId)
@@ -131,11 +133,41 @@ export async function GET(request: NextRequest) {
             limits: getEntitlements('trial'),
             canExtendTrial: !trialData.extended, // Can extend if not already extended
             requiresAuth: false,
+            token: trialData.token || null, // Include token for auto-sync
           });
         }
       }
 
-      // Check user-level trial (started from web dashboard)
+      // Check web dashboard trials (user_trials collection)
+      const webTrialsSnapshot = await db
+        .collection('user_trials')
+        .where('userId', '==', userId)
+        .limit(1)
+        .get();
+
+      if (!webTrialsSnapshot.empty) {
+        const webTrialDoc = webTrialsSnapshot.docs[0];
+        const webTrialData = webTrialDoc.data();
+
+        if (webTrialData.expiresAt > Date.now()) {
+          const daysRemaining = Math.ceil(
+            (webTrialData.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)
+          );
+
+          return NextResponse.json({
+            plan: 'trial' as Plan,
+            planEndsAt: webTrialData.expiresAt,
+            daysRemaining,
+            limits: getEntitlements('trial'),
+            canExtendTrial: false, // Web trials already have full 6 days
+            requiresAuth: false,
+            token: webTrialData.token || null, // Include token for auto-sync to extension
+            source: 'web_dashboard',
+          });
+        }
+      }
+
+      // Check user-level trial (legacy - embedded in user doc)
       const userDoc = await db.collection('users').doc(userId).get();
       if (userDoc.exists) {
         const userData = userDoc.data() as UserData;
