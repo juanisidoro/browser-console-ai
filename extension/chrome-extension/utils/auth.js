@@ -94,11 +94,12 @@ async function handleAuthStateChange(user) {
 
     if (wasAnonymousOrNoUser && isNowRealUser) {
       console.log('[Auth] Real user logged in, syncing onboarding progress...');
-      // Delay slightly to ensure Analytics is ready
+      // Send message to service worker to sync onboarding
+      // (Analytics is loaded in service worker, not in sidepanel)
       setTimeout(() => {
-        if (typeof Analytics !== 'undefined' && Analytics.syncOnboardingProgress) {
-          Analytics.syncOnboardingProgress();
-        }
+        chrome.runtime.sendMessage({ action: 'SYNC_ONBOARDING_PROGRESS' })
+          .then(() => console.log('[Auth] Onboarding sync triggered'))
+          .catch(e => console.log('[Auth] Could not trigger onboarding sync:', e));
       }, 500);
     }
   } else {

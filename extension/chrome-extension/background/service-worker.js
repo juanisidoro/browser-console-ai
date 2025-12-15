@@ -330,6 +330,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  // Sync onboarding progress (called when user logs in)
+  if (message.action === 'SYNC_ONBOARDING_PROGRESS') {
+    if (self.Analytics && self.Analytics.syncOnboardingProgress) {
+      self.Analytics.syncOnboardingProgress()
+        .then(() => sendResponse({ success: true }))
+        .catch(e => sendResponse({ success: false, error: e.message }));
+    } else {
+      sendResponse({ success: false, error: 'Analytics not available' });
+    }
+    return true;
+  }
+
   // Start recording
   if (message.action === 'START_RECORDING') {
     canCreateRecording().then(check => {
