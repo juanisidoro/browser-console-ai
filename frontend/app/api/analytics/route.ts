@@ -107,6 +107,11 @@ export async function POST(request: NextRequest) {
 
     await db.collection('analytics_events').add(eventToStore);
 
+    // ================================================================
+    // Update user onboarding progress for key events
+    // ================================================================
+    await updateOnboardingProgress(db, event);
+
     // Update daily metrics
     const dailyRef = db.collection('metrics').doc('daily').collection('days').doc(dateStr);
     const dailyDoc = await dailyRef.get();
@@ -328,4 +333,87 @@ function applyIncrements<T extends Record<string, unknown>>(
   }
 
   return result;
+}
+
+// ================================================================
+// Onboarding Progress Tracking
+// ================================================================
+
+// Events that update onboarding progress
+const ONBOARDING_EVENTS = [
+  'extension_installed',
+  'trial_activated',
+  'first_recording',
+  'mcp_connected',
+] as const;
+
+type OnboardingEvent = typeof ONBOARDING_EVENTS[number];
+
+interface OnboardingProgress {
+  extensionInstalled?: boolean;
+  extensionInstalledAt?: number;
+  trialActivated?: boolean;
+  trialActivatedAt?: number;
+  firstRecording?: boolean;
+  firstRecordingAt?: number;
+  mcpConnected?: boolean;
+  mcpConnectedAt?: number;
+}
+
+/**
+ * Update user onboarding progress when key events are received
+ */
+async function updateOnboardingProgress(
+  db: FirebaseFirestore.Firestore,
+  event: { event: string; userId?: string | null; installationId: string; timestamp: number }
+) {
+  // Only process onboarding events
+  if (!ONBOARDING_EVENTS.includes(event.event as OnboardingEvent)) {
+    return;
+  }
+
+  const timestamp = event.timestamp;
+  let updates: OnboardingProgress = {};
+
+  switch (event.event) {
+    case 'extension_installed':
+      updates = { extensionInstalled: true, extensionInstalledAt: timestamp };
+      break;
+    case 'trial_activated':
+      updates = { trialActivated: true, trialActivatedAt: timestamp };
+      break;
+    case 'first_recording':
+      updates = { firstRecording: true, firstRecordingAt: timestamp };
+      break;
+    case 'mcp_connected':
+      updates = { mcpConnected: true, mcpConnectedAt: timestamp };
+      break;
+  }
+
+  // If we have a userId, update the user document directly
+  if (event.userId) {
+    try {
+      await db.collection('users').doc(event.userId).set(
+        { onboarding: updates },
+        { merge: true }
+      );
+      console.log(`[Onboarding] Updated ${event.event} for user ${event.userId}`);
+    } catch (e) {
+      console.error(`[Onboarding] Failed to update user ${event.userId}:`, e);
+    }
+  }
+
+  // Also store by installationId for users who aren't logged in yet
+  // This will be migrated to user account when they sign in
+  if (event.installationId && event.installationId !== 'web') {
+    try {
+      await db.collection('onboarding_progress').doc(event.installationId).set(
+        updates,
+        { merge: true }
+      );
+      console.log(`[Onboarding] Updated ${event.event} for installation ${event.installationId}`);
+    } catch (e) {
+      console.error(`[Onboarding] Failed to update installation ${event.installationId}:`, e);
+    }
+  }
 }

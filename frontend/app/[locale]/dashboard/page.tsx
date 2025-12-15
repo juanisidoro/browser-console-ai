@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { useAuth } from '@/features/auth';
-import { useDashboard, SubscriptionCard, ExtensionToken, OnboardingSteps } from '@/features/dashboard';
+import { useDashboard, SubscriptionCard, OnboardingSteps } from '@/features/dashboard';
 import { useI18n } from '@/lib/i18n-context';
 import { Loader2, Settings } from 'lucide-react';
 import Link from 'next/link';
@@ -91,11 +91,10 @@ export default function DashboardPage() {
               {/* Onboarding Steps - Show for free/trial users */}
               {(!subscription?.status || subscription?.status === 'free' || subscription?.status === 'trial') && (
                 <OnboardingSteps
-                  hasExtension={onboarding.hasExtension}
-                  hasTrial={onboarding.hasTrial}
-                  hasToken={onboarding.hasToken}
-                  hasFirstRecording={onboarding.hasFirstRecording}
-                  token={license?.token}
+                  extensionInstalled={onboarding.extensionInstalled}
+                  trialActivated={onboarding.trialActivated}
+                  firstRecording={onboarding.firstRecording}
+                  mcpConnected={onboarding.mcpConnected}
                   trialDaysRemaining={trial?.daysRemaining}
                   canActivateTrial={trial?.canActivate ?? true}
                   onActivateTrial={activateTrial}
@@ -104,24 +103,13 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* Two-column layout for subscription and token */}
-              <div className="grid lg:grid-cols-2 gap-6">
-                {/* Subscription Card */}
-                <SubscriptionCard
-                  status={subscription?.status || 'free'}
-                  currentPeriodEnd={subscription?.currentPeriodEnd}
-                  cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd}
-                  onManageBilling={openBillingPortal}
-                />
-
-                {/* Extension Token */}
-                <ExtensionToken
-                  token={license?.token || null}
-                  plan={license?.plan || subscription?.status || 'free'}
-                  expiresAt={license?.expiresAt || null}
-                  onRotate={rotateToken}
-                />
-              </div>
+              {/* Subscription Card */}
+              <SubscriptionCard
+                status={subscription?.status || 'free'}
+                currentPeriodEnd={subscription?.currentPeriodEnd}
+                cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd}
+                onManageBilling={openBillingPortal}
+              />
 
               {/* Quick Links */}
               <div className="rounded-xl border bg-card p-6">

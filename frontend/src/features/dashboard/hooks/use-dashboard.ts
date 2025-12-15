@@ -31,10 +31,10 @@ interface TrialStatus {
 }
 
 interface OnboardingProgress {
-  hasExtension: boolean;
-  hasTrial: boolean;
-  hasToken: boolean;
-  hasFirstRecording: boolean;
+  extensionInstalled: boolean;
+  trialActivated: boolean;
+  firstRecording: boolean;
+  mcpConnected: boolean;
 }
 
 interface DashboardData {
@@ -53,10 +53,10 @@ export function useDashboard() {
     license: null,
     trial: null,
     onboarding: {
-      hasExtension: false,
-      hasTrial: false,
-      hasToken: false,
-      hasFirstRecording: false,
+      extensionInstalled: false,
+      trialActivated: false,
+      firstRecording: false,
+      mcpConnected: false,
     },
     isLoading: true,
     error: null,
@@ -103,14 +103,23 @@ export function useDashboard() {
         trialData = await trialRes.json();
       }
 
-      // Determine onboarding progress
+      // Get subscription and onboarding from session
       const subscription = sessionData.subscription;
       const isPro = subscription?.status === 'pro' || subscription?.status === 'pro_early';
       const hasTrial = trialData?.isValid || subscription?.status === 'trial';
-      const hasToken = !!licenseData?.token || !!trialData?.token;
 
-      // Check user's first recording from Firestore data (if available in session)
-      const hasFirstRecording = sessionData.user?.hasFirstRecording || false;
+      // Use onboarding progress from session (tracked via analytics events)
+      const onboarding = sessionData.onboarding || {
+        extensionInstalled: false,
+        trialActivated: false,
+        firstRecording: false,
+        mcpConnected: false,
+      };
+
+      // Ensure trialActivated is true if user has active trial/pro
+      if (hasTrial || isPro) {
+        onboarding.trialActivated = true;
+      }
 
       setData({
         subscription: {
@@ -123,12 +132,7 @@ export function useDashboard() {
           expiresAt: trialData.expiresAt,
         } : null),
         trial: trialData,
-        onboarding: {
-          hasExtension: false, // Will be updated if extension communicates
-          hasTrial: hasTrial || isPro,
-          hasToken: hasToken,
-          hasFirstRecording: hasFirstRecording,
-        },
+        onboarding,
         isLoading: false,
         error: null,
       });

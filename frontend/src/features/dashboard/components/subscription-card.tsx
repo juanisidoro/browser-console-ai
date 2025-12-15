@@ -14,7 +14,7 @@ import { Crown, Sparkles, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
 interface SubscriptionCardProps {
-  status: 'free' | 'pro' | 'pro_early' | 'canceled';
+  status: 'free' | 'trial' | 'pro' | 'pro_early' | 'canceled';
   currentPeriodEnd?: string;
   cancelAtPeriodEnd?: boolean;
   onManageBilling: () => void;
@@ -33,6 +33,7 @@ export function SubscriptionCard({
 
   const statusLabels: Record<string, string> = {
     free: locale === 'en' ? 'Free Plan' : 'Plan Gratuito',
+    trial: locale === 'en' ? 'Trial' : 'Prueba',
     pro: locale === 'en' ? 'Pro Plan' : 'Plan Pro',
     pro_early: locale === 'en' ? 'Pro (Early Access)' : 'Pro (Acceso Anticipado)',
     canceled: locale === 'en' ? 'Canceled' : 'Cancelado',

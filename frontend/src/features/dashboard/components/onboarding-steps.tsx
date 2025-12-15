@@ -4,21 +4,23 @@
  * Onboarding Steps Component
  *
  * Visual step-by-step guide for new users to get started.
+ * Steps: Install Extension → Activate Trial → First Recording → Connect MCP
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Download,
   Sparkles,
-  Key,
   Rocket,
+  Plug,
   Check,
   ChevronRight,
+  ChevronDown,
   ExternalLink,
-  Copy,
   CheckCircle2,
-  Loader2
+  Loader2,
+  PartyPopper
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,11 +39,10 @@ interface OnboardingStep {
 }
 
 interface OnboardingStepsProps {
-  hasExtension?: boolean;
-  hasTrial?: boolean;
-  hasToken?: boolean;
-  hasFirstRecording?: boolean;
-  token?: string | null;
+  extensionInstalled?: boolean;
+  trialActivated?: boolean;
+  firstRecording?: boolean;
+  mcpConnected?: boolean;
   trialDaysRemaining?: number;
   canActivateTrial?: boolean;
   onActivateTrial?: () => Promise<{ success: boolean; error?: string }>;
@@ -50,27 +51,18 @@ interface OnboardingStepsProps {
 }
 
 export function OnboardingSteps({
-  hasExtension = false,
-  hasTrial = false,
-  hasToken = false,
-  hasFirstRecording = false,
-  token,
+  extensionInstalled = false,
+  trialActivated = false,
+  firstRecording = false,
+  mcpConnected = false,
   trialDaysRemaining,
   canActivateTrial = true,
   onActivateTrial,
   activatingTrial = false,
   locale
 }: OnboardingStepsProps) {
-  const [copiedToken, setCopiedToken] = useState(false);
   const [trialError, setTrialError] = useState<string | null>(null);
-
-  const copyToken = () => {
-    if (token) {
-      navigator.clipboard.writeText(token);
-      setCopiedToken(true);
-      setTimeout(() => setCopiedToken(false), 2000);
-    }
-  };
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleActivateTrial = async () => {
     if (!onActivateTrial) return;
@@ -91,16 +83,16 @@ export function OnboardingSteps({
         ? 'Download Browser Console AI from the Chrome Web Store'
         : 'Descarga Browser Console AI desde Chrome Web Store',
       icon: <Download className="w-6 h-6" />,
-      action: {
+      action: !extensionInstalled ? {
         label: isEn ? 'Get Extension' : 'Obtener Extensión',
         href: 'https://chrome.google.com/webstore',
-      },
-      completed: hasExtension,
+      } : undefined,
+      completed: extensionInstalled,
     },
     {
       id: 2,
       title: isEn ? 'Activate 6-Day Trial' : 'Activar Prueba de 6 Días',
-      description: hasTrial
+      description: trialActivated
         ? (isEn
           ? `Trial active! ${trialDaysRemaining || 0} days remaining`
           : `¡Prueba activa! ${trialDaysRemaining || 0} días restantes`)
@@ -108,44 +100,77 @@ export function OnboardingSteps({
           ? 'Start your free trial to unlock PRO features'
           : 'Inicia tu prueba gratuita para desbloquear funciones PRO'),
       icon: <Sparkles className="w-6 h-6" />,
-      action: !hasTrial && canActivateTrial && onActivateTrial ? {
+      action: !trialActivated && canActivateTrial && onActivateTrial ? {
         label: activatingTrial
           ? (isEn ? 'Activating...' : 'Activando...')
           : (isEn ? 'Activate Trial' : 'Activar Prueba'),
         onClick: handleActivateTrial,
         loading: activatingTrial,
       } : undefined,
-      completed: hasTrial,
+      completed: trialActivated,
     },
     {
       id: 3,
-      title: isEn ? 'Enter Token in Extension' : 'Ingresar Token en Extensión',
-      description: isEn
-        ? 'Copy your license token and paste it in the extension settings'
-        : 'Copia tu token de licencia y pégalo en los ajustes de la extensión',
-      icon: <Key className="w-6 h-6" />,
-      action: token ? {
-        label: copiedToken
-          ? (isEn ? 'Copied!' : '¡Copiado!')
-          : (isEn ? 'Copy Token' : 'Copiar Token'),
-        onClick: copyToken,
-      } : undefined,
-      completed: hasToken,
-    },
-    {
-      id: 4,
       title: isEn ? 'Make Your First Recording' : 'Hacer tu Primera Grabación',
       description: isEn
         ? 'Open a webpage, start recording and capture console logs'
         : 'Abre una web, inicia grabación y captura los logs de consola',
       icon: <Rocket className="w-6 h-6" />,
-      completed: hasFirstRecording,
+      completed: firstRecording,
+    },
+    {
+      id: 4,
+      title: isEn ? 'Connect MCP to Claude' : 'Conectar MCP a Claude',
+      description: isEn
+        ? 'Link your MCP server to Claude Code or Claude Desktop'
+        : 'Conecta tu servidor MCP a Claude Code o Claude Desktop',
+      icon: <Plug className="w-6 h-6" />,
+      action: !mcpConnected ? {
+        label: isEn ? 'View Guide' : 'Ver Guía',
+        href: `/${locale}/docs#mcp-setup`,
+      } : undefined,
+      completed: mcpConnected,
     },
   ];
 
   // Calculate progress
   const completedSteps = steps.filter(s => s.completed).length;
   const progressPercent = (completedSteps / steps.length) * 100;
+  const isComplete = completedSteps === steps.length;
+
+  // Auto-collapse when complete
+  const showCollapsed = isComplete && isCollapsed;
+
+  // Collapsed view for completed onboarding
+  if (showCollapsed) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="rounded-xl border bg-card overflow-hidden"
+      >
+        <button
+          onClick={() => setIsCollapsed(false)}
+          className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+              <PartyPopper className="w-5 h-5 text-white" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-semibold text-green-600 dark:text-green-400">
+                {isEn ? 'Getting Started Complete!' : '¡Primeros Pasos Completados!'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {isEn ? 'All 4 steps done' : 'Los 4 pasos completados'}
+              </p>
+            </div>
+          </div>
+          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+        </button>
+      </motion.div>
+    );
+  }
 
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
@@ -222,10 +247,10 @@ export function OnboardingSteps({
                 {step.description}
               </p>
 
-              {/* Token display for step 3 */}
-              {step.id === 3 && token && !step.completed && (
-                <div className="mt-3 p-3 bg-muted rounded-lg font-mono text-xs break-all">
-                  {token.slice(0, 50)}...
+              {/* Trial error message */}
+              {step.id === 2 && trialError && (
+                <div className="text-xs text-destructive mt-2">
+                  {trialError}
                 </div>
               )}
             </div>
@@ -248,29 +273,18 @@ export function OnboardingSteps({
                   disabled={step.action.loading}
                   className={cn(
                     "flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                    copiedToken && step.id === 3
-                      ? "bg-green-500 text-white"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90",
+                    "bg-primary text-primary-foreground hover:bg-primary/90",
                     step.action.loading && "opacity-70 cursor-not-allowed"
                   )}
                 >
                   {step.action.loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : step.id === 3 ? (
-                    copiedToken ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />
                   ) : step.id === 2 ? (
                     <Sparkles className="w-4 h-4" />
                   ) : null}
                   {step.action.label}
                 </button>
               )
-            )}
-
-            {/* Trial error message */}
-            {step.id === 2 && trialError && (
-              <div className="text-xs text-destructive mt-2">
-                {trialError}
-              </div>
             )}
 
             {/* Completed checkmark */}
@@ -283,30 +297,41 @@ export function OnboardingSteps({
         ))}
       </div>
 
-      {/* Completion message */}
-      {completedSteps === steps.length && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-6 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-t border-green-500/20"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-              <Rocket className="w-5 h-5 text-white" />
+      {/* Completion message with collapse button */}
+      <AnimatePresence>
+        {isComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-6 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-t border-green-500/20"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                  <PartyPopper className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-green-600 dark:text-green-400">
+                    {isEn ? "You're all set!" : '¡Todo listo!'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {isEn
+                      ? 'Start debugging with your AI agents.'
+                      : 'Comienza a depurar con tus agentes IA.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsCollapsed(true)}
+                className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                {isEn ? 'Collapse' : 'Colapsar'}
+              </button>
             </div>
-            <div>
-              <h3 className="font-semibold text-green-600 dark:text-green-400">
-                {isEn ? "You're all set!" : '¡Todo listo!'}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {isEn
-                  ? 'Start recording console logs and send them to your AI agents.'
-                  : 'Comienza a grabar logs de consola y envíalos a tus agentes IA.'}
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

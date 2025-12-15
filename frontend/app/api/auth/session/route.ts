@@ -39,6 +39,20 @@ export async function GET(request: NextRequest) {
 
     const userData = userDoc.data();
 
+    // Get onboarding progress with defaults
+    const onboarding = {
+      extensionInstalled: userData?.onboarding?.extensionInstalled || false,
+      trialActivated: userData?.onboarding?.trialActivated || false,
+      firstRecording: userData?.onboarding?.firstRecording || false,
+      mcpConnected: userData?.onboarding?.mcpConnected || false,
+    };
+
+    // Also check if user has active trial/pro (counts as trial activated)
+    const subscription = userData?.subscription;
+    if (subscription?.status && ['trial', 'pro', 'pro_early'].includes(subscription.status)) {
+      onboarding.trialActivated = true;
+    }
+
     return NextResponse.json({
       user: {
         id: uid,
@@ -46,7 +60,8 @@ export async function GET(request: NextRequest) {
         displayName: userData?.displayName,
         photoURL: userData?.photoURL,
       },
-      subscription: userData?.subscription || { status: 'free' },
+      subscription: subscription || { status: 'free' },
+      onboarding,
     });
   } catch (error) {
     console.error('Error in /api/auth/session:', error);
